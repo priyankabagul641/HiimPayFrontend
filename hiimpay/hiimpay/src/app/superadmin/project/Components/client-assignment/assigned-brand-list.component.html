@@ -38,7 +38,14 @@
         <div class="col">{{ item.coupons?.length }}</div>
         <div class="col">{{ item.employees?.length }}</div>
         <div class="col">
-          <button class="btn btn-sm action-btn" (click)="openDetails(item, 'coupon')">View Details</button>
+          <button
+            type="button"
+            class="btn btn-sm action-btn icon-action-btn"
+            (click)="downloadAssignmentReport(item, 'coupon')"
+            aria-label="Download coupon assignment report"
+            title="Download report">
+            <i class="fa fa-download" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -60,7 +67,14 @@
         <div class="col">{{ item.employees?.length }}</div>
         <div class="col">{{ item.fileName }}</div>
         <div class="col">
-          <button class="btn btn-sm action-btn" (click)="openDetails(item, 'amount')">View Details</button>
+          <button
+            type="button"
+            class="btn btn-sm action-btn icon-action-btn"
+            (click)="downloadAssignmentReport(item, 'amount')"
+            aria-label="Download amount assignment report"
+            title="Download report">
+            <i class="fa fa-download" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     </div>

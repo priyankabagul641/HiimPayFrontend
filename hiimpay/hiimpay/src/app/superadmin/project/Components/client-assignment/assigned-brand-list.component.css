@@ -147,6 +147,16 @@
   font-weight: 600;
 }
 
+.icon-action-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
 .unavailability {
   text-align: center;
   color: #64748b;

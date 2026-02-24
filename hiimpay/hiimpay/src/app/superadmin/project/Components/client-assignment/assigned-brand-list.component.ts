@@ -47,4 +47,9 @@ export class AssignedBrandListComponent implements OnInit {
       { queryParams: { type } }
     );
   }
+
+  downloadAssignmentReport(item: { assignmentId: string }, type: 'coupon' | 'amount') {
+    // Placeholder hook: replace this navigation with actual excel download implementation.
+    this.openDetails(item, type);
+  }
 }

@@ -1,55 +1,155 @@
-<div class="row">
-  <div class="col d-flex justify-content-between align-items-center mb-2">
-    <h3 class="font-weight-bold" style="color:#103a7f;">Coupons for Brand {{ brandId }} (Client {{ clientId }})</h3>
-  </div>
-</div>
-
-<section style="height:100%; padding-bottom:5%; position:relative;">
-  <div class="row table-row row-head gx-0">
-    <div class="col">external_product_id</div>
-    <div class="col">provider_name</div>
-    <div class="col">product_name</div>
-    <div class="col">brand_name</div>
-    <div class="col">brand_sku</div>
-    <div class="col">coupon_sku</div>
-    <div class="col">description</div>
-    <div class="col">Category</div>
-    <div class="col">image_url</div>
-    <div class="col">redemption_type</div>
-    <div class="col">denominations</div>
-    <div class="col">min / max</div>
-    <div class="col">discount_percent</div>
-    <div class="col">currency_code</div>
-    <div class="col">country_code</div>
-    <div class="col">expiry_date</div>
-    <div class="col">is_active</div>
-    <div class="col">Action</div>
-  </div>
-  <div class="tableCointainer" *ngIf="coupons.length > 0">
-    <div class="row gx-0 table-row row-body px-0" *ngFor="let item of coupons">
-      <div class="col">{{ item.external_product_id || '-' }}</div>
-      <div class="col">{{ item.provider_name || '-' }}</div>
-      <div class="col">{{ item.product_name || '-' }}</div>
-      <div class="col">{{ item.brand_name || '-' }}</div>
-      <div class="col">{{ item.brand_sku || '-' }}</div>
-      <div class="col">{{ item.coupon_sku || '-' }}</div>
-      <div class="col">{{ item.description || '-' }}</div>
-      <div class="col">{{ item.category }}</div>
-      <div class="col">{{ item.image_url || '-' }}</div>
-      <div class="col">{{ item.redemption_type || '-' }}</div>
-      <div class="col">{{ (item.denominations || []).join(', ') || '-' }}</div>
-      <div class="col">{{ (item.min_value ?? '-') + ' / ' + (item.max_value ?? '-') }}</div>
-      <div class="col">{{ item.discount_percent ?? '-' }}</div>
-      <div class="col">{{ item.currency_code || '-' }}</div>
-      <div class="col">{{ item.country_code || '-' }}</div>
-      <div class="col">{{ item.expiry_date || '-' }}</div>
-      <div class="col">{{ item.is_active ? 'Yes' : 'No' }}</div>
-      <div class="col">
-        <button class="btn btn-sm button-color text-white" (click)="editCoupon(item)">Edit</button>
-      </div>
+<section class="coupon-page">
+  <div class="coupon-header">
+    <div>
+      <p class="eyebrow">Coupon Management</p>
+      <h3>Coupons for Brand {{ brandId }} (Client {{ clientId }})</h3>
+    </div>
+    <div class="count-pill">
+      {{ filteredCoupons.length }} {{ filteredCoupons.length === 1 ? 'Coupon' : 'Coupons' }}
     </div>
   </div>
-  <div class="text-center unavailability" *ngIf="coupons.length <= 0">
-    No coupons available
+
+  <div class="coupon-card">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <input
+          type="text"
+          placeholder="Search by product, brand, sku..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onFiltersChanged()">
+      </div>
+
+      <div class="filters">
+        <select [(ngModel)]="selectedBrand" (ngModelChange)="onFiltersChanged()">
+          <option value="">All Brands</option>
+          <option *ngFor="let brand of brandOptions" [value]="brand">{{ brand }}</option>
+        </select>
+
+        <select [(ngModel)]="selectedCategory" (ngModelChange)="onFiltersChanged()">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
+        </select>
+
+        <button class="clear-btn" *ngIf="hasFilters" (click)="clearFilters()">Clear</button>
+      </div>
+    </div>
+
+    <div class="desktop-table" *ngIf="filteredCoupons.length > 0; else emptyState">
+      <table>
+        <thead>
+          <tr>
+            <th class="text-left">Product Name</th>
+            <th class="text-left">Brand</th>
+            <th class="text-left">Category</th>
+            <th class="text-right">Denomination</th>
+            <th class="text-left">Redemption Type</th>
+            <th class="text-left">Expiry Date</th>
+            <th class="text-left">Status</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let item of paginatedCoupons; let i = index">
+            <tr [class.alt-row]="i % 2 === 1" [class.expanded]="isExpanded(item.id)">
+              <td class="text-left">
+                <button class="link-btn" (click)="toggleExpanded(item.id)">
+                  {{ item.product_name || '-' }}
+                </button>
+              </td>
+              <td class="text-left">{{ item.brand_name || '-' }}</td>
+              <td class="text-left">{{ item.category || '-' }}</td>
+              <td class="text-right">{{ (item.denominations || []).join(', ') || '-' }}</td>
+              <td class="text-left">
+                <span class="badge" [class.badge-online]="item.redemption_type === 'Online'" [class.badge-offline]="item.redemption_type !== 'Online'">
+                  {{ item.redemption_type || '-' }}
+                </span>
+              </td>
+              <td class="text-left">{{ item.expiry_date || '-' }}</td>
+              <td class="text-left">
+                <span class="badge" [class.badge-active]="item.is_active" [class.badge-inactive]="!item.is_active">
+                  {{ item.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="action-wrap">
+                  <button class="edit-btn" (click)="editCoupon(item)">Edit</button>
+                  <button class="details-btn" (click)="toggleExpanded(item.id)">
+                    {{ isExpanded(item.id) ? 'Hide' : 'Details' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="detail-row" *ngIf="isExpanded(item.id)">
+              <td colspan="8">
+                <div class="detail-grid">
+                  <div><span>External Product ID:</span> {{ item.external_product_id || '-' }}</div>
+                  <div><span>Provider:</span> {{ item.provider_name || '-' }}</div>
+                  <div><span>Brand SKU:</span> {{ item.brand_sku || '-' }}</div>
+                  <div><span>Coupon SKU:</span> {{ item.coupon_sku || '-' }}</div>
+                  <div><span>Description:</span> {{ item.description || '-' }}</div>
+                  <div><span>Min / Max:</span> {{ (item.min_value ?? '-') + ' / ' + (item.max_value ?? '-') }}</div>
+                  <div><span>Discount:</span> {{ item.discount_percent ?? '-' }}%</div>
+                  <div><span>Currency:</span> {{ item.currency_code || '-' }}</div>
+                  <div><span>Country:</span> {{ item.country_code || '-' }}</div>
+                  <div><span>Image URL:</span> {{ item.image_url || '-' }}</div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards" *ngIf="filteredCoupons.length > 0">
+      <div class="mobile-card" *ngFor="let item of paginatedCoupons">
+        <div class="mobile-top">
+          <div class="mobile-title">{{ item.product_name || '-' }}</div>
+          <span class="badge" [class.badge-active]="item.is_active" [class.badge-inactive]="!item.is_active">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+        <div class="mobile-grid">
+          <div><span>Brand</span>{{ item.brand_name || '-' }}</div>
+          <div><span>Category</span>{{ item.category || '-' }}</div>
+          <div><span>Denomination</span>{{ (item.denominations || []).join(', ') || '-' }}</div>
+          <div><span>Redemption</span>{{ item.redemption_type || '-' }}</div>
+          <div><span>Expiry</span>{{ item.expiry_date || '-' }}</div>
+          <div><span>Provider</span>{{ item.provider_name || '-' }}</div>
+        </div>
+        <div class="mobile-actions">
+          <button class="edit-btn" (click)="editCoupon(item)">Edit</button>
+          <button class="details-btn" (click)="toggleExpanded(item.id)">
+            {{ isExpanded(item.id) ? 'Hide Details' : 'View Details' }}
+          </button>
+        </div>
+        <div class="mobile-details" *ngIf="isExpanded(item.id)">
+          <div><span>External Product ID:</span> {{ item.external_product_id || '-' }}</div>
+          <div><span>Brand SKU:</span> {{ item.brand_sku || '-' }}</div>
+          <div><span>Coupon SKU:</span> {{ item.coupon_sku || '-' }}</div>
+          <div><span>Description:</span> {{ item.description || '-' }}</div>
+          <div><span>Min / Max:</span> {{ (item.min_value ?? '-') + ' / ' + (item.max_value ?? '-') }}</div>
+          <div><span>Discount:</span> {{ item.discount_percent ?? '-' }}%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination" *ngIf="filteredCoupons.length > 0">
+      <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">Prev</button>
+      <button
+        class="page-btn"
+        *ngFor="let page of visiblePages"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+    </div>
   </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <h4>No data found</h4>
+      <p>Try changing search text or filters to see coupon records.</p>
+    </div>
+  </ng-template>
 </section>

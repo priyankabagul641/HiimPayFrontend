@@ -12,6 +12,12 @@ export class ClientCouponListComponent implements OnInit {
   brandId = '';
   clientId = '';
   coupons: any[] = [];
+  searchTerm = '';
+  selectedBrand = '';
+  selectedCategory = '';
+  expandedCouponId: number | null = null;
+  currentPage = 1;
+  pageSize = 5;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,6 +69,82 @@ export class ClientCouponListComponent implements OnInit {
         country_code: 'IN',
         expiry_date: '2026-11-30',
         is_active: true
+      },
+      {
+        id: 3,
+        external_product_id: 'PINELABS-TATA-2500',
+        provider_name: 'PINELABS',
+        product_name: `Brand ${this.brandId} Premium Gifting`,
+        brand_name: 'Croma',
+        description: 'Premium category electronic voucher',
+        category: 'Electronics',
+        image_url: 'croma-logo.png',
+        redemption_type: 'Online',
+        denominations: [1000, 2500, 5000],
+        min_value: 1000,
+        max_value: 5000,
+        discount_percent: 5,
+        currency_code: 'INR',
+        country_code: 'IN',
+        expiry_date: '2027-03-15',
+        is_active: false
+      },
+      {
+        id: 4,
+        external_product_id: 'GYFTR-ZOMA-750',
+        provider_name: 'GYFTR',
+        product_name: `Brand ${this.brandId} Food Delight`,
+        brand_name: 'Zomato',
+        description: 'Food and beverages reward coupon',
+        category: 'Food & Beverages',
+        image_url: 'zomato-logo.png',
+        redemption_type: 'Online',
+        denominations: [250, 500, 750],
+        min_value: 250,
+        max_value: 750,
+        discount_percent: 3,
+        currency_code: 'INR',
+        country_code: 'IN',
+        expiry_date: '2026-09-01',
+        is_active: true
+      },
+      {
+        id: 5,
+        external_product_id: 'XOXO-REL-1000',
+        provider_name: 'XOXODAY',
+        product_name: `Brand ${this.brandId} Fashion Rewards`,
+        brand_name: 'Reliance Trends',
+        description: 'Fashion and apparel rewards',
+        category: 'Clothing',
+        image_url: 'reliance-trends-logo.png',
+        redemption_type: 'Offline',
+        denominations: [500, 1000, 2000],
+        min_value: 500,
+        max_value: 2000,
+        discount_percent: 6,
+        currency_code: 'INR',
+        country_code: 'IN',
+        expiry_date: '2026-10-20',
+        is_active: true
+      },
+      {
+        id: 6,
+        external_product_id: 'PINE-AJI-300',
+        provider_name: 'PINELABS',
+        product_name: `Brand ${this.brandId} Grocery Essential`,
+        brand_name: 'BigBasket',
+        description: 'Ecommerce grocery coupon',
+        category: 'Ecommerce',
+        image_url: 'bigbasket-logo.png',
+        redemption_type: 'Online',
+        denominations: [300, 600],
+        min_value: 300,
+        max_value: 600,
+        discount_percent: 2,
+        currency_code: 'INR',
+        country_code: 'IN',
+        expiry_date: '2027-01-01',
+        is_active: false
       }
     ];
 
@@ -81,6 +163,87 @@ export class ClientCouponListComponent implements OnInit {
       const idx = this.coupons.findIndex((item) => item.id === coupon.id);
       if (idx >= 0) this.coupons[idx] = this.enrichCouponSku({ ...this.coupons[idx], ...result });
     });
+  }
+
+  toggleExpanded(couponId: number) {
+    this.expandedCouponId = this.expandedCouponId === couponId ? null : couponId;
+  }
+
+  isExpanded(couponId: number): boolean {
+    return this.expandedCouponId === couponId;
+  }
+
+  get brandOptions(): string[] {
+    return [...new Set(this.coupons.map((item) => item.brand_name).filter(Boolean))];
+  }
+
+  get categoryOptions(): string[] {
+    return [...new Set(this.coupons.map((item) => item.category).filter(Boolean))];
+  }
+
+  get filteredCoupons(): any[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    return this.coupons.filter((item) => {
+      const brandMatch = this.selectedBrand ? item.brand_name === this.selectedBrand : true;
+      const categoryMatch = this.selectedCategory ? item.category === this.selectedCategory : true;
+      const searchMatch = !term
+        ? true
+        : [
+            item.product_name,
+            item.brand_name,
+            item.category,
+            item.external_product_id,
+            item.provider_name,
+            item.coupon_sku
+          ]
+            .filter(Boolean)
+            .some((field) => String(field).toLowerCase().includes(term));
+      return brandMatch && categoryMatch && searchMatch;
+    });
+  }
+
+  get totalPages(): number {
+    const pages = Math.ceil(this.filteredCoupons.length / this.pageSize);
+    return pages > 0 ? pages : 1;
+  }
+
+  get paginatedCoupons(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredCoupons.slice(start, start + this.pageSize);
+  }
+
+  get hasFilters(): boolean {
+    return !!(this.searchTerm || this.selectedBrand || this.selectedCategory);
+  }
+
+  onFiltersChanged() {
+    this.currentPage = 1;
+    this.expandedCouponId = null;
+  }
+
+  clearFilters() {
+    this.searchTerm = '';
+    this.selectedBrand = '';
+    this.selectedCategory = '';
+    this.onFiltersChanged();
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) this.currentPage += 1;
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) this.currentPage -= 1;
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) this.currentPage = page;
+  }
+
+  get visiblePages(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.totalPages; i += 1) pages.push(i);
+    return pages;
   }
 
   private enrichCouponSku(coupon: any) {
