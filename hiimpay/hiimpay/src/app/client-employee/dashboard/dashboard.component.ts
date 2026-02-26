@@ -24,7 +24,6 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  isAuthenticated = false;
   authStep: 'request' | 'verify' = 'request';
   emailId = '';
   enteredOtp = '';
@@ -201,7 +200,7 @@ export class DashboardComponent implements OnInit {
   }> = [
     { title: 'Claim Best Deal', description: 'Open trending coupons', action: 'browse', icon: 'local_offer' },
     { title: 'Expiring Soon', description: 'Review active coupon deadlines', action: 'my-coupons', icon: 'timer' },
-    { title: 'Savings Insights', description: 'Track monthly performance', action: 'wallet', icon: 'analytics' },
+  
     { title: 'Explore Categories', description: 'Find offers by use case', action: 'categories', icon: 'grid_view' }
   ];
 
@@ -354,33 +353,63 @@ export class DashboardComponent implements OnInit {
     this.api.verifyOTP(this.emailId, this.enteredOtp).subscribe({
       next: (res: any) => {
         this.isVerifyingOtp = false;
-        if (res?.message === 'User logged in successfully.' || res?.message === 'User logged in successfully. Demographic information missing.' || res?.success) {
-          if (res?.data) {
-            this.jwtAuthService.setToken(res.data);
+
+        const ok = res?.success || res?.message === 'User logged in successfully.' || res?.message === 'User logged in successfully.';
+        if (ok) {
+          const tokenFromResp = res?.data?.token || res?.data;
+          const userFromResp = res?.data?.user || null;
+
+          if (tokenFromResp) {
+            this.jwtAuthService.setToken(tokenFromResp);
           }
-          this.jwtAuthService.getLoggedInUser()?.subscribe({
-            next: (userRes: any) => {
-              try {
-                sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
-              } catch (e) {}
-              const clientId = userRes.data?.clientId;
-              if (userRes.data?.typeOfUser == 1) {
-                this.router.navigate(['/cpoc', clientId]);
-                sessionStorage.setItem('isCpoc', 'true');
-                this.toastr.success('Your login was successful!!');
-              } else if (userRes.data?.typeOfUser == 2) {
-                this.router.navigate(['/clientEmployee/dashboard']);
-                this.toastr.success('Your login was successful!!');
-              } else {
-                this.toastr.error('Something went wrong!');
-              }
-            },
-            error: (err: any) => {
-              console.error('Failed to fetch user data:', err);
-              this.toastr.error('Failed to fetch user info');
+
+          if (userFromResp) {
+            try {
+              sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userFromResp));
+            } catch (e) {}
+
+            const userTypeStr = (userFromResp.userType || '').toString().toUpperCase();
+            const clientId = userFromResp.companyId || userFromResp.clientId || null;
+
+            if (userTypeStr === 'CPOC' ) {
+              this.router.navigate(['/cpoc', clientId]);
+              sessionStorage.setItem('isCpoc', 'true');
+              this.toastr.success('Your login was successful!!');
+            } else if ( userTypeStr === 'USER') {
+              this.router.navigate(['/clientEmployee/dashboard']);
+              this.toastr.success('Your login was successful!!');
+            } else {
+              this.toastr.error('Something went wrong!');
             }
-          });
-          this.isAuthenticated = true;
+          } else {
+            // Fallback to previous flow which fetches the logged-in user
+            if (res?.data) {
+              this.jwtAuthService.setToken(res.data);
+            }
+            this.jwtAuthService.getLoggedInUser()?.subscribe({
+              next: (userRes: any) => {
+                try {
+                  sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
+                } catch (e) {}
+                const clientId = userRes.data?.clientId;
+                if (userRes.data?.typeOfUser == 1) {
+                  this.router.navigate(['/cpoc', clientId]);
+                  sessionStorage.setItem('isCpoc', 'true');
+                  this.toastr.success('Your login was successful!!');
+                } else if (userRes.data?.typeOfUser == 2) {
+                  this.router.navigate(['/clientEmployee/dashboard']);
+                  this.toastr.success('Your login was successful!!');
+                } else {
+                  this.toastr.error('Something went wrong!');
+                }
+              },
+              error: (err: any) => {
+                console.error('Failed to fetch user data:', err);
+                this.toastr.error('Failed to fetch user info');
+              }
+            });
+          }
+
           this.activeScreen = 'home';
           this.showToastMessage('OTP verified successfully');
           this.pushNotification('You are logged in successfully');
@@ -514,7 +543,7 @@ export class DashboardComponent implements OnInit {
 
   logout() {
     sessionStorage.clear();
-    this.router.navigate(['/auth']);
+    this.router.navigate(['/clientEmployee']);
   }
 
   openProfile() {

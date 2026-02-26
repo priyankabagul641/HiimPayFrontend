@@ -221,37 +221,68 @@ export class UserloginComponent implements OnInit {
           //   'currentLoggedInUserData',
           //   JSON.stringify(res.data)
           // );
-          if (res?.data) {
-            this.jwtAuthService.setToken(res?.data);
-          }
-          this.jwtAuthService.getLoggedInUser()!.subscribe({
-            next: (userRes: any) => {
-              sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
-              const clientId = userRes.data.clientId;
+          const tokenFromResp = res?.data?.token || res?.data;
+          const userFromResp = res?.data?.user || null;
 
-              if (userRes.data.typeOfUser == 1) {
-                this.router.navigate(['/cpoc', clientId]);
-                sessionStorage.setItem('isCpoc', 'true');
-                this.toastr.success('Your login was successful!!');
-                if (res.message === 'User logged in successfully. Demographic information missing.') {
-                  this.openPopUp();
-                }
-              } else if (userRes.data.typeOfUser == 2) {
-                this.router.navigate(['/clientEmployee/dashboard']);
-                this.toastr.success('Your login was successful!!');
-                if (res.message === 'User logged in successfully. Demographic information missing.') {
-                  this.openPopUp();
-                }
+          if (tokenFromResp) {
+            this.jwtAuthService.setToken(tokenFromResp);
+          }
+
+          if (userFromResp) {
+            sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userFromResp));
+            const clientId = userFromResp.companyId || userFromResp.clientId || userFromResp.clientId;
+
+            const userTypeStr = (userFromResp.userType || '').toString().toUpperCase();
+            if (userTypeStr === 'CPOC' || userFromResp.typeOfUser == 1) {
+              this.router.navigate(['/cpoc', clientId]);
+              sessionStorage.setItem('isCpoc', 'true');
+              this.toastr.success('Your login was successful!!');
+              if (res.message === 'User logged in successfully. Demographic information missing.') {
+                this.openPopUp();
               }
-              else {
-                this.toastr.error('Something went wrong!');
+            } else if (userFromResp.typeOfUser == 2 || userTypeStr === 'EMPLOYEE') {
+              this.router.navigate(['/clientEmployee/dashboard']);
+              this.toastr.success('Your login was successful!!');
+              if (res.message === 'User logged in successfully. Demographic information missing.') {
+                this.openPopUp();
               }
-            },
-            error: (err) => {
-              console.error('Failed to fetch user data:', err);
-              this.toastr.error('Failed to fetch user info');
+            } else {
+              this.toastr.error('Something went wrong!');
             }
-          });
+          } else {
+            // Fallback to existing behavior that fetches the logged-in user
+            if (res?.data) {
+              this.jwtAuthService.setToken(res?.data);
+            }
+            this.jwtAuthService.getLoggedInUser()!.subscribe({
+              next: (userRes: any) => {
+                sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
+                const clientId = userRes.data.clientId;
+
+                if (userRes.data.typeOfUser == 1) {
+                  this.router.navigate(['/cpoc', clientId]);
+                  sessionStorage.setItem('isCpoc', 'true');
+                  this.toastr.success('Your login was successful!!');
+                  if (res.message === 'User logged in successfully. Demographic information missing.') {
+                    this.openPopUp();
+                  }
+                } else if (userRes.data.typeOfUser == 2) {
+                  this.router.navigate(['/clientEmployee/dashboard']);
+                  this.toastr.success('Your login was successful!!');
+                  if (res.message === 'User logged in successfully. Demographic information missing.') {
+                    this.openPopUp();
+                  }
+                }
+                else {
+                  this.toastr.error('Something went wrong!');
+                }
+              },
+              error: (err) => {
+                console.error('Failed to fetch user data:', err);
+                this.toastr.error('Failed to fetch user info');
+              }
+            });
+          }
 
           // const obj = { deviceId: this.pushToken }
           // // this.apiService.updateUser(res.data.id, obj).subscribe((res: any) => {

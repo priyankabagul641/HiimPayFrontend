@@ -1,0 +1,58 @@
+<section class="screen auth-screen" [formGroup]="loginForm">
+  <div class="bg-shape shape-a"></div>
+  <div class="bg-shape shape-b"></div>
+  <div class="login-wrapper">
+    <article class="login-card">
+      <img src="assets/images/navexwise.jpeg" alt="HiimPay" class="login-logo" />
+      <h1>Welcome to HiimPay</h1>
+      <p class="login-subtitle">Access your employee savings & benefits</p>
+
+      <h3 *ngIf="authStep === 'request'" class="step-title">Sign In</h3>
+      <h3 *ngIf="authStep === 'verify'" class="step-title">Verify OTP</h3>
+
+      <div class="auth-form" *ngIf="authStep === 'request'">
+        <label for="emailId">Company Email</label>
+        <input id="emailId" type="email" formControlName="emailId" placeholder="name@company.com" />
+
+        <label>CAPTCHA</label>
+        <div class="captcha-compact">
+          <canvas id="captcahCanvas" class="captcha-box" width="325" height="64"></canvas>
+          <button class="icon-btn inline" type="button" (click)="regenerateCaptcha()">↻</button>
+        </div>
+        <input type="text" formControlName="enteredCaptcha" placeholder="Enter CAPTCHA" maxlength="6" />
+
+        <button class="primary-btn" type="button" (click)="sendOtp()" [disabled]="isSendingOtp">
+          <span *ngIf="!isSendingOtp">Send OTP</span>
+          <span *ngIf="isSendingOtp">Sending OTP...</span>
+        </button>
+
+        <div class="trust-list">
+          <div>✓ Secure OTP Login</div>
+          <div>✓ Enterprise-grade security</div>
+          <div>✓ Trusted employee access</div>
+        </div>
+      </div>
+
+      <div class="auth-form" *ngIf="authStep === 'verify'">
+        <p class="otp-note">OTP sent to <b>{{ emailId }}</b></p>
+        <label for="otp">6-digit OTP</label>
+        <input id="otp" type="text" maxlength="6" formControlName="enteredOtp" placeholder="Enter OTP" />
+
+        <button class="primary-btn" type="button" (click)="verifyOtp()" [disabled]="isVerifyingOtp">
+          <span *ngIf="!isVerifyingOtp">Verify OTP</span>
+          <span *ngIf="isVerifyingOtp">Verifying...</span>
+        </button>
+        <button class="text-link-btn" type="button" (click)="backToRequestStep()">Change email / Resend OTP</button>
+        <p class="demo-note">Demo OTP: <b>{{ demoOtp }}</b></p>
+      </div>
+
+      <p class="auth-error" *ngIf="authError">{{ authError }}</p>
+      <div class="login-footer-links">
+        <a href="javascript:void(0)">Need help?</a>
+        <a href="javascript:void(0)">Contact support</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div class="toast" *ngIf="showToast">{{ toastMessage }}</div>

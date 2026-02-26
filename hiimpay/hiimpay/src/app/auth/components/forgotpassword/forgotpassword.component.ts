@@ -263,7 +263,7 @@ export class ForgotpasswordComponent {
           res.message === 'User logged in successfully. Demographic information missing.'
         ) {
           // this.userId = res.data?.id;
-          this.jwtAuthService.setToken(res.data);
+          this.jwtAuthService.setToken(res.data?.token || res.data);
           this.state = showModel.isReset;
           this.toastr.success('Otp verified successfully');
           return;

@@ -364,7 +364,7 @@ this.cId=id;console.log(this.cId);
   OnLogout() {
     sessionStorage.clear();
     if(this.isCpoc){
-    this.router.navigate(['/auth/userlogin']);
+    this.router.navigate(['/clientEmployee']);
     }
     else{
       this.router.navigate(['/auth'])

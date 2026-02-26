@@ -161,13 +161,14 @@ export class AdminloginComponent implements OnInit {
                 this.router.navigate(['/superadmin']);
                 sessionStorage.setItem('isCpoc', 'false');
               } else if (userType === 'CPOC') {
-                // CPOC should be routed to /cpoc/:clientId
+                // CPOC: route to /cpoc/:clientId if clientId exists, otherwise to client employee dashboard
                 const clientId = user.companyId || user.clientId || null;
                 if (clientId) {
                   this.router.navigate(['/cpoc', clientId]);
                   sessionStorage.setItem('isCpoc', 'true');
                 } else {
-                  this.router.navigate(['/superadmin']);
+                  this.router.navigate(['/clientEmployee/dashboard']);
+                  sessionStorage.setItem('isCpoc', 'false');
                 }
               } else {
                 // default to client employee dashboard

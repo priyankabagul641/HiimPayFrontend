@@ -11,6 +11,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { LoginComponent } from './login/login.component';
 
 import {MatBadgeModule} from '@angular/material/badge';
 import { CdkDrag, CdkDropList, CdkDropListGroup, DragDropModule } from '@angular/cdk/drag-drop';
@@ -31,6 +32,7 @@ import { ProfileUpdateDialogComponent } from './pages/profile-update-dialog/prof
 @NgModule({
   declarations: [
     ClientEmployeeComponent,
+    LoginComponent,
     DashboardComponent,
     SurveyResponseComponent,
     ReminderComponent,
