@@ -28,7 +28,7 @@
         <mat-icon>confirmation_number</mat-icon>
         <span class="label">Browse Coupons</span>
       </button>
-      <button
+      <!-- <button
         [class.active]="activeScreen === 'categories'"
         (click)="navigate('categories')"
         title="Categories"
@@ -36,7 +36,7 @@
       >
         <mat-icon>grid_view</mat-icon>
         <span class="label">Categories</span>
-      </button>
+      </button> -->
       <button
         [class.active]="activeScreen === 'my-coupons'"
         (click)="navigate('my-coupons')"
@@ -274,6 +274,32 @@
         </ng-container>
 
         <ng-container *ngIf="activeScreen === 'my-coupons'">
+           <div class="wallet-insight-grid">
+              <article class="finance-card balance">
+                <div class="finance-top">
+                  <span class="finance-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+                  <span class="finance-trend">+10%</span>
+                </div>
+                <p>Purchased Coupons</p>
+                <h3>{{ purchasedCount }}</h3>
+              </article>
+              <article class="finance-card total">
+                <div class="finance-top">
+                  <span class="finance-icon"><mat-icon>savings</mat-icon></span>
+                  <span class="finance-trend">+9%</span>
+                </div>
+                <p>Assigned Coupons</p>
+                <h3>{{ assignedCount }}</h3>
+              </article>
+              <article class="finance-card month">
+                <div class="finance-top">
+                  <span class="finance-icon"><mat-icon>show_chart</mat-icon></span>
+                  <span class="finance-trend">+4%</span>
+                </div>
+                <p>Expired Coupons</p>
+                <h3>{{ expiredCount }}</h3>
+              </article>
+            </div>
           <div class="tab-row">
             <button [class.active]="activeCouponTab === 'active'" (click)="selectCouponTab('active')">Active</button>
             <button [class.active]="activeCouponTab === 'used'" (click)="selectCouponTab('used')">Used</button>
@@ -305,37 +331,12 @@
         </ng-container>
         <ng-container *ngIf="activeScreen === 'wallet'">
           <div class="wallet-toggle">
-            <button [class.active]="walletView === 'coupon'" (click)="selectWalletView('coupon')">Coupon</button>
+            <!-- <button [class.active]="walletView === 'coupon'" (click)="selectWalletView('coupon')">Coupon</button> -->
             <button [class.active]="walletView === 'amount'" (click)="selectWalletView('amount')">Amount</button>
           </div>
 
           <ng-container *ngIf="walletView === 'coupon'">
-            <div class="wallet-insight-grid">
-              <article class="finance-card balance">
-                <div class="finance-top">
-                  <span class="finance-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-                  <span class="finance-trend">+10%</span>
-                </div>
-                <p>Purchased Coupons</p>
-                <h3>{{ purchasedCount }}</h3>
-              </article>
-              <article class="finance-card total">
-                <div class="finance-top">
-                  <span class="finance-icon"><mat-icon>savings</mat-icon></span>
-                  <span class="finance-trend">+9%</span>
-                </div>
-                <p>Assigned Coupons</p>
-                <h3>{{ assignedCount }}</h3>
-              </article>
-              <article class="finance-card month">
-                <div class="finance-top">
-                  <span class="finance-icon"><mat-icon>show_chart</mat-icon></span>
-                  <span class="finance-trend">+4%</span>
-                </div>
-                <p>Expired Coupons</p>
-                <h3>{{ expiredCount }}</h3>
-              </article>
-            </div>
+           
 
             <article class="ratio-card">
               <div class="ratio-head">
@@ -357,51 +358,7 @@
               </div>
             </article>
 
-            <article class="insight-card">
-              <div class="insight-head">
-                <h4>Monthly Coupon Report</h4>
-                <span>Total Redeemed: {{ redeemedCount }}</span>
-              </div>
-              <div class="coupon-report-legend">
-                <span><i class="dot purchased"></i>Purchased</span>
-                <span><i class="dot assigned"></i>Assigned</span>
-                <span><i class="dot expired"></i>Expired</span>
-              </div>
-              <div class="coupon-report-chart">
-                <div class="report-group" *ngFor="let stat of monthlyCouponStats">
-                  <div class="bars">
-                    <div class="metric-bar purchased" [style.height.px]="getCouponBarHeight(stat.purchased)">
-                      <span>{{ stat.purchased }}</span>
-                    </div>
-                    <div class="metric-bar assigned" [style.height.px]="getCouponBarHeight(stat.assigned)">
-                      <span>{{ stat.assigned }}</span>
-                    </div>
-                    <div class="metric-bar expired" [style.height.px]="getCouponBarHeight(stat.expired)">
-                      <span>{{ stat.expired }}</span>
-                    </div>
-                  </div>
-                  <small>{{ stat.month }}</small>
-                </div>
-              </div>
-            </article>
-
-            <div class="mini-insight-row">
-              <article class="mini-card">
-                <mat-icon>redeem</mat-icon>
-                <p>Coupons Redeemed</p>
-                <h5>{{ redeemedCount }}</h5>
-              </article>
-              <article class="mini-card">
-                <mat-icon>inventory_2</mat-icon>
-                <p>Active Coupons</p>
-                <h5>{{ activeCouponCount }}</h5>
-              </article>
-              <article class="mini-card">
-                <mat-icon>schedule</mat-icon>
-                <p>Expiring Soon</p>
-                <h5>{{ expiringSoonCouponCount }}</h5>
-              </article>
-            </div>
+          
           </ng-container>
 
           <ng-container *ngIf="walletView === 'amount'">
