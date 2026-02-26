@@ -1,6 +1,6 @@
 // src/environments/environment.tshttp://ec2-13-234-38-217.ap-south-1.compute.amazonaws.com:8080/exwise2/api/
 export const environment = {
-  baseUrl:'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com/exwise/api/',
+  baseUrl:'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com:8080/hiimpay/',
   production: false,
   firebaseConfig: {
     apiKey: "AIzaSyDiGz2rnAixEWGkM1gJjxXFeWS2zTa0dc4",

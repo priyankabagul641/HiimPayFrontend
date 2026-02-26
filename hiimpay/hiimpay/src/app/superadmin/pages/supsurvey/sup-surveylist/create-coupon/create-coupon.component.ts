@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 type TabType = 'manual' | 'excel' | 'api';
 type ApiEndpointType = 'auth' | 'data';
@@ -31,6 +32,7 @@ export class CreateCouponComponent implements OnInit {
   activeTab: TabType = 'manual';
   couponForm: FormGroup;
   manualCode = false;
+  title: string = 'Create Coupon';
 
   companies = [
     { id: 1, name: 'Amazon' },
@@ -85,7 +87,8 @@ Content-Type: application/json
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<CreateCouponComponent>
+    private dialogRef: MatDialogRef<CreateCouponComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.couponForm = this.fb.group({
       companyId: [this.companies[0].id, Validators.required],
@@ -104,6 +107,27 @@ Content-Type: application/json
   ngOnInit(): void {
     this.generateCode();
     this.couponForm.patchValue({ category: this.categories[0] });
+
+    // If dialog was opened with coupon data (for edit), patch form
+    if (this.data && this.data.mode === 'update' && this.data.coupon) {
+      const c = this.data.coupon;
+      this.couponForm.patchValue({
+        companyId: c.brand?.id || this.companies[0].id,
+        title: c.couponName || c.product_name || c.title || '',
+        code: c.couponCode || c.coupon_sku || c.code || '',
+        category: c.category?.categoryName || c.category || '',
+        discountType: (c.discountType || (c.discount_percent ? 'Percentage' : 'Amount')) || 'Percentage',
+        discountValue: c.discountValue || c.discountAmount || c.discount_percent || null,
+        minPurchase: c.minOrderValue || null,
+        startDate: c.validFrom ? c.validFrom : '',
+        expiryDate: c.validTo || c.expiryDate || ''
+      });
+      // If poster is image URL, keep it as string in poster control
+      if (c.imageUrl) {
+        this.couponForm.patchValue({ poster: c.imageUrl });
+      }
+      this.title = 'Update Coupon';
+    }
   }
 
   switchTab(tab: TabType) {
@@ -192,7 +216,12 @@ Content-Type: application/json
 
   submit() {
     if (this.couponForm.invalid) return;
-    this.dialogRef.close(this.couponForm.value);
+    const payload = this.couponForm.value;
+    // when in update mode, include original id so parent can call update
+    if (this.data && this.data.mode === 'update' && this.data.coupon) {
+      payload.id = this.data.coupon.id;
+    }
+    this.dialogRef.close(payload);
   }
 
   cancel() {

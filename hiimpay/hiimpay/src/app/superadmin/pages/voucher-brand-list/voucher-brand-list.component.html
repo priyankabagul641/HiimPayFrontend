@@ -1,62 +1,55 @@
-<div class="brand-list-root py-5 px-5">
-  <div class="page-header">
-    <div class="header-left">
+<section class="brand-shell">
+  <div class="brand-header">
+    <div>
       <h2>Brand Listing</h2>
-      <div class="subtitle">
-        View and manage brand data only
-      </div>
+      <p>View and manage brand data</p>
     </div>
-
-    <div class="header-right">
-      <button mat-stroked-button color="primary" (click)="openAddBrand()">
-        + Add Brands
+    <div class="header-actions">
+      <button type="button" class="primary-btn" (click)="openAddBrand()">
+        <mat-icon>add</mat-icon>
+        <span>Add Brand</span>
       </button>
-
-      <button mat-stroked-button color="primary" (click)="openUpdateBrand()">
-        Update Brands
+      <button type="button" class="secondary-btn" (click)="openUpdateBrand()">
+        <mat-icon>edit</mat-icon>
+        <span>Update Brand</span>
       </button>
     </div>
   </div>
 
-  <div class="filters">
-    <input
-      class="search"
-      type="text"
-      placeholder="Search by Brand Name or Category"
-      [(ngModel)]="q"
-      (input)="onSearchChange()"
-    />
+  <div class="toolbar-card">
+    <div class="toolbar-grid">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by brand name or category"
+        [(ngModel)]="q"
+        (input)="onSearchChange()">
 
-    <div class="simple-filters">
       <select [(ngModel)]="selectedCategory" (change)="setCategory(selectedCategory)">
         <option *ngFor="let category of categoryMenu" [value]="category">
           {{ category === 'ALL' ? 'All Categories' : category }}
         </option>
       </select>
 
-      <label class="in-stock">
-        <input
-          type="checkbox"
-          [(ngModel)]="inStockOnly"
-          (change)="setInStock(inStockOnly)"
-        />
-        In Stock Only
+      <label class="check-wrap">
+        <input type="checkbox" [(ngModel)]="inStockOnly" (change)="setInStock(inStockOnly)">
+        <span>In Stock Only</span>
       </label>
     </div>
   </div>
 
-  <div class="table-wrap">
-    <div class="table-scroller">
+  <div class="table-card">
+    <div class="desktop-table">
       <table class="brand-table">
         <thead>
           <tr>
-            <th></th>
-            <th>Brand Name</th>
-            <th>Brand SKU</th>
-            <th>Category</th>
-            <th>Website</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th class="col-logo text-left">Logo</th>
+            <th class="col-name text-left">Brand Name</th>
+            <th class="col-sku text-left">Brand SKU</th>
+            <th class="col-category text-left">Category</th>
+            <th class="col-website text-left">Website</th>
+            <th class="col-status text-center">Status</th>
+            <th class="col-action text-center">Action</th>
           </tr>
         </thead>
 
@@ -65,57 +58,28 @@
             <td colspan="7" class="empty">Loading...</td>
           </tr>
 
-          <tr
-            *ngFor="let b of filtered"
-            class="data-row clickable"
-            (click)="openBrand(b)"
-          >
-            <td class="logo-td">
-              <img *ngIf="b.brandImage" [src]="b.brandImage" />
+          <tr *ngFor="let b of filtered; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row">
+            <td class="text-left">
+              <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
               <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
             </td>
-
-            <td>
-              <div class="brand-name">{{ b.name }}</div>
+            <td class="text-left truncate-cell brand-name" [title]="b.name">{{ b.name }}</td>
+            <td class="text-left truncate-cell" [title]="b.brandSku || '-'">{{ b.brandSku || '-' }}</td>
+            <td class="text-left truncate-cell" [title]="b.categories.join(', ') || '-'">
+              {{ b.categories.join(', ') || '-' }}
             </td>
-
-            <td>{{ b.brandSku || '-' }}</td>
-
-            <td>
-              <span class="tag" *ngFor="let c of b.categories | slice:0:2">
-                {{ c }}
-              </span>
-              <span *ngIf="b.categories.length > 2">
-                +{{ b.categories.length - 2 }} more
-              </span>
+            <td class="text-left truncate-cell" [title]="b.onlineRedemptionUrl || '-'">
+              <a *ngIf="b.onlineRedemptionUrl" [href]="b.onlineRedemptionUrl" target="_blank" (click)="$event.stopPropagation()">Visit</a>
+              <span *ngIf="!b.onlineRedemptionUrl">-</span>
             </td>
-
-            <td>
-              <a
-                href="{{ b.onlineRedemptionUrl }}"
-                target="_blank"
-                (click)="$event.stopPropagation()"
-              >
-                Visit
-              </a>
-            </td>
-
-            <td>
-              <span
-                class="stock-badge"
-                [ngClass]="{ in: b.stockAvailable, out: !b.stockAvailable }"
-              >
+            <td class="text-center">
+              <span class="status-badge" [class.badge-active]="b.stockAvailable" [class.badge-inactive]="!b.stockAvailable">
                 {{ b.stockAvailable ? 'In Stock' : 'Out of Stock' }}
               </span>
             </td>
-
-            <td>
-              <button
-                mat-stroked-button
-                color="primary"
-                (click)="$event.stopPropagation(); openBrandCategoryCoupons(b)"
-              >
-                View
+            <td class="text-center">
+              <button type="button" class="icon-btn" title="View details" (click)="openBrand(b, $event)">
+                <mat-icon>visibility</mat-icon>
               </button>
             </td>
           </tr>
@@ -123,10 +87,31 @@
           <tr *ngIf="!loading && filtered.length === 0">
             <td colspan="7" class="empty">No brands found</td>
           </tr>
-
         </tbody>
       </table>
     </div>
-  </div>
 
-</div>
+    <div class="mobile-cards">
+      <article class="brand-card" *ngFor="let b of filtered">
+        <div class="card-head">
+          <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
+          <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
+          <button type="button" class="icon-btn" title="View details" (click)="openBrand(b, $event)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </div>
+        <h4 [title]="b.name">{{ b.name }}</h4>
+        <p><strong>SKU:</strong> <span [title]="b.brandSku || '-'">{{ b.brandSku || '-' }}</span></p>
+        <p class="truncate-cell"><strong>Category:</strong> <span [title]="b.categories.join(', ') || '-'">{{ b.categories.join(', ') || '-' }}</span></p>
+        <p class="truncate-cell"><strong>Website:</strong> <span [title]="b.onlineRedemptionUrl || '-'">{{ b.onlineRedemptionUrl || '-' }}</span></p>
+        <p>
+          <strong>Status:</strong>
+          <span class="status-badge" [class.badge-active]="b.stockAvailable" [class.badge-inactive]="!b.stockAvailable">
+            {{ b.stockAvailable ? 'In Stock' : 'Out of Stock' }}
+          </span>
+        </p>
+      </article>
+      <div class="empty" *ngIf="!loading && filtered.length === 0">No brands found</div>
+    </div>
+  </div>
+</section>

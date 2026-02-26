@@ -1,55 +1,84 @@
-<div class="client-brand-root py-4 px-4">
-  <div class="page-header">
+<section class="client-shell">
+  <div class="client-header">
     <div>
       <h2>Client Brand List</h2>
-      <div class="subtitle">View brands by client and open coupon dashboard</div>
+      <p>View brands by client and open coupon dashboard</p>
     </div>
   </div>
 
-  <div class="filters">
-    <input class="search" type="text" placeholder="Search client, brand or code" [(ngModel)]="q" (input)="applyFilters()">
-    <select class="client-select" [(ngModel)]="selectedClient" (ngModelChange)="applyFilters()">
-      <option *ngFor="let option of clientOptions" [value]="option">
-        {{ option === 'ALL' ? 'All Clients' : option }}
-      </option>
-    </select>
-    <label class="in-stock">
-      <input type="checkbox" [(ngModel)]="inStockOnly" (change)="applyFilters()">
-      In Stock Only
-    </label>
+  <div class="toolbar-card">
+    <div class="toolbar-grid">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search client, brand or code"
+        [(ngModel)]="q"
+        (input)="applyFilters()">
+
+      <select [(ngModel)]="selectedClient" (ngModelChange)="applyFilters()">
+        <option *ngFor="let option of clientOptions" [value]="option">
+          {{ option === 'ALL' ? 'All Clients' : option }}
+        </option>
+      </select>
+
+      <label class="check-wrap">
+        <input type="checkbox" [(ngModel)]="inStockOnly" (change)="applyFilters()">
+        <span>In Stock Only</span>
+      </label>
+    </div>
   </div>
 
-  <div class="table-wrap">
-    <table class="client-brand-table">
-      <thead>
-        <tr>
-          <th>Client Name</th>
-          <th>Brand Name</th>
-          <th>Value Range</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="clickable" *ngFor="let item of filtered" (click)="openCoupons(item)">
-          <td>{{ item.clientName }}</td>
-          <td>{{ item.brandName }}</td>
-          <td>Rs {{ item.epayMinValue }} - Rs {{ item.epayMaxValue }}</td>
-          <td>{{ item.stockAvailable ? 'In Stock' : 'Out of Stock' }}</td>
-          <td>
-            <button
-              mat-stroked-button
-              color="primary"
-              (click)="openBrandCategoryCoupons(item, $event)"
-            >
-              View
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="filtered.length === 0">
-          <td colspan="5" class="empty">No brands found</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="table-card">
+    <div class="desktop-table">
+      <table class="client-table">
+        <thead>
+          <tr>
+            <th class="col-client text-left">Client Name</th>
+            <th class="col-brand text-left">Brand Name</th>
+            <th class="col-value text-center">Value Range</th>
+            <th class="col-status text-center">Status</th>
+            <th class="col-action text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filtered; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row" (click)="openCoupons(item)">
+            <td class="text-left name-cell">{{ item.clientName }}</td>
+            <td class="text-left" [title]="item.brandName">{{ item.brandName }}</td>
+            <td class="text-center nowrap">Rs {{ item.epayMinValue }} - Rs {{ item.epayMaxValue }}</td>
+            <td class="text-center">
+              <span class="status-badge" [class.badge-active]="item.stockAvailable" [class.badge-inactive]="!item.stockAvailable">
+                {{ item.stockAvailable ? 'In Stock' : 'Out of Stock' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button type="button" class="icon-btn" title="View" (click)="openBrandCategoryCoupons(item.clientId, item, $event)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="5" class="empty">No brands found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards">
+      <article class="client-card" *ngFor="let item of filtered">
+        <h4>{{ item.clientName }}</h4>
+        <p><strong>Brand:</strong> {{ item.brandName }}</p>
+        <p><strong>Value Range:</strong> Rs {{ item.epayMinValue }} - Rs {{ item.epayMaxValue }}</p>
+        <p>
+          <strong>Status:</strong>
+          <span class="status-badge" [class.badge-active]="item.stockAvailable" [class.badge-inactive]="!item.stockAvailable">
+            {{ item.stockAvailable ? 'In Stock' : 'Out of Stock' }}
+          </span>
+        </p>
+        <button type="button" class="icon-btn" title="View" (click)="openBrandCategoryCoupons(item.clientId, item, $event)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </article>
+      <div class="empty" *ngIf="filtered.length === 0">No brands found</div>
+    </div>
   </div>
-</div>
+</section>

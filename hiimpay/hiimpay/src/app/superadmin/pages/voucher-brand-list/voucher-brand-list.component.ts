@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { AdminDataService } from '../../services/adminData.service';
 import { AddBrandDialogComponent } from './add-brand-dialog/add-brand-dialog.component';
 import { UpdateBrandDialogComponent } from './update-brand-dialog/update-brand-dialog.component';
 import { BrandCategoryCouponsDialogComponent } from './brand-category-coupons-dialog/brand-category-coupons-dialog.component';
+import { ClientInfoDialogComponent } from './client-info-dialog/client-info-dialog.component';
 
 interface Brand {
   id: string;
@@ -34,56 +36,40 @@ export class VoucherBrandListComponent implements OnInit {
   constructor(
     private router: Router,
     private dialog: MatDialog
+    ,private adminService: AdminDataService
   ) {}
 
   ngOnInit(): void {
-    this.loadStaticData();
+    this.loadBrands();
   }
-
-  loadStaticData() {
+  loadBrands() {
     this.loading = true;
-
-    setTimeout(() => {
-      this.brands = [
-        {
-          id: '1',
-          name: 'Bata',
-          brandSku: this.generateBrandSku('Bata'),
-          onlineRedemptionUrl: 'https://www.bata.in/',
-          brandImage: 'https://cdn.gyftr.com/comm_engine/stag/images/brands/1593693691875_u3qtc3vzkc4s2qqr.png',
-          stockAvailable: true,
-          categories: ['Footwear', 'Lifestyle'],
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Amazon',
-          brandSku: this.generateBrandSku('Amazon'),
-          onlineRedemptionUrl: 'https://www.amazon.in/',
-          brandImage: '',
-          stockAvailable: true,
-          categories: ['Lifestyle', 'Electronics'],
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Flipkart',
-          brandSku: this.generateBrandSku('Flipkart'),
-          onlineRedemptionUrl: 'https://www.flipkart.com/',
-          brandImage: '',
-          stockAvailable: false,
-          categories: ['Clothing', 'Electronics'],
-          updatedAt: new Date().toISOString()
-        }
-      ];
-
-      this.loading = false;
-      this.applyFilters();
-    }, 600);
+    this.adminService.getAllBrands().subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        const data = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        this.brands = (data || []).map((b: any) => ({
+          id: (b.id || b.brandId || '').toString(),
+          name: b.brandName || b.name || b.BrandName || '',
+          brandSku: b.brandSku || b.brandProductCode || this.generateBrandSku(b.brandName || b.name || ''),
+          onlineRedemptionUrl: b.onlineRedemptionUrl || b.OnlineRedemptionUrl || '',
+          brandImage: b.brandImage || b.BrandImage || '',
+          stockAvailable: b.stockAvailable ?? b.stock_available ?? true,
+          categories: b.categories || b.categoryList || [],
+          updatedAt: b.updatedAt || b.updated_at || ''
+        }));
+        this.applyFilters();
+      },
+      error: () => {
+        this.loading = false;
+        this.brands = [];
+        this.applyFilters();
+      }
+    });
   }
 
   refresh() {
-    this.loadStaticData();
+    this.loadBrands();
   }
 
   applyFilters() {
@@ -113,9 +99,57 @@ export class VoucherBrandListComponent implements OnInit {
     this.selectedCategory = category;
     this.applyFilters();
   }
+  openBrand(b: Brand, event?: MouseEvent) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const idToFetch = b.id || (b as any).brandId || (b as any).id;
+    if (!idToFetch) {
+      return;
+    }
 
-  openBrand(b: Brand) {
-    this.router.navigate(['superadmin', 'voucher', 'brands', b.id]);
+    this.loading = true;
+    this.adminService.getClientBrandById(idToFetch).subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        const client = res?.data || null;
+        this.dialog.open(ClientInfoDialogComponent, {
+          width: '700px',
+          maxHeight: '90vh',
+          disableClose: false,
+          data: {
+            client
+          }
+        });
+      },
+      error: (err: any) => {
+        this.loading = false;
+        console.error('getClientBrandById error', err);
+        this.dialog.open(ClientInfoDialogComponent, {
+          width: '700px',
+          maxHeight: '90vh',
+          disableClose: false,
+          data: {
+            client: {
+              id: idToFetch,
+              companyName: '-',
+              industry: '-',
+              contactName: '-',
+              contactEmail: '-',
+              contactEmail2: '-',
+              contactMobile: '-',
+              contactMobile2: '-',
+              status: '-',
+              consultingPhase: '-',
+              isSharedJourneyMap: false,
+              isSharedFeedback: false,
+              createdAt: null,
+              updatedAt: null
+            }
+          }
+        });
+      }
+    });
   }
 
   openBrandCategoryCoupons(b: Brand) {

@@ -6,14 +6,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateclientComponent } from '../../createclient/createclient.component';
 import { SearchService } from '../../services/search.service';
 import { DeleteComponent } from '../delete/delete.component';
+import { AdminDataService } from '../../services/adminData.service';
 
 @Component({
   selector: 'app-open',
   templateUrl: './open.component.html',
-  styleUrl: './open.component.css'
+  styleUrls: ['./open.component.css']
 })
 export class OpenComponent {
   data:any[]=[];
+  filteredData: any[] = [];
+  searchTerm = '';
+  filterType: 'company' | 'pincode' = 'company';
+  expandedRowIds: Record<string, boolean> = {};
   pinClients: any;
   newCount: any;
   allCount: any;
@@ -25,34 +30,54 @@ export class OpenComponent {
   itemPerPage: number = 9;
   totalItems: number = 10;
 
-  constructor(private api:ApiService, private router:Router,private tosatr:ToastrService,private dialog:MatDialog,private service:SearchService){}
+  constructor(private api:ApiService, private router:Router,private tosatr:ToastrService,private dialog:MatDialog,private service:SearchService, private touchService: AdminDataService){}
+
+  isAdmin(): boolean {
+    try {
+      const raw = sessionStorage.getItem('currentLoggedInUserData');
+      if (!raw) return false;
+      const user = JSON.parse(raw);
+      // support both legacy `typeOfUser` and new `userType` fields
+      if (user.typeOfUser !== undefined) {
+        return Number(user.typeOfUser) === 0;
+      }
+      if (user.userType) {
+        return String(user.userType).toUpperCase() === 'ADMIN';
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 
   ngOnInit(): void {
   
     this.service.sendResults().subscribe({
       next: (res: any) => {
-        if (res.length == 0) {
+        const isArrayPayload = Array.isArray(res);
+        const hasApiShape = !!res && typeof res === 'object' && 'success' in res;
+
+        if (isArrayPayload && res.length === 0) {
           this.openClients();
-        } else {
+        } else if (isArrayPayload) {
+          this.applyClientData(res);
+        } else if (hasApiShape) {
           if (res.success) {
-            this.data = res.data;
+            this.applyClientData(res.data || []);
           } else {
-            this.data = [];
+            this.applyClientData([]);
           }
+        } else {
+          this.openClients();
         }
       },
-      error: (err: any) => {},
+      error: (_err: any) => {
+        this.openClients();
+      },
       complete: () => {},
     });
 
     // this.pinnedClients();
-
-    // Ensure at least 5 static records are available for the Open view
-    const staticData = this.getStaticData();
-    if (!this.data || this.data.length === 0) {
-      this.data = staticData;
-      this.totalItems = this.data.length;
-    }
 
     // Static counts used by the template (remove dynamic integration)
     this.allCount = 20;
@@ -61,28 +86,34 @@ export class OpenComponent {
 
 
   openClients(){
-    this.api.getAllOpenClient(this.orderBy, this.page - 1, this.size, this.sortBy).subscribe((res:any)=>{
-      if(res.success){
-        this.data=res.data;
-        this.totalItems=res.totalItems;
+    this.touchService.getAllCompanies().subscribe((res: any) => {
+      if (!res) {
+        this.applyClientData([]);
+        return;
       }
-      console.log(res.data)
-    })
+
+      // API returns { data: [...] , success: true } or sometimes direct array
+      if (res.success && Array.isArray(res.data)) {
+        this.applyClientData(res.data);
+      } else if (Array.isArray(res)) {
+        this.applyClientData(res);
+      } else if (Array.isArray(res.data)) {
+        this.applyClientData(res.data);
+      } else {
+        this.applyClientData([]);
+      }
+    }, (_err:any) => {
+      this.applyClientData([]);
+    });
   }
 
   setClientId(event: MouseEvent, id: any) {
-    
-    if ((<HTMLElement>event.target).classList.contains('ellipsis-button')) {
-      event.stopPropagation();
-    } else {
-      // sessionStorage.setItem('clientId', id.toString());
-      this.router.navigate(['superadmin/project/', id, 'project-admin']);
-    }
+    event.stopPropagation();
+    this.router.navigate(['superadmin/project/', id, 'project-admin']);
   }
 
   pageChangeEvent(event: number) {
-    this.page = event;
-    this.openClients();
+    this.p = event;
   }
 
   openMenu(event: MouseEvent) {
@@ -94,11 +125,14 @@ editClient(clientId:any) {
       width: '700px',
       height: '550px',
       disableClose: true,
-      data: { name: 'create-project',clientId:clientId}
+      data: { name: 'create-project', companyId: clientId, isCompany: true }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The popup was closed');
+      if (result === true) {
+        // refresh the list after a successful create/update from the dialog
+        this.openClients();
+      }
     });
 }
 
@@ -130,76 +164,47 @@ deleteClient(client: any) {
   });
 }
 
-pinClient(clientId:number) {
-  this.api.pinClinet(clientId).subscribe((res:any)=>{
-    if(res.success){
-      console.log(res.message);
-      this.tosatr.success(res.message);
-    }
-  },(error)=>{
-    this.tosatr.error('Cliet Already Pinned')
-  })
-}
 
-
-unpinClient(clientId:number){
-  this.api.unPinClient(clientId).subscribe((res:any)=>{
-    if(res.success){
-      console.log(res.message);
-    }
-  })
-}
   
   relativePercentage(statusCount: any) {
     if (!this.allCount || this.allCount === 0) return 0;
     return (statusCount / this.allCount) * 100;
   }
-  
-  // Provide static sample records (at least 10) for the Open dashboard
-  getStaticData(): any[] {
-    const logos = [
-      'assets/images/servey1.jfif',
-      'assets/images/servey3.jfif'
-    ];
 
-    const companyNames = [
-      'Infosys',
-      'Tata Consultancy Services (TCS)',
-      'Tech Mahindra',
-      'Wipro',
-      'HCL Technologies',
-      'Cognizant',
-      'IBM India',
-      'Capgemini',
-      'Oracle India',
-      'L&T Infotech'
-    ];
-
-    const records: any[] = [];
-    for (let i = 1; i <= 5; i++) {
-      const name = companyNames[(i - 1) % companyNames.length];
-      records.push({
-        id: i,
-        clientName: name,
-        companyName: name,
-        registeredAddress: `${100 + i} Corporate Park, Business District`,
-        city: i % 2 === 0 ? 'Bengaluru' : 'Hyderabad',
-        state: i % 2 === 0 ? 'Karnataka' : 'Telangana',
-        country: 'India',
-        pincode: (560001 + i).toString(),
-        contactPhone: `+91-80-5550${(10 + i).toString().padStart(2, '0')}`,
-        mobileNumber1: `98${(76543000 + i).toString().padStart(8, '0')}`,
-        mobileNumber2: `98${(76544000 + i).toString().padStart(8, '0')}`,
-        landlineNumber: `08055${(5000 + i).toString().padStart(4, '0')}`,
-        contactEmail: `info@${name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
-        secondContactEmail: `hr@${name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
-        totalEmployees: 10000 + i * 100,
-        ceoName: `Mr. ${name.split(' ')[0]} CEO`,
-        companyLogo: logos[i % logos.length],
-        consultinghaseName: 'Open'
-      });
-    }
-
-    return records;
+  applyClientData(rows: any[]) {
+    this.data = Array.isArray(rows) ? rows : [];
+    this.onFiltersChanged();
   }
+
+  onFiltersChanged() {
+    const term = (this.searchTerm || '').trim().toLowerCase();
+    const byPincode = this.filterType === 'pincode';
+
+    this.filteredData = this.data.filter((item: any) => {
+      if (!term) return true;
+      const company = (item.companyName || item.clientName || '').toString().toLowerCase();
+      const pincode = (item.pincode || '').toString().toLowerCase();
+      return byPincode ? pincode.includes(term) : company.includes(term);
+    });
+
+    this.totalItems = this.filteredData.length;
+    this.p = 1;
+    this.expandedRowIds = {};
+  }
+
+  toggleExpanded(id: any) {
+    const key = String(id);
+    this.expandedRowIds[key] = !this.expandedRowIds[key];
+  }
+
+  isExpanded(id: any): boolean {
+    return !!this.expandedRowIds[String(id)];
+  }
+
+  getPageUpperBound(): number {
+    const upper = this.p * this.itemPerPage;
+    return Math.min(upper, this.totalItems);
+  }
+  
+ 
 }

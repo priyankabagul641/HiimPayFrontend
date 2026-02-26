@@ -1,99 +1,134 @@
-<div class="container">
-
-  <!-- PAGE HEADER -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Manage Admin</h3>
-    <button class="button-color text-white px-4 py-2"
-            (click)="openCreateAdmin()">
-      + Create Admin
+<section class="admin-shell">
+  <div class="admin-header">
+    <h2>Manage Admin</h2>
+    <button type="button" class="create-btn" (click)="openCreateAdmin()">
+      <mat-icon>add</mat-icon>
+      <span>Create Admin</span>
     </button>
   </div>
 
-  <!-- ADMIN TABLE -->
-  <div class="tableCointainer">
-    <div class="row table-row row-head text-white">
-      <div class="col">Name</div>
-      <div class="col">Email</div>
-      <div class="col">Status</div>
-      <div class="col">Action</div>
-    </div>
+  <div class="toolbar-card">
+    <div class="toolbar-grid">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by name, email, contact, address..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChanged()">
 
-    <div *ngFor="let admin of admins"
-         class="row table-row row-body"
-         [ngClass]="{'disabled-row': !admin.active}">
-
-      <div class="col boldColmn">{{ admin.name }}</div>
-      <div class="col">{{ admin.email }}</div>
-      <div class="col">
-        <span [class.text-success]="admin.active"
-              [class.text-danger]="!admin.active">
-          {{ admin.active ? 'Active' : 'Inactive' }}
-        </span>
-      </div>
-
-      <div class="col">
-        <button class="no-style-button text-primary"
-                (click)="openAccessPopup(admin)">
-          Manage Access
-        </button>
-      </div>
+      <select
+        class="filter-select"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="onFiltersChanged()">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
     </div>
   </div>
-</div>
 
-<!-- CREATE ADMIN POPUP -->
+  <div class="table-card" *ngIf="filteredAdmins && filteredAdmins.length > 0; else emptyState">
+    <div class="desktop-table">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th class="col-name text-left">Name</th>
+            <th class="col-email text-left">Email</th>
+            <!-- <th class="col-contact text-center">Contactest</th>
+            <th class="col-address text-left">Address</th> -->
+            <th class="col-status text-center">Status</th>
+            <!-- <th class="col-permission text-center">Permissions</th> -->
+            <th class="col-action text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of filteredAdmins; let i = index" [class.alt-row]="i % 2 === 1">
+            <td class="text-left admin-name">{{ admin.name }}</td>
+            <td class="text-left truncate-cell" [title]="admin.email">{{ admin.email }}</td>
+            <!-- <td class="text-center nowrap">{{ admin.contact }}</td>
+            <td class="text-left truncate-cell" [title]="admin.address">{{ admin.address }}</td> -->
+            <td class="text-center">
+              <span class="status-badge" [class.badge-active]="admin.active" [class.badge-inactive]="!admin.active">
+                {{ admin.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <!-- <td class="text-center nowrap">{{ getPermissionCount(admin) }} / 6</td> -->
+            <td class="text-center">
+              <button type="button" class="icon-btn access-btn" title="Manage access" (click)="openAccessPopup(admin)">
+                <mat-icon>admin_panel_settings</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards">
+      <article class="admin-card" *ngFor="let admin of filteredAdmins">
+        <h4>{{ admin.name }}</h4>
+        <p class="truncate-cell" [title]="admin.email"><strong>Email:</strong> {{ admin.email }}</p>
+        <p><strong>Contact:</strong> {{ admin.contact }}</p>
+        <p class="truncate-cell" [title]="admin.address"><strong>Address:</strong> {{ admin.address }}</p>
+        <p>
+          <strong>Status:</strong>
+          <span class="status-badge" [class.badge-active]="admin.active" [class.badge-inactive]="!admin.active">
+            {{ admin.active ? 'Active' : 'Inactive' }}
+          </span>
+        </p>
+        <p><strong>Permissions:</strong> {{ getPermissionCount(admin) }} / 6</p>
+        <div class="mobile-actions">
+          <button type="button" class="icon-btn access-btn" title="Manage access" (click)="openAccessPopup(admin)">
+            <mat-icon>admin_panel_settings</mat-icon>
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <h4>No admins found</h4>
+      <p>Try updating search text or status filter.</p>
+    </div>
+  </ng-template>
+</section>
+
 <div class="modal-backdrop" *ngIf="showCreatePopup">
   <div class="modal-box">
     <h4>Create Admin</h4>
 
-    <input class="form-control mb-2" placeholder="Name"
-           [(ngModel)]="newAdmin.name">
+    <input class="modal-input" placeholder="Name" [(ngModel)]="newAdmin.name">
+    <input class="modal-input" placeholder="Email" [(ngModel)]="newAdmin.email">
+    <input class="modal-input" placeholder="Contact Number" [(ngModel)]="newAdmin.contact">
+    <textarea class="modal-input modal-textarea" placeholder="Address" [(ngModel)]="newAdmin.address"></textarea>
 
-    <input class="form-control mb-2" placeholder="Email"
-           [(ngModel)]="newAdmin.email">
-
-    <input class="form-control mb-2" placeholder="Contact Number"
-           [(ngModel)]="newAdmin.contact">
-
-    <textarea class="form-control mb-2" placeholder="Address"
-              [(ngModel)]="newAdmin.address"></textarea>
-
-    <label>
-      <input type="checkbox" [(ngModel)]="newAdmin.active"> Active
+    <label class="checkbox-row">
+      <input type="checkbox" [(ngModel)]="newAdmin.active">
+      <span>Active</span>
     </label>
 
-    <div class="mt-3 text-end">
-      <button class="no-style-button me-2"
-              (click)="showCreatePopup=false">
-        Cancel
-      </button>
-      <button class="button-color text-white px-3"
-              (click)="createAdmin()">
-        Save
-      </button>
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" (click)="showCreatePopup=false">Cancel</button>
+      <button type="button" class="primary-btn" (click)="createAdmin()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- MANAGE ACCESS POPUP -->
-<div class="modal-backdrop" *ngIf="showAccessPopup">
+<div class="modal-backdrop" *ngIf="showAccessPopup && selectedAdmin">
   <div class="modal-box">
-    <h4>Manage Access – {{ selectedAdmin.name }}</h4>
+    <h4>Manage Access - {{ selectedAdmin.name }}</h4>
 
-    <div class="row">
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.dashboard"> Dashboard</div>
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.brands"> Brands</div>
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.coupons"> Coupons</div>
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.clients"> Clients</div>
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.employees"> Employees</div>
-      <div class="col"><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.reports"> Reports</div>
+    <div class="permissions-grid">
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.dashboard"> Dashboard</label>
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.brands"> Brands</label>
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.coupons"> Coupons</label>
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.clients"> Clients</label>
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.employees"> Employees</label>
+      <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.reports"> Reports</label>
     </div>
 
-    <div class="mt-3 text-end">
-      <button class="button-color text-white px-3"
-              (click)="showAccessPopup=false">
-        Done
-      </button>
+    <div class="modal-actions">
+      <button type="button" class="primary-btn" (click)="showAccessPopup=false">Done</button>
     </div>
   </div>
 </div>

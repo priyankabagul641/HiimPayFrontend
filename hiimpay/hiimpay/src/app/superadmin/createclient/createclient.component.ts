@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../services/api.service';
 import { ToastrService } from 'ngx-toastr';
+import { AdminDataService } from '../services/adminData.service';
 
 @Component({
   selector: 'app-createclient',
@@ -15,12 +16,20 @@ export class CreateclientComponent {
   createForm!: FormGroup;
   buttonName: any = 'Create'
   consultants:any;
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<CreateclientComponent>, private fb: FormBuilder, private api: ApiService, private toastr: ToastrService) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+   private dialogRef: MatDialogRef<CreateclientComponent>, 
+   private fb: FormBuilder, private api: ApiService, private toastr: ToastrService,
+    private touchService: AdminDataService) {
     if (data.name !== null) {
       this.showcontainer = data.name;
       if (data.clientId > 0) {
         this.clientId = data.clientId;
         console.log(this.clientId);
+      }
+      // support company editing: data.companyId
+      if (data.companyId > 0) {
+        this.clientId = data.companyId;
+        console.log('company edit id', this.clientId);
       }
     }
   }
@@ -46,7 +55,12 @@ export class CreateclientComponent {
     });
     if (this.clientId > 0) {
       this.buttonName = 'Update'
-      this.getClientById();
+      // decide whether this is a client edit or a company edit
+      if (this.data && this.data.isCompany) {
+        this.getCompanyById();
+      } else {
+        this.getClientById();
+      }
     }
   }
 
@@ -55,28 +69,24 @@ export class CreateclientComponent {
       if (this.createForm.valid) {
         const form = this.createForm.value;
         const obj = {
-          client_Name: form.client_Name,
-          contact_Person: form.contact_Person,
-          contact_Email: form.contact_Email,
-          contact_Phone: form.mobile_Number1,
-          mobile_Number1: form.mobile_Number1,
-          mobile_Number2: form.mobile_Number2,
-          landline_Number: form.landline_Number,
-          second_Contact_Email: form.second_Contact_Email,
-          industry: form.industry,
-          location: form.location,
-          consultantId:form.consultantId,
-          status:form.status,
-          loggedUserId: JSON.parse(sessionStorage.getItem("currentLoggedInUserData")!).id,
-        }
+        
+            companyName: form.client_Name,
+            industry: form.industry,
+            contactName: form.contact_Person,
+            contactEmail: form.contact_Email,
+            contactMobile: form.mobile_Number1,
+            status: form.status || 'Active',
+            consultingPhase: form.location || '',
+            isSharedJourneyMap: true,
+            isSharedFeedback: true
+          };
 
         console.log(obj);
-        this.api.createClient(obj).subscribe((res) => {
+        this.touchService.createCompany(obj).subscribe((res) => {
           if (res.success && res.message==='Client registered successfully...!!') {
             this.toastr.success(res.message);
-            this.onClose();
-            window.location.reload();
             this.createForm.reset();
+            this.onClose(true);
           }
           else if(res.message==='Mobile number is already registered.'){
             this.toastr.error(res.message);
@@ -94,39 +104,66 @@ export class CreateclientComponent {
     else if(this.buttonName==='Update'){
       if(this.createForm.valid){
         const form = this.createForm.value;
-        const obj = {
-          client_Name: form.client_Name,
-          contact_Person: form.contact_Person,
-          contact_Email: form.contact_Email,
-          contact_Phone: form.mobile_Number1,
-          mobile_Number1: form.mobile_Number1,
-          mobile_Number2: form.mobile_Number2,
-          landline_Number: form.landline_Number,
-          second_Contact_Email: form.second_Contact_Email,
-          industry: form.industry,
-          location: form.location,
-          loggedUserId: JSON.parse(sessionStorage.getItem("currentLoggedInUserData")!).id,
-          id:this.clientId,
-          status:form.status,
-          consultantId:form.consultantId,
-        }
+        // If editing a company, call company update endpoint with mapped payload
+        if (this.data && this.data.isCompany) {
+          const payload = {
+            id: this.clientId,
+            companyName: form.client_Name,
+            industry: form.industry,
+            contactName: form.contact_Person,
+            contactEmail: form.contact_Email,
+            contactMobile: form.mobile_Number1,
+            status: form.status || 'Active',
+            consultingPhase: form.location || '',
+            isSharedJourneyMap: true,
+            isSharedFeedback: true
+          };
 
-        console.log(obj);
-        this.api.updateClientById(this.clientId,obj).subscribe((res)=>{
-          if(res.success && res.message==='Client updated successfully.'){
-            console.log(res)
-            this.toastr.success(res.message);
-            this.createForm.reset();
-            window.location.reload();
-            this.onClose();
+          this.touchService.updateComponany(this.clientId, payload).subscribe((res) => {
+            if (res && res.success) {
+              this.toastr.success(res.message || 'Company updated successfully');
+              this.createForm.reset();
+              this.onClose(true);
+            } else {
+              this.toastr.error(res?.message || 'Failed to update company');
+            }
+          }, (err) => {
+            this.toastr.error('Failed to update company');
+          });
+        } else {
+          const obj = {
+            client_Name: form.client_Name,
+            contact_Person: form.contact_Person,
+            contact_Email: form.contact_Email,
+            contact_Phone: form.mobile_Number1,
+            mobile_Number1: form.mobile_Number1,
+            mobile_Number2: form.mobile_Number2,
+            landline_Number: form.landline_Number,
+            second_Contact_Email: form.second_Contact_Email,
+            industry: form.industry,
+            location: form.location,
+            loggedUserId: JSON.parse(sessionStorage.getItem("currentLoggedInUserData")!).id,
+            id:this.clientId,
+            status:form.status,
+            consultantId:form.consultantId,
           }
-          else if(res.message==='Mobile number is already registered.'){
-            this.toastr.error(res.message);
-          }
-          else if(res.message==='Email Id is already registered'){
-            this.toastr.error('Email ID is already registered.');
-          }
-        })
+
+          console.log(obj);
+          this.api.updateClientById(this.clientId,obj).subscribe((res)=>{
+            if(res.success && res.message==='Client updated successfully.'){
+              console.log(res)
+              this.toastr.success(res.message);
+              this.createForm.reset();
+              this.onClose(true);
+            }
+            else if(res.message==='Mobile number is already registered.'){
+              this.toastr.error(res.message);
+            }
+            else if(res.message==='Email Id is already registered'){
+              this.toastr.error('Email ID is already registered.');
+            }
+          })
+        }
       }
     }
   }
@@ -164,12 +201,36 @@ export class CreateclientComponent {
     });
   }
 
+  getCompanyById() {
+    // adminData.service provides getAllCompanies() so fetch and find by id
+    this.touchService.getAllCompanies().subscribe((res: any) => {
+      const list = res?.data || [];
+      const company = list.find((c: any) => Number(c.id) === Number(this.clientId));
+      if (company) {
+        this.createForm.patchValue({
+          id: this.clientId,
+          client_Name: company.companyName || '',
+          contact_Person: company.contactName || '',
+          contact_Email: company.contactEmail || '',
+          second_Contact_Email: company.secondContactEmail || '',
+          mobile_Number1: company.contactMobile || '',
+          mobile_Number2: '',
+          landline_Number: '',
+          industry: company.industry || '',
+          location: company.consultingPhase || '',
+          status: company.status || 'ACTIVE',
+          consultantId: ''
+        });
+      }
+    });
+  }
+
   onUpdate(){
 
   }
 
-  onClose(): void {
-    this.dialogRef.close();
+  onClose(result?: any): void {
+    this.dialogRef.close(result);
   }
 
 

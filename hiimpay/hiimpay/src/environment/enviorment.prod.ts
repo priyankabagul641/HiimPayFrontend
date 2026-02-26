@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  baseUrl: 'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com:8080/exwise/api/',
-  baseUrl2: 'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com:8080/exwise/api/',
+  baseUrl: 'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com:8080/hiimpay/',
+  baseUrl2: 'http://ec2-13-201-5-93.ap-south-1.compute.amazonaws.com:8080/hiimpay/',
   // baseUrl:'https://api.exwiseinsight.com/production_exwise/api/',
   // baseUrl2:'https://api.exwiseinsight.com/production_exwise/api/',
   // http://ec2-13-233-173-37.ap-south-1.compute.amazonaws.com:8080/exwise/api/

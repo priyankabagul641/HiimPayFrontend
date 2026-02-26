@@ -1,0 +1,23 @@
+<div class="client-dialog">
+  <div class="head">
+    <h3>Client Details</h3>
+    <button type="button" class="close-btn" (click)="close()">&times;</button>
+  </div>
+
+  <div class="grid">
+    <div><span>ID</span><p>{{ data?.client?.id || '-' }}</p></div>
+    <div><span>Company Name</span><p>{{ data?.client?.companyName || '-' }}</p></div>
+    <div><span>Industry</span><p>{{ data?.client?.industry || '-' }}</p></div>
+    <div><span>Contact Name</span><p>{{ data?.client?.contactName || '-' }}</p></div>
+    <div><span>Contact Email</span><p>{{ data?.client?.contactEmail || '-' }}</p></div>
+    <div><span>Second Email</span><p>{{ data?.client?.contactEmail2 || '-' }}</p></div>
+    <div><span>Contact Mobile</span><p>{{ data?.client?.contactMobile || '-' }}</p></div>
+    <div><span>Second Mobile</span><p>{{ data?.client?.contactMobile2 || '-' }}</p></div>
+    <div><span>Status</span><p>{{ data?.client?.status || '-' }}</p></div>
+    <div><span>Consulting Phase</span><p>{{ data?.client?.consultingPhase || '-' }}</p></div>
+    <div><span>Shared Journey Map</span><p>{{ data?.client?.isSharedJourneyMap ? 'Yes' : 'No' }}</p></div>
+    <div><span>Shared Feedback</span><p>{{ data?.client?.isSharedFeedback ? 'Yes' : 'No' }}</p></div>
+    <div><span>Created At</span><p>{{ data?.client?.createdAt ? (data.client.createdAt | date:'medium') : '-' }}</p></div>
+    <div><span>Updated At</span><p>{{ data?.client?.updatedAt ? (data.client.updatedAt | date:'medium') : '-' }}</p></div>
+  </div>
+</div>

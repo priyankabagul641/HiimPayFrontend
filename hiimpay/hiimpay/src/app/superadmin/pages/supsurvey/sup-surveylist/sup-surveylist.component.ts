@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SurveyApiService } from '../../../project/Components/survey/service/survey-api.service';
+import { AdminDataService } from '../../../services/adminData.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { SearchService } from '../../../services/search.service';
@@ -11,10 +12,13 @@ import { VoucherDetailDialogComponent } from './voucher-detail-dialog/voucher-de
 @Component({
   selector: 'app-sup-surveylist',
   templateUrl: './sup-surveylist.component.html',
-  styleUrl: './sup-surveylist.component.css',
+  styleUrls: ['./sup-surveylist.component.css'],
 })
 export class SupSurveylistComponent implements OnInit {
-  surveyList: any;
+  surveyList: any[] = [];
+  filteredSurveyList: any[] = [];
+  searchTerm = '';
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
   p: number = 0;
   page: number = 1;
   totalPages: any;
@@ -28,10 +32,48 @@ export class SupSurveylistComponent implements OnInit {
   constructor(
     private dialog: MatDialog,
     private api: SurveyApiService,
+    private adminService: AdminDataService,
     private toastr: ToastrService,
     private router: Router,
     private searchservice: SearchService
   ) {}
+
+  ngOnInit(): void {
+    this.loadCoupons();
+
+    this.searchservice.sendResults().subscribe({
+      next: (res: any) => {
+        if (!res || (Array.isArray(res) && res.length === 0)) {
+          this.isLoading = false;
+        } else if (res.success) {
+          this.isLoading = false;
+          this.surveyList = (res.data || []).map((coupon: any) => this.enrichCouponSku(coupon));
+          this.applyFilters();
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  loadCoupons() {
+    this.isLoading = true;
+    this.adminService.getAllCoupouns().subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        const data = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        this.surveyList = (data || []).map((coupon: any) => this.enrichCouponSku(coupon));
+        this.applyFilters();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toastr.error('Unable to fetch coupons');
+        this.surveyList = [];
+        this.applyFilters();
+      }
+    });
+  }
 
   openCreateCoupon(): void {
     const dialogRef = this.dialog.open(CreateCouponComponent, {
@@ -43,169 +85,46 @@ export class SupSurveylistComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
 
-      this.toastr.success('Coupon created (local)');
-      const selectedBrand = this.getCompanyNameById(result.companyId);
-
-      const createdCoupon = {
-        id: Date.now(),
-        external_product_id: `EXT-${Date.now()}`,
-        provider_name: 'GYFTR',
-        product_name: result.title || 'Voucher Product',
-        brand_name: selectedBrand,
+      const payload: any = {
+        couponCode: result.code || null,
+        externalProductId: `EXT-${Date.now()}`,
+        providerName: 'GYFTR',
+        couponName: result.title || result.code || 'Voucher',
+        brand: {
+          id: result.companyId || 0,
+          brandName: this.getCompanyNameById(result.companyId)
+        },
+        category: {
+          categoryName: result.category || 'Lifestyle'
+        },
         description: result.title ? `${result.title} voucher` : 'Voucher description',
-        category: result.category || 'Lifestyle',
-        image_url: result.poster ? result.poster.name : '',
-        redemption_type: 'Online / Offline',
-        denominations: result.discountValue ? [result.discountValue] : [],
-        min_value: Number(result.discountValue || 0),
-        max_value: Number(result.discountValue || 0),
-        discount_percent: result.discountType === 'Percentage' ? Number(result.discountValue || 0) : 0,
-        currency_code: 'INR',
-        country_code: 'IN',
-        expiry_date: result.expiryDate || '2026-12-31',
-        is_active: true,
-        terms_conditions: [
-          'Voucher is valid until expiry date.',
-          'Voucher cannot be exchanged for cash.'
-        ],
-        redeem_steps: [
-          'Open partner app/website.',
-          'Choose voucher and add to cart.',
-          'Apply coupon/voucher code at checkout.'
-        ]
+        imageUrl: typeof result.poster === 'string' ? result.poster : (result.poster ? result.poster.name : ''),
+        discountType: result.discountType || 'Percentage',
+        discountValue: Number(result.discountValue || 0),
+        minOrderValue: Number(result.minPurchase || 0),
+        validFrom: result.startDate || null,
+        validTo: result.expiryDate || null,
+        isActive: true
       };
 
-      this.surveyList = [this.enrichCouponSku(createdCoupon), ...(this.surveyList || [])];
-      this.totalItems = (this.totalItems || 0) + 1;
-    });
-  }
-
-  ngOnInit(): void {
-    this.initializeStaticCouponData();
-
-    this.searchservice.sendResults().subscribe({
-      next: (res: any) => {
-        if (!res || (Array.isArray(res) && res.length === 0)) {
-          this.isLoading = false;
-        } else if (res.success) {
-          this.isLoading = false;
-          this.surveyList = res.data;
-          this.totalItems = res.totalItems || this.totalItems;
-        }
-      },
-      error: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  initializeStaticCouponData() {
-    const staticCoupons = [
-      {
-        id: 1,
-        external_product_id: 'GYFTR-AMZ-500',
-        provider_name: 'GYFTR',
-        product_name: 'Amazon Gift Card - Rs 500',
-        brand_name: 'Amazon',
-        description: 'Amazon gift card with value Rs 500',
-        category: 'Lifestyle',
-        image_url: 'amazon-logo.png',
-        redemption_type: 'Online',
-        denominations: [500],
-        min_value: 500,
-        max_value: 500,
-        discount_percent: 2,
-        currency_code: 'INR',
-        country_code: 'IN',
-        expiry_date: '2026-12-31',
-        is_active: true,
-        terms_conditions: [
-          'Applicable on eligible products only.',
-          'Single use per transaction.'
-        ],
-        redeem_steps: [
-          'Login to Amazon account.',
-          'Go to gift card redemption page.',
-          'Enter code and confirm.'
-        ]
-      },
-      {
-        id: 2,
-        external_product_id: 'XOXO-BATA-1000',
-        provider_name: 'XOXODAY',
-        product_name: 'Bata Voucher',
-        brand_name: 'Bata',
-        description: 'Bata footwear voucher',
-        category: 'Footwear',
-        image_url: 'bata-logo.png',
-        redemption_type: 'Offline',
-        denominations: [500, 1000],
-        min_value: 500,
-        max_value: 1000,
-        discount_percent: 4,
-        currency_code: 'INR',
-        country_code: 'IN',
-        expiry_date: '2026-11-30',
-        is_active: true,
-        terms_conditions: [
-          'Valid only in selected Bata stores.',
-          'Not valid with other promotions.'
-        ],
-        redeem_steps: [
-          'Visit nearest store.',
-          'Show voucher at billing counter.',
-          'Complete redemption before expiry.'
-        ]
-      },
-      {
-        id: 3,
-        external_product_id: 'HMBL-FLPK-VAR',
-        provider_name: 'MYHUMBLE',
-        product_name: 'Flipkart Variable Voucher',
-        brand_name: 'Flipkart',
-        description: 'Flipkart variable value voucher',
-        category: 'Clothing',
-        image_url: 'flipkart-logo.png',
-        redemption_type: 'Online / Offline',
-        denominations: [100, 200, 500, 1000],
-        min_value: 100,
-        max_value: 1000,
-        discount_percent: 3,
-        currency_code: 'INR',
-        country_code: 'IN',
-        expiry_date: '2026-10-31',
-        is_active: false,
-        terms_conditions: [
-          'Redeemable for eligible categories only.',
-          'Cannot be revalidated after expiry.'
-        ],
-        redeem_steps: [
-          'Select product on Flipkart.',
-          'Proceed to payment page.',
-          'Apply code and place order.'
-        ]
-      }
-    ];
-
-    this.surveyList = staticCoupons.map((coupon) => this.enrichCouponSku(coupon));
-    this.totalItems = staticCoupons.length;
-  }
-
-  getAllSurveyTypes() {
-    this.isLoading = true;
-    this.api
-      .getAllSurveyPagination(this.page - 1, this.size, this.orderBy, this.sortBy)
-      .subscribe({
+      this.adminService.createCoupoun(payload).subscribe({
         next: (res: any) => {
-          this.isLoading = false;
-          this.surveyList = res.data;
-          this.totalItems = res.totalItems;
+          const created = (res && res.data) ? res.data : res;
+          const obj = Array.isArray(created) ? created[0] : created;
+          if (obj) {
+            this.surveyList = [this.enrichCouponSku(obj), ...(this.surveyList || [])];
+            this.applyFilters();
+            this.toastr.success('Coupon created successfully');
+          } else {
+            this.toastr.success('Coupon created');
+            this.loadCoupons();
+          }
         },
         error: () => {
-          this.toastr.error('Internal server error');
-          this.isLoading = false;
-        },
+          this.toastr.error('Failed to create coupon');
+        }
       });
+    });
   }
 
   deleteSurvey(coupon: any) {
@@ -217,11 +136,72 @@ export class SupSurveylistComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result.action !== 'ok') return;
+      if (!result || result.action !== 'ok') return;
 
-      this.surveyList = (this.surveyList || []).filter((x: any) => x.id !== coupon.id);
-      this.totalItems = Math.max((this.totalItems || 1) - 1, 0);
-      this.toastr.success('Coupon deactivated successfully.');
+      this.adminService.deleteCoupoun(coupon.id).subscribe({
+        next: () => {
+          this.surveyList = (this.surveyList || []).filter((x: any) => x.id !== coupon.id);
+          this.applyFilters();
+          this.toastr.success('Coupon deactivated successfully.');
+        },
+        error: () => {
+          this.toastr.error('Failed to deactivate coupon');
+        }
+      });
+    });
+  }
+
+  editCoupon(coupon: any) {
+    const ref = this.dialog.open(CreateCouponComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { mode: 'update', coupon }
+    });
+
+    ref.afterClosed().subscribe((result) => {
+      if (!result) return;
+
+      const id = result.id || coupon.id;
+      const payload: any = {
+        couponCode: result.code || coupon.couponCode || coupon.coupon_sku,
+        externalProductId: coupon.externalProductId || coupon.external_product_id || `EXT-${Date.now()}`,
+        providerName: coupon.providerName || coupon.provider_name || 'GYFTR',
+        couponName: result.title || coupon.couponName || coupon.product_name,
+        brand: {
+          id: result.companyId || coupon.brand?.id || 0,
+          brandName: this.getCompanyNameById(result.companyId || coupon.brand?.id)
+        },
+        category: { categoryName: result.category || coupon.category?.categoryName || coupon.category },
+        description: result.title || coupon.description || '',
+        imageUrl: typeof result.poster === 'string' ? result.poster : (result.poster ? result.poster.name : coupon.imageUrl || ''),
+        discountType: result.discountType || coupon.discountType,
+        discountValue: Number(result.discountValue || coupon.discountValue || coupon.discount_percent || 0),
+        minOrderValue: Number(result.minPurchase || coupon.minOrderValue || 0),
+        validFrom: result.startDate || coupon.validFrom || null,
+        validTo: result.expiryDate || coupon.validTo || coupon.expiry_date || null,
+        isActive: coupon.is_active !== undefined ? coupon.is_active : (coupon.isActive !== undefined ? coupon.isActive : true)
+      };
+
+      this.adminService.updateCoupoun(id, payload).subscribe({
+        next: (res: any) => {
+          const updated = (res && res.data) ? res.data : res;
+          const obj = Array.isArray(updated) ? updated[0] : updated;
+          if (obj) {
+            const idx = this.surveyList.findIndex((c) => c.id === id || c.id === obj.id);
+            if (idx >= 0) this.surveyList[idx] = this.enrichCouponSku({ ...this.surveyList[idx], ...obj });
+            else this.surveyList = [this.enrichCouponSku(obj), ...(this.surveyList || [])];
+            this.applyFilters();
+            this.toastr.success('Coupon updated successfully');
+          } else {
+            this.toastr.success('Coupon updated');
+            this.loadCoupons();
+          }
+        },
+        error: () => {
+          this.toastr.error('Failed to update coupon');
+        }
+      });
     });
   }
 
@@ -236,7 +216,38 @@ export class SupSurveylistComponent implements OnInit {
 
   pageChangeEvent(event: number) {
     this.page = event;
-    this.getAllSurveyTypes();
+  }
+
+  onFiltersChanged() {
+    this.page = 1;
+    this.applyFilters();
+  }
+
+  private applyFilters() {
+    const keyword = (this.searchTerm || '').trim().toLowerCase();
+
+    this.filteredSurveyList = (this.surveyList || []).filter((item: any) => {
+      const status = item?.is_active ? 'active' : 'inactive';
+      const statusMatch = this.statusFilter === 'all' || this.statusFilter === status;
+      if (!statusMatch) return false;
+      if (!keyword) return true;
+
+      const haystack = [
+        item?.external_product_id,
+        item?.coupon_sku,
+        item?.provider_name,
+        item?.product_name,
+        item?.brand_name,
+        item?.category,
+        item?.expiry_date
+      ]
+        .map((x: any) => (x ?? '').toString().toLowerCase())
+        .join(' ');
+
+      return haystack.includes(keyword);
+    });
+
+    this.totalItems = this.filteredSurveyList.length;
   }
 
   private getCompanyNameById(companyId: number): string {

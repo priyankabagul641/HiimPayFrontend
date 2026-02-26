@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { BrandCategoryCouponsDialogComponent } from '../voucher-brand-list/brand-category-coupons-dialog/brand-category-coupons-dialog.component';
+import { AdminDataService } from '../../services/adminData.service';
 
 interface ClientBrand {
   clientId: string;
@@ -24,55 +25,59 @@ interface ClientBrand {
 export class ClientBrandListPageComponent implements OnInit {
   rows: ClientBrand[] = [];
   filtered: ClientBrand[] = [];
+  loading = false;
   q = '';
   selectedClient = 'ALL';
   inStockOnly = false;
 
   constructor(
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private adminService: AdminDataService
   ) {}
 
   ngOnInit(): void {
-    this.rows = [
-      {
-        clientId: '101',
-        clientName: 'Infosys',
-        brandId: 'BATA001',
-        brandName: 'Bata',
-        brandProductCode: 'BATA001',
-        brandSku: this.generateBrandSku('Bata'),
-        categories: ['Footwear', 'Lifestyle'],
-        epayMinValue: 10,
-        epayMaxValue: 1050,
-        stockAvailable: true
+    this.loadClientBrands();
+  }
+
+  loadClientBrands() {
+    this.loading = true;
+    this.adminService.getAllClientBrands().subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        // normalize response to an array: support res array, res.data array, res.data.content, res.data.items, or single object
+        let data: any[] = [];
+        if (!res) data = [];
+        else if (Array.isArray(res)) data = res;
+        else if (res.data) {
+          if (Array.isArray(res.data)) data = res.data;
+          else if (Array.isArray(res.data.content)) data = res.data.content;
+          else if (Array.isArray(res.data.items)) data = res.data.items;
+          else if (typeof res.data === 'object') data = [res.data];
+        } else {
+          data = [];
+        }
+        console.log('loadClientBrands - normalized data length:', data.length, 'raw response:', res);
+        this.rows = (data || []).map((r: any) => ({
+          clientId: (r.clientId || r.client_id || r.client?.id || r.id || '').toString(),
+          clientName: r.clientName || r.companyName || r.client?.name || r.client_name || r.client?.companyName || 'Unknown',
+          brandId: (r.brandId || r.brand?.id || r.brand_id || r.brandId || '').toString(),
+          brandName: r.brandName || r.brand?.brandName || r.brand?.name || r.brand_name || r.brand?.BrandName || '',
+          brandProductCode: r.brandProductCode || r.brand?.brandProductCode || r.brandProductCode || '',
+          brandSku: r.brandSku || r.brand?.brandSku || r.brand?.brandProductCode || this.generateBrandSku(r.brand?.brandName || r.brandName || ''),
+          categories: r.categories || r.brand?.categories || r.categoryList || [],
+          epayMinValue: r.epayMinValue ?? r.brand?.epayMinValue ?? 0,
+          epayMaxValue: r.epayMaxValue ?? r.brand?.epayMaxValue ?? 0,
+          stockAvailable: r.stockAvailable ?? r.brand?.stockAvailable ?? true
+        }));
+        this.applyFilters();
       },
-      {
-        clientId: '102',
-        clientName: 'TCS',
-        brandId: 'AMZN001',
-        brandName: 'Amazon',
-        brandProductCode: 'AMZN001',
-        brandSku: this.generateBrandSku('Amazon'),
-        categories: ['Lifestyle', 'Electronics'],
-        epayMinValue: 100,
-        epayMaxValue: 10000,
-        stockAvailable: true
-      },
-      {
-        clientId: '103',
-        clientName: 'Wipro',
-        brandId: 'FLPK001',
-        brandName: 'Flipkart',
-        brandProductCode: 'FLPK001',
-        brandSku: this.generateBrandSku('Flipkart'),
-        categories: ['Clothing', 'Electronics'],
-        epayMinValue: 50,
-        epayMaxValue: 5000,
-        stockAvailable: false
+      error: () => {
+        this.loading = false;
+        this.rows = [];
+        this.applyFilters();
       }
-    ];
-    this.applyFilters();
+    });
   }
 
   get clientOptions(): string[] {
@@ -103,9 +108,32 @@ export class ClientBrandListPageComponent implements OnInit {
     this.router.navigate(['superadmin', 'project', item.clientId, 'client-coupons', item.brandId]);
   }
 
-  openBrandCategoryCoupons(item: ClientBrand, event: MouseEvent) {
+  openBrandCategoryCoupons(clientId: string, item: ClientBrand, event: MouseEvent) {
     event.stopPropagation();
+    const requestId = clientId || item.clientId;
 
+    this.loading = true;
+    this.adminService.getClientBrandById(requestId).subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        const client = (res && res.data) ? res.data : res;
+        this.openBrandDialog(item, client);
+      },
+      error: (err: any) => {
+        this.loading = false;
+        console.error('getClientBrandById error', err);
+        this.openBrandDialog(item, {
+          id: requestId || '-',
+          companyName: item.clientName,
+          contactEmail: '-',
+          contactMobile: '-',
+          status: item.stockAvailable ? 'active' : 'inactive'
+        });
+      }
+    });
+  }
+
+  private openBrandDialog(item: ClientBrand, client: any) {
     this.dialog.open(BrandCategoryCouponsDialogComponent, {
       width: '980px',
       maxHeight: '90vh',
@@ -116,7 +144,8 @@ export class ClientBrandListPageComponent implements OnInit {
           brandSku: item.brandSku,
           categories: item.categories
         },
-        categoryCoupons: this.buildCategoryCoupons(item)
+        categoryCoupons: this.buildCategoryCoupons(item),
+        client
       }
     });
   }

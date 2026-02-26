@@ -1,63 +1,123 @@
-<div class="row ">
-  <div class="col "></div>
-  <div class="col  d-flex justify-content-end align-self-center mb-2">
-    <button class="p-2 rounded button-color text-white border-0" (click)="openCreateCoupon()">Create Coupon</button>
+<section class="coupon-shell">
+  <div class="coupon-header">
+    <h2>Coupon Dashboard</h2>
+    <button type="button" class="create-btn" (click)="openCreateCoupon()">
+      <mat-icon>add</mat-icon>
+      <span>Create Coupon</span>
+    </button>
   </div>
-</div>
 
-<section style="height: 100%; padding-bottom: 5%; position: relative">
-  <div *ngIf="!isLoading">
-    <div class="row table-row row-head gx-0">
-      <div class="col">Product ID</div>
-      <div class="col">SKU</div>
-      <div class="col">provider_name</div>
-      <div class="col">product_name</div>
-      <div class="col">brand_name</div>
-      <div class="col">category</div>
-      <div class="col">value_range</div>
-      <div class="col">discount_percent</div>
-      <div class="col">expiry_date</div>
-      <div class="col">status</div>
-      <div class="col">Action</div>
+  <div class="toolbar-card">
+    <div class="toolbar-grid">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by product, brand, provider, sku..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChanged()">
+
+      <select
+        class="filter-select"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="onFiltersChanged()">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
     </div>
+  </div>
 
-    <div class="tableCointainer" *ngIf="surveyList?.length > 0">
-      <div
-        class="row gx-0 table-row row-body px-0"
-        *ngFor="let item of surveyList | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }"
-      >
-        <div class="col">{{ item?.external_product_id || '-' }}</div>
-        <div class="col">{{ item?.coupon_sku || '-' }}</div>
-        <div class="col">{{ item?.provider_name || '-' }}</div>
-        <div class="col">{{ item?.product_name || '-' }}</div>
-        <div class="col">{{ item?.brand_name || '-' }}</div>
-        <div class="col">{{ item?.category || '-' }}</div>
-        <div class="col">{{ (item?.min_value ?? '-') + ' / ' + (item?.max_value ?? '-') }}</div>
-        <div class="col">{{ (item?.discount_percent ?? '-') }}</div>
-        <div class="col">{{ item?.expiry_date || '-' }}</div>
-        <div class="col">{{ item?.is_active ? 'Active' : 'Inactive' }}</div>
+  <div class="loader-wrap" *ngIf="isLoading">
+    <i class="fa fa-spinner fa-spin loader-icon"></i>
+  </div>
 
-        <div class="col">
-          <button class="btn btn-sm button-color text-white me-2" (click)="openViewCoupon(item)">
-            View
-          </button>
-          <button class="btn btn-sm btn-outline-danger" (click)="deleteSurvey(item)">
-            Delete
-          </button>
-        </div>
+  <ng-container *ngIf="!isLoading">
+    <div class="table-card" *ngIf="filteredSurveyList && filteredSurveyList.length > 0; else emptyState">
+      <div class="desktop-table">
+        <table class="coupon-table">
+          <thead>
+            <tr>
+              <th class="col-sku text-left">SKU</th>
+              <th class="col-provider text-left">Provider</th>
+              <th class="col-product text-left">Product</th>
+              <th class="col-brand text-left">Brand</th>
+              <th class="col-category text-left">Category</th>
+              <th class="col-value text-center">Value</th>
+              <th class="col-discount text-center">Discount %</th>
+              <th class="col-expiry text-center">Expiry</th>
+              <th class="col-status text-center">Status</th>
+              <th class="col-action text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of filteredSurveyList | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }; let i = index"
+              [class.alt-row]="i % 2 === 1">
+              <td class="text-left truncate-cell" [title]="item?.coupon_sku || '-'">{{ item?.coupon_sku || '-' }}</td>
+              <td class="text-left truncate-cell" [title]="item?.provider_name || '-'">{{ item?.provider_name || '-' }}</td>
+              <td class="text-left truncate-cell" [title]="item?.product_name || '-'">{{ item?.product_name || '-' }}</td>
+              <td class="text-left truncate-cell" [title]="item?.brand_name || '-'">{{ item?.brand_name || '-' }}</td>
+              <td class="text-left truncate-cell" [title]="item?.category || '-'">{{ item?.category || '-' }}</td>
+              <td class="text-center nowrap">{{ (item?.min_value != null ? item.min_value : '-') + ' / ' + (item?.max_value != null ? item.max_value : '-') }}</td>
+              <td class="text-center nowrap">{{ item?.discount_percent != null ? item.discount_percent : '-' }}</td>
+              <td class="text-center nowrap">{{ item?.expiry_date || '-' }}</td>
+              <td class="text-center">
+                <span class="status-badge" [class.badge-active]="item?.is_active" [class.badge-inactive]="!item?.is_active">
+                  {{ item?.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="action-group">
+                  <button type="button" class="icon-btn view-btn" title="View" (click)="openViewCoupon(item)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button type="button" class="icon-btn delete-btn" title="Delete" (click)="deleteSurvey(item)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="text-end my-4" style="font-weight: 300 !important; font-size: 13px">
+      <div class="mobile-cards">
+        <article
+          class="coupon-card"
+          *ngFor="let item of filteredSurveyList | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }">
+          <h4 [title]="item?.product_name || '-'">{{ item?.product_name || '-' }}</h4>
+          <p><strong>SKU:</strong> <span [title]="item?.coupon_sku || '-'">{{ item?.coupon_sku || '-' }}</span></p>
+          <p><strong>Brand:</strong> {{ item?.brand_name || '-' }}</p>
+          <p><strong>Provider:</strong> {{ item?.provider_name || '-' }}</p>
+          <p><strong>Value:</strong> {{ (item?.min_value != null ? item.min_value : '-') + ' / ' + (item?.max_value != null ? item.max_value : '-') }}</p>
+          <p><strong>Expiry:</strong> {{ item?.expiry_date || '-' }}</p>
+          <p>
+            <strong>Status:</strong>
+            <span class="status-badge" [class.badge-active]="item?.is_active" [class.badge-inactive]="!item?.is_active">
+              {{ item?.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </p>
+          <div class="mobile-actions">
+            <button type="button" class="icon-btn view-btn" title="View" (click)="openViewCoupon(item)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button type="button" class="icon-btn delete-btn" title="Delete" (click)="deleteSurvey(item)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="pagination-wrap">
         <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
       </div>
     </div>
-  </div>
 
-  <div class="text-center my-5">
-    <i *ngIf="isLoading" class="fa fa-spinner fa-spin" style="font-size:64px;color: #103a7f;"></i>
-  </div>
-
-  <div class="text-center unavailability" *ngIf="surveyList?.length <= 0">
-    No data available
-  </div>
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <h4>No coupons found</h4>
+        <p>Try changing the search text or status filter.</p>
+      </div>
+    </ng-template>
+  </ng-container>
 </section>

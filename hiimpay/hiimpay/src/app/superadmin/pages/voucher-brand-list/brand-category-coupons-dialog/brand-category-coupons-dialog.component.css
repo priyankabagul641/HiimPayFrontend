@@ -43,30 +43,42 @@
   font-size: 12px;
 }
 
-.category-block {
-  margin-bottom: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
+.client-card {
+  border: 1px solid #e5edf7;
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 12px;
 }
 
-.category-block h4 {
-  margin: 0;
-  padding: 10px 12px;
-  background: #f8fafc;
+.client-card h4 {
+  margin: 0 0 10px;
   color: #103a7f;
 }
 
-.coupon-head {
-  background: #103a7f;
-  color: #fff;
-  font-weight: 600;
-  padding: 8px 10px;
+.client-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.coupon-row {
-  padding: 10px;
-  border-top: 1px solid #eef2f7;
+.client-grid span {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.client-grid p {
+  margin: 0;
+  color: #0f172a;
   font-size: 13px;
+}
+
+@media (max-width: 680px) {
+  .client-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

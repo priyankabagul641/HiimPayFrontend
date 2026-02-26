@@ -145,32 +145,42 @@ export class AdminloginComponent implements OnInit {
 
       this.apiService.authLoginwithoutJwt(obj).subscribe({
         next: (res: any) => {
-          if (res.message === 'Current logged in Employee ') {
-            const obj = { deviceId: this.pushToken };
-            this.jwtAuthService.setToken(res.data);
-            this.reloadCaptcha();
+            // Expecting new response shape: { data: { token, user }, message, success }
+            if (res && res.success && res.data && res.data.token && res.data.user) {
+              const token = res.data.token;
+              const user = res.data.user;
 
-            this.jwtAuthService.getLoggedInUser()!.subscribe({
-              next: (userRes: any) => {
-                sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
-                const clientId = userRes.data.clientId;
+              // store token and user info
+              this.jwtAuthService.setToken(token);
+              sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(user));
+              this.reloadCaptcha();
 
-                if (userRes.data.typeOfUser === 0) {
+              // route based on userType mapping
+              const userType = (user.userType || '').toString().toUpperCase();
+              if (userType === 'ADMIN') {
+                this.router.navigate(['/superadmin']);
+                sessionStorage.setItem('isCpoc', 'false');
+              } else if (userType === 'CPOC') {
+                // CPOC should be routed to /cpoc/:clientId
+                const clientId = user.companyId || user.clientId || null;
+                if (clientId) {
+                  this.router.navigate(['/cpoc', clientId]);
+                  sessionStorage.setItem('isCpoc', 'true');
+                } else {
                   this.router.navigate(['/superadmin']);
-                  this.toastr.success('Your login was successful!!');
-                  this.loginForm.reset();
-                  sessionStorage.setItem('isCpoc', 'false');
                 }
-              },
-              error: (err) => {
-                console.error('Failed to fetch user data:', err);
+              } else {
+                // default to client employee dashboard
+                this.router.navigate(['/clientEmployee/dashboard']);
               }
-            });
-          } else {
-            this.reloadCaptcha();
-            this.toastr.error(res.message || 'Authentication failed.');
-            this.displayMsg = res.message || 'Authentication failed.';
-          }
+
+              this.toastr.success('Your login was successful!!');
+              this.loginForm.reset();
+            } else {
+              this.reloadCaptcha();
+              this.toastr.error(res?.message || 'Authentication failed.');
+              this.displayMsg = res?.message || 'Authentication failed.';
+            }
         },
         error: (error: any) => {
           this.reloadCaptcha();

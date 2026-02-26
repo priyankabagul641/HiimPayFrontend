@@ -24,58 +24,79 @@
     </div>
 
     <div class="table-card" *ngIf="activeTab==='coupons' && couponRows.length > 0; else noCouponData">
-      <div class="row table-row row-head gx-0">
-        <div class="col">Assigned Date</div>
-        <div class="col">Brand Name</div>
-        <div class="col">Coupons</div>
-        <div class="col">Employees</div>
-        <div class="col">Action</div>
-      </div>
-
-      <div class="row table-row row-body gx-0" *ngFor="let item of couponRows">
-        <div class="col">{{ item.assignedDate | date:'medium' }}</div>
-        <div class="col">{{ item.brandName }}</div>
-        <div class="col">{{ item.coupons?.length }}</div>
-        <div class="col">{{ item.employees?.length }}</div>
-        <div class="col">
-          <button
-            type="button"
-            class="btn btn-sm action-btn icon-action-btn"
-            (click)="downloadAssignmentReport(item, 'coupon')"
-            aria-label="Download coupon assignment report"
-            title="Download report">
-            <i class="fa fa-download" aria-hidden="true"></i>
-          </button>
-        </div>
+      <div class="table-scroll">
+        <table class="assignment-table">
+          <colgroup>
+            <col class="col-date">
+            <col class="col-brand">
+            <col class="col-coupons">
+            <col class="col-employees">
+            <col class="col-action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="text-left">Assigned Date</th>
+              <th class="text-left">Brand Name</th>
+              <th class="text-center">Coupons</th>
+              <th class="text-center">Employees</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of couponRows">
+              <td class="text-left">{{ item.assignedDate | date:'medium' }}</td>
+              <td class="text-left">{{ item.brandName }}</td>
+              <td class="text-center">{{ item.coupons?.length }}</td>
+              <td class="text-center">{{ item.employees?.length }}</td>
+              <td class="text-center">
+                <button
+                  type="button"
+                  class="btn btn-sm action-btn icon-action-btn"
+                  (click)="downloadAssignmentReport(item, 'coupon')"
+                  aria-label="Download coupon assignment report"
+                  title="Download report">
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <div class="table-card" *ngIf="activeTab==='amounts' && amountRows.length > 0; else noAmountData">
-      <div class="row table-row row-head gx-0">
-        <div class="col">Assigned Date</div>
-        <div class="col">Mode</div>
-        <div class="col">Amount</div>
-        <div class="col">Employees</div>
-        <div class="col">File</div>
-        <div class="col">Action</div>
-      </div>
-
-      <div class="row table-row row-body gx-0" *ngFor="let item of amountRows">
-        <div class="col">{{ item.assignedDate | date:'medium' }}</div>
-        <div class="col">{{ item.source }}</div>
-        <div class="col">{{ item.amount ? ('Rs ' + item.amount) : '-' }}</div>
-        <div class="col">{{ item.employees?.length }}</div>
-        <div class="col">{{ item.fileName }}</div>
-        <div class="col">
-          <button
-            type="button"
-            class="btn btn-sm action-btn icon-action-btn"
-            (click)="downloadAssignmentReport(item, 'amount')"
-            aria-label="Download amount assignment report"
-            title="Download report">
-            <i class="fa fa-download" aria-hidden="true"></i>
-          </button>
-        </div>
+      <div class="table-scroll">
+        <table class="assignment-table amount-table">
+          <thead>
+            <tr>
+              <th class="text-left">Assigned Date</th>
+              <th class="text-left">Mode</th>
+              <th class="text-center">Amount</th>
+              <th class="text-center">Employees</th>
+              <th class="text-left">File</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of amountRows">
+              <td class="text-left">{{ item.assignedDate | date:'medium' }}</td>
+              <td class="text-left">{{ item.source }}</td>
+              <td class="text-center">{{ item.amount ? ('Rs ' + item.amount) : '-' }}</td>
+              <td class="text-center">{{ item.employees?.length }}</td>
+              <td class="text-left">{{ item.fileName }}</td>
+              <td class="text-center">
+                <button
+                  type="button"
+                  class="btn btn-sm action-btn icon-action-btn"
+                  (click)="downloadAssignmentReport(item, 'amount')"
+                  aria-label="Download amount assignment report"
+                  title="Download report">
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

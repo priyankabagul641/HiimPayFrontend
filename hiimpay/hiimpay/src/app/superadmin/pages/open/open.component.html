@@ -1,100 +1,157 @@
-<div class="container my-2">
-  <div class="row">
-    <div class="col-lg col-md col-sm-12">
-      <div class="d-flex align-items-center justify-content-between">
-        <h3 style="margin: 0; color: #103a7f; font-weight: bolder;">
-          Company dashboard
-        </h3>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container my-2" style="position: relative;">
-  <div class="row mb-3">
-    <div class="col-lg col-md col-sm-12">
-      <div class="d-flex align-items-center justify-content-between"></div>
-    </div>
+<section class="dashboard-shell">
+  <div class="dashboard-head">
+    <h3>Company dashboard</h3>
   </div>
 
-  <section style="height: 100%; padding-bottom: 5%;">
-    <!-- TABLE HEADER -->
-    <div class="row table-row row-head gx-0" style="color: white;">
-      <div class="col">Logo</div>
-      <div class="col">Company Name</div>
-      <div class="col">Registered Address</div>
-      <div class="col">Pincode / ZIP</div>
-      <div class="col">Mobile number 1</div>
-      <div class="col">Mobile number 2</div>
-      <div class="col">Landline number</div>
-      <div class="col">Company Email</div>
-      <div class="col">Second Email</div>
-      <div class="col text-center">Action</div>
+  <div class="toolbar-card">
+    <div class="toolbar-grid">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search company or pincode..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChanged()">
+
+      <select
+        class="filter-select"
+        [(ngModel)]="filterType"
+        (ngModelChange)="onFiltersChanged()">
+        <option value="company">Filter: Company Name</option>
+        <option value="pincode">Filter: Pincode</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-card" *ngIf="filteredData.length > 0; else noDataBlock">
+    <div class="table-scroll desktop-only">
+      <table class="company-table">
+        <thead>
+          <tr>
+            <th class="col-logo text-left">Logo</th>
+            <th class="col-company text-left">Company Name</th>
+            <th class="col-pin text-center">Pincode</th>
+            <th class="col-mobile text-center">Primary Mobile</th>
+            <th class="col-email text-left">Company Email</th>
+            <th class="col-status text-center">Status</th>
+            <th class="col-action text-center">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <ng-container *ngFor="let item of filteredData | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }; let i = index">
+            <tr [class.alt-row]="i % 2 === 1">
+              <td class="text-left align-middle">
+                <img class="company-logo" [src]="item.companyLogo" alt="logo">
+              </td>
+              <td class="text-left align-middle">
+                <button class="company-link" (click)="setClientId($event, item.id)" [title]="item.companyName || item.clientName">
+                  {{ item.companyName || item.clientName }}
+                </button>
+              </td>
+              <td class="text-center align-middle nowrap">{{ item.pincode || '-' }}</td>
+              <td class="text-center align-middle nowrap">{{ item.mobileNumber1 || item.mobile_Number1 || item.contactMobile || '-' }}</td>
+              <td class="text-left align-middle truncate-cell" [title]="item.contactEmail || '-'">
+                {{ item.contactEmail || '-' }}
+              </td>
+              <td class="text-center align-middle">
+                <span class="status-badge">{{ item.consultinghaseName || 'Open' }}</span>
+              </td>
+              <td class="text-center align-middle">
+                <button *ngIf="isAdmin()" type="button" class="icon-btn" title="Edit" (click)="editClient(item.id); $event.stopPropagation();">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [title]="isExpanded(item.id) ? 'Hide details' : 'View details'"
+                  (click)="toggleExpanded(item.id)">
+                  <mat-icon>{{ isExpanded(item.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </td>
+            </tr>
+
+            <tr class="details-row" *ngIf="isExpanded(item.id)">
+              <td colspan="7">
+                <div class="details-grid">
+                  <div>
+                    <p>Registered Address</p>
+                    <span [title]="item.registeredAddress || '-'">{{ item.registeredAddress || '-' }}</span>
+                  </div>
+                  <div>
+                    <p>Mobile Number 2</p>
+                    <span>{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</span>
+                  </div>
+                  <div>
+                    <p>Landline</p>
+                    <span>{{ item.landlineNumber || item.landline_Number || '-' }}</span>
+                  </div>
+                  <div>
+                    <p>Second Email</p>
+                    <span [title]="item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-'">
+                      {{ item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
     </div>
 
-    <!-- TABLE BODY -->
-    <div class="tableCointainer" *ngIf="data.length > 0">
-      <div
-        class="row gx-0 table-row row-body px-0"
-        *ngFor="let item of data | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }"
-        (click)="setClientId($event, item.id)"
-      >
-        <div class="col">
-          <img
-            [src]="item.companyLogo"
-            alt="logo"
-            style="width:60px;height:40px;object-fit:cover;border-radius:4px"
-          />
-        </div>
-
-        <div class="col">
-          {{ item.companyName || item.clientName }}
-        </div>
-
-        <div class="col">
-          {{ item.registeredAddress }}
-        </div>
-
-        <div class="col">
-          {{ item.pincode }}
-        </div>
-
-        <div class="col">{{ item.mobileNumber1 || item.mobile_Number1 || item.contactPhone || '-' }}</div>
-        <div class="col">{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</div>
-        <div class="col">{{ item.landlineNumber || item.landline_Number || '-' }}</div>
-
-        <div class="col">
-          {{ item.contactEmail }}
-        </div>
-        <div class="col">
-          {{ item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-' }}
-        </div>
-
-        <!-- ACTION COLUMN -->
-        <div class="col text-center">
-          <button
-            mat-icon-button
-            color="primary"
-            title="Edit Company"
-            (click)="editClient(item.id); $event.stopPropagation()"
-          >
+    <div class="mobile-only">
+      <article class="mobile-card" *ngFor="let item of filteredData | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }">
+        <div class="mobile-head">
+          <img class="company-logo" [src]="item.companyLogo" alt="logo">
+          <button *ngIf="isAdmin()" type="button" class="icon-btn" title="Edit" (click)="editClient(item.id); $event.stopPropagation();">
             <mat-icon>edit</mat-icon>
           </button>
+
+          <button
+            type="button"
+            class="icon-btn"
+            [title]="isExpanded(item.id) ? 'Hide details' : 'View details'"
+            (click)="toggleExpanded(item.id)">
+            <mat-icon>{{ isExpanded(item.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
         </div>
-      </div>
 
-      <!-- PAGINATION -->
-      <div class="text-end my-4" style="font-weight: 300; font-size: 13px">
-        <pagination-controls
-          (pageChange)="pageChangeEvent($event)"
-          [maxSize]="5">
-        </pagination-controls>
-      </div>
+        <button class="company-link mobile-link" (click)="setClientId($event, item.id)">
+          {{ item.companyName || item.clientName }}
+        </button>
+
+        <div class="mobile-row"><strong>Pincode:</strong> <span>{{ item.pincode || '-' }}</span></div>
+        <div class="mobile-row"><strong>Primary Mobile:</strong> <span>{{ item.mobileNumber1 || item.mobile_Number1 || item.contactPhone || '-' }}</span></div>
+        <div class="mobile-row truncate-cell"><strong>Email:</strong> <span [title]="item.contactEmail || '-'">{{ item.contactEmail || '-' }}</span></div>
+        <div class="mobile-row"><strong>Status:</strong> <span class="status-badge">{{ item.consultinghaseName || 'Open' }}</span></div>
+
+        <div class="mobile-details" *ngIf="isExpanded(item.id)">
+          <div class="mobile-row"><strong>Registered Address:</strong> <span [title]="item.registeredAddress || '-'">{{ item.registeredAddress || '-' }}</span></div>
+          <div class="mobile-row"><strong>Mobile 2:</strong> <span>{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</span></div>
+          <div class="mobile-row"><strong>Landline:</strong> <span>{{ item.landlineNumber || item.landline_Number || '-' }}</span></div>
+          <div class="mobile-row truncate-cell">
+            <strong>Second Email:</strong>
+            <span [title]="item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-'">
+              {{ item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-' }}
+            </span>
+          </div>
+        </div>
+      </article>
     </div>
-  </section>
 
-  <!-- NO DATA -->
-  <div class="text-center unavailability" *ngIf="data.length <= 0">
-    No data available
+    <div class="pager-wrap">
+      <span class="pager-info">
+        Showing {{ (p - 1) * itemPerPage + 1 }}-{{ getPageUpperBound() }} of {{ totalItems }}
+      </span>
+      <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
+    </div>
   </div>
-</div>
+
+  <ng-template #noDataBlock>
+    <div class="empty-state">
+      <h4>No companies found</h4>
+      <p>Try changing your search text or filter.</p>
+    </div>
+  </ng-template>
+</section>

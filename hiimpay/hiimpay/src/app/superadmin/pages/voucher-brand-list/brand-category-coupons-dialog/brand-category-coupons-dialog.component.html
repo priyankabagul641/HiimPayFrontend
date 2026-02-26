@@ -1,36 +1,29 @@
 <div class="brand-coupon-modal">
   <div class="head">
     <div>
-      <h3>{{ data?.brand?.name }} - Category Coupons</h3>
-      <div class="subline">Brand SKU: {{ data?.brand?.brandSku || '-' }}</div>
+      <h3>{{ data?.brand?.name || 'Brand Details' }}</h3>
+      <!-- <div class="subline">Brand SKU: {{ data?.brand?.brandSku || '-' }}</div> -->
     </div>
     <button type="button" class="close-btn" (click)="close()">&times;</button>
   </div>
 
-  <div class="all-categories">
-    <span class="chip" *ngFor="let c of data?.brand?.categories">{{ c }}</span>
+  <div class="all-categories" *ngIf="data?.brand?.categories?.length">
+    <span class="chip" *ngFor="let c of data.brand.categories">{{ c }}</span>
   </div>
 
-  <div class="category-block" *ngFor="let block of data?.categoryCoupons">
-    <h4>{{ block.category }}</h4>
-
-    <div class="coupon-head row gx-0">
-      <div class="col">Coupon SKU</div>
-      <div class="col">Product Name</div>
-      <!-- <div class="col">Provider</div> -->
-      <div class="col">Value Range</div>
-      <div class="col">Discount %</div>
-      <div class="col">Status</div>
-    </div>
-
-    <div class="coupon-row row gx-0" *ngFor="let coupon of block.coupons">
-      <div class="col">{{ coupon.coupon_sku }}</div>
-      <div class="col">{{ coupon.product_name }}</div>
-      <!-- <div class="col">{{ coupon.provider_name }}</div> -->
-      <div class="col">{{ coupon.min_value }} / {{ coupon.max_value }}</div>
-      <div class="col">{{ coupon.discount_percent }}</div>
-      <div class="col">{{ coupon.is_active ? 'Active' : 'Inactive' }}</div>
+  <div class="client-card">
+    <h4>Client Details</h4>
+    <div class="client-grid">
+      <div><span>Client ID</span><p>{{ data?.client?.id || '-' }}</p></div>
+      <div><span>Company Name</span><p>{{ data?.client?.companyName || '-' }}</p></div>
+      <div><span>Industry</span><p>{{ data?.client?.industry || '-' }}</p></div>
+      <div><span>Contact Name</span><p>{{ data?.client?.contactName || '-' }}</p></div>
+      <div><span>Primary Email</span><p>{{ data?.client?.contactEmail || '-' }}</p></div>
+      <div><span>Second Email</span><p>{{ data?.client?.contactEmail2 || '-' }}</p></div>
+      <div><span>Primary Mobile</span><p>{{ data?.client?.contactMobile || '-' }}</p></div>
+      <div><span>Second Mobile</span><p>{{ data?.client?.contactMobile2 || '-' }}</p></div>
+      <div><span>Status</span><p>{{ data?.client?.status || '-' }}</p></div>
+      <div><span>Updated At</span><p>{{ (data?.client?.updatedAt || data?.client?.updated_at) ? ((data?.client?.updatedAt || data?.client?.updated_at) | date:'medium') : '-' }}</p></div>
     </div>
   </div>
 </div>
-

@@ -91,6 +91,7 @@ import { RouterModule } from '@angular/router';
 import { AddBrandDialogComponent } from './pages/voucher-brand-list/add-brand-dialog/add-brand-dialog.component';
 import { UpdateBrandDialogComponent } from './pages/voucher-brand-list/update-brand-dialog/update-brand-dialog.component';
 import { BrandCategoryCouponsDialogComponent } from './pages/voucher-brand-list/brand-category-coupons-dialog/brand-category-coupons-dialog.component';
+import { ClientInfoDialogComponent } from './pages/voucher-brand-list/client-info-dialog/client-info-dialog.component';
 
 @NgModule({
   declarations: [
@@ -148,7 +149,8 @@ import { BrandCategoryCouponsDialogComponent } from './pages/voucher-brand-list/
     // ✅ REQUIRED FOR POPUP
     AddBrandDialogComponent,
     UpdateBrandDialogComponent,
-    BrandCategoryCouponsDialogComponent
+    BrandCategoryCouponsDialogComponent,
+    ClientInfoDialogComponent
   ],
   imports: [
     CommonModule,
