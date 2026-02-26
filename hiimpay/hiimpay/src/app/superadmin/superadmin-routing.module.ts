@@ -43,7 +43,7 @@ const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'home/recent/all',
+    redirectTo: 'open',
     pathMatch: 'full',
   },
   {

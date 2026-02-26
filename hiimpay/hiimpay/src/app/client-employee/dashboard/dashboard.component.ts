@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ApiService } from '../../auth/authservice/api.service';
+import { JwtAuthService } from '../../auth/authservice/jwt-auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-dashboard',
@@ -202,7 +205,7 @@ export class DashboardComponent implements OnInit {
     { title: 'Explore Categories', description: 'Find offers by use case', action: 'categories', icon: 'grid_view' }
   ];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private api: ApiService, private jwtAuthService: JwtAuthService, private toastr: ToastrService) {
     this.generateCaptcha();
   }
 
@@ -320,12 +323,23 @@ export class DashboardComponent implements OnInit {
     }
 
     this.isSendingOtp = true;
-    setTimeout(() => {
-      this.isSendingOtp = false;
-      this.authStep = 'verify';
-      this.showToastMessage(`Demo OTP sent to ${email}`);
-      this.pushNotification('OTP sent successfully');
-    }, 450);
+    this.api.generateOTP(email).subscribe({
+      next: (res: any) => {
+        this.isSendingOtp = false;
+        if (res?.message && (res.message === 'OTP sent successfully.' || res.success)) {
+          this.authStep = 'verify';
+          this.showToastMessage(`OTP sent to ${email}`);
+          this.pushNotification('OTP sent successfully');
+        } else {
+          this.authError = res?.message || 'Failed to send OTP. Please try again.';
+        }
+      },
+      error: (err: any) => {
+        this.isSendingOtp = false;
+        console.error('generateOTP error', err);
+        this.authError = 'Failed to send OTP. Please try again later.';
+      }
+    });
   }
 
   verifyOtp() {
@@ -337,17 +351,53 @@ export class DashboardComponent implements OnInit {
     }
 
     this.isVerifyingOtp = true;
-    setTimeout(() => {
-      this.isVerifyingOtp = false;
-      if (this.enteredOtp.trim() === this.demoOtp || this.enteredOtp.trim().length === 6) {
-        this.isAuthenticated = true;
-        this.activeScreen = 'home';
-        this.showToastMessage('OTP verified successfully');
-        this.pushNotification('You are logged in successfully');
-        return;
+    this.api.verifyOTP(this.emailId, this.enteredOtp).subscribe({
+      next: (res: any) => {
+        this.isVerifyingOtp = false;
+        if (res?.message === 'User logged in successfully.' || res?.message === 'User logged in successfully. Demographic information missing.' || res?.success) {
+          if (res?.data) {
+            this.jwtAuthService.setToken(res.data);
+          }
+          this.jwtAuthService.getLoggedInUser()?.subscribe({
+            next: (userRes: any) => {
+              try {
+                sessionStorage.setItem('currentLoggedInUserData', JSON.stringify(userRes.data));
+              } catch (e) {}
+              const clientId = userRes.data?.clientId;
+              if (userRes.data?.typeOfUser == 1) {
+                this.router.navigate(['/cpoc', clientId]);
+                sessionStorage.setItem('isCpoc', 'true');
+                this.toastr.success('Your login was successful!!');
+              } else if (userRes.data?.typeOfUser == 2) {
+                this.router.navigate(['/clientEmployee/dashboard']);
+                this.toastr.success('Your login was successful!!');
+              } else {
+                this.toastr.error('Something went wrong!');
+              }
+            },
+            error: (err: any) => {
+              console.error('Failed to fetch user data:', err);
+              this.toastr.error('Failed to fetch user info');
+            }
+          });
+          this.isAuthenticated = true;
+          this.activeScreen = 'home';
+          this.showToastMessage('OTP verified successfully');
+          this.pushNotification('You are logged in successfully');
+        } else if (res?.message === "Incorrect OTP. Please try again.") {
+          this.authError = 'Incorrect OTP. Please try again.';
+        } else if (res?.message) {
+          this.authError = res.message;
+        } else {
+          this.authError = 'OTP verification failed. Please try again.';
+        }
+      },
+      error: (err: any) => {
+        this.isVerifyingOtp = false;
+        console.error('verifyOTP error', err);
+        this.authError = 'OTP verification failed. Please try again later.';
       }
-      this.authError = 'Invalid OTP. Use demo OTP 123456.';
-    }, 400);
+    });
   }
 
   backToRequestStep() {
