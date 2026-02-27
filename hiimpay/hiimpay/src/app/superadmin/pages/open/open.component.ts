@@ -109,6 +109,7 @@ export class OpenComponent {
 
   setClientId(event: MouseEvent, id: any) {
     event.stopPropagation();
+    sessionStorage.setItem('ClientId', id);
     this.router.navigate(['superadmin/project/', id, 'project-admin']);
   }
 

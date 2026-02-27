@@ -23,11 +23,21 @@
 
                         <label for="" class="label-control mt-4">Contact person</label>
                         <input type="text" class="form-control" formControlName="contact_Person"
-                            placeholder="Enter contact person">
+                            placeholder="Enter contact person name">
                         <small class="p-0">
                             <p *ngIf="createForm.get('contact_Person')?.touched && createForm.get('contact_Person')?.hasError('required')"
                                 class="text-danger">
                                 Contact person is required
+                            </p>
+                        </small>
+
+                        <label for="" class="label-control mt-4">Industry</label>
+                        <input type="text" class="form-control" formControlName="industry"
+                            placeholder="Enter industry">
+                        <small class="p-0">
+                            <p *ngIf="createForm.get('industry')?.touched && createForm.get('industry')?.hasError('required')"
+                                class="text-danger">
+                                Industry is required
                             </p>
                         </small>
 
@@ -41,14 +51,14 @@
                         <label for="" class="label-control mt-4">Location</label>
                         <input type="text" class="form-control" formControlName="location" placeholder="Enter location">
 
-                        <label for="" class="label-control mt-4" *ngIf="buttonName==='Update'">Change status</label>
-                        <select class="form-select" formControlName="status" *ngIf="buttonName==='Update'">
-                            <option value="" selected disabled>Please select</option>
-                            <option value="new">New</option>
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                            <!-- <option value="pending">Pending</option> -->
-                        </select>
+                        <div *ngIf="buttonName === 'Update'">
+                          <label for="" class="label-control mt-4">Status</label>
+                          <select class="form-select" formControlName="status">
+                            <option value="" disabled>Please select</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                          </select>
+                        </div>
 
                     </div>
                     <div class="col-sm-6">

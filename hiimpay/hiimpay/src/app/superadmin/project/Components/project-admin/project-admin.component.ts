@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../../services/companyService';
 import { ToastrService } from 'ngx-toastr';
 import { CreateUserComponent } from './create-user/create-user.component';
@@ -31,11 +32,21 @@ export class ProjectAdminComponent implements OnInit {
     public dialog: MatDialog,
     private service: ProjectService,
     private toaster: ToastrService,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
-    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
-    this.companyId = userData?.companyId;
+    // Read the company id from the parent route param (:id in superadmin/project/:id)
+    const routeId = this.route.snapshot.parent?.params['id'] ||
+                    this.route.snapshot.params['id'];
+    if (routeId) {
+      this.companyId = Number(routeId);
+      sessionStorage.setItem('ClientId', routeId);
+    } else {
+      // fallback: use ClientId already stored in session
+      const stored = sessionStorage.getItem('ClientId');
+      this.companyId = stored ? Number(stored) : 0;
+    }
     this.getAllUsers();
     this.getCompanyName();
   }
@@ -106,7 +117,7 @@ export class ProjectAdminComponent implements OnInit {
     const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     const obj = { status: newStatus };
 
-    this.service.updateUser(user.id, obj).subscribe({
+    this.service.deleteUserByID(user.id).subscribe({
       next: (res) => {
         if (res.success) {
           this.toaster.success(

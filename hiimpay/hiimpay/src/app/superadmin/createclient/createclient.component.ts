@@ -41,17 +41,14 @@ export class CreateclientComponent {
     this.createForm = this.fb.group({
       client_Name: ['', Validators.required],
       contact_Person: ['', Validators.required],
-      contact_Email: ['', [Validators.required,Validators.pattern(new RegExp('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$', 'i'))]],
+      industry: ['', Validators.required],
+      contact_Email: ['', [Validators.required, Validators.pattern(new RegExp('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$', 'i'))]],
       second_Contact_Email: ['', [Validators.pattern(new RegExp('^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$', 'i'))]],
-      // Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]
       mobile_Number1: ['', [Validators.required, Validators.pattern('^[6-9]\\d{9}$')]],
       mobile_Number2: ['', [Validators.pattern('^$|^[6-9]\\d{9}$')]],
       landline_Number: ['', [Validators.pattern('^$|^\\d{6,15}$')]],
-      industry: ['',Validators.required],
       location: [''],
-      loggedUserId: '',
-      status:[''],
-      consultantId:['']
+      status: [''],
     });
     if (this.clientId > 0) {
       this.buttonName = 'Update'
@@ -69,30 +66,32 @@ export class CreateclientComponent {
       if (this.createForm.valid) {
         const form = this.createForm.value;
         const obj = {
-        
             companyName: form.client_Name,
             industry: form.industry,
             contactName: form.contact_Person,
             contactEmail: form.contact_Email,
+            contactEmail2: form.second_Contact_Email || '',
             contactMobile: form.mobile_Number1,
-            status: form.status || 'Active',
+            contactMobile2: form.mobile_Number2 || '',
+            status: form.status || 'ACTIVE',
             consultingPhase: form.location || '',
             isSharedJourneyMap: true,
             isSharedFeedback: true
           };
 
-        console.log(obj);
-        this.touchService.createCompany(obj).subscribe((res) => {
-          if (res.success && res.message==='Client registered successfully...!!') {
-            this.toastr.success(res.message);
-            this.createForm.reset();
-            this.onClose(true);
-          }
-          else if(res.message==='Mobile number is already registered.'){
-            this.toastr.error(res.message);
-          }
-          else if(res.message==='Email number is already registered.'){
-            this.toastr.error('Email ID is already registered.');
+        this.touchService.createCompany(obj).subscribe({
+          next: (res: any) => {
+            if (res?.success) {
+              this.toastr.success(res.message || 'Company created successfully.');
+              this.createForm.reset();
+              this.onClose(true);
+            } else {
+              this.toastr.error(res?.message || 'Failed to create company.');
+            }
+          },
+          error: (err: any) => {
+            console.error('createCompany error:', err);
+            this.toastr.error(err?.error?.message || 'Failed to create company.');
           }
         })
       }
@@ -112,23 +111,29 @@ export class CreateclientComponent {
             industry: form.industry,
             contactName: form.contact_Person,
             contactEmail: form.contact_Email,
+            contactEmail2: form.second_Contact_Email || '',
             contactMobile: form.mobile_Number1,
-            status: form.status || 'Active',
+            contactMobile2: form.mobile_Number2 || '',
+            status: form.status || 'ACTIVE',
             consultingPhase: form.location || '',
             isSharedJourneyMap: true,
             isSharedFeedback: true
           };
 
-          this.touchService.updateComponany(this.clientId, payload).subscribe((res) => {
-            if (res && res.success) {
-              this.toastr.success(res.message || 'Company updated successfully');
-              this.createForm.reset();
-              this.onClose(true);
-            } else {
-              this.toastr.error(res?.message || 'Failed to update company');
+          this.touchService.updateComponany(this.clientId, payload).subscribe({
+            next: (res: any) => {
+              if (res?.success) {
+                this.toastr.success(res.message || 'Company updated successfully.');
+                this.createForm.reset();
+                this.onClose(true);
+              } else {
+                this.toastr.error(res?.message || 'Failed to update company.');
+              }
+            },
+            error: (err: any) => {
+              console.error('updateCompany error:', err);
+              this.toastr.error(err?.error?.message || 'Failed to update company.');
             }
-          }, (err) => {
-            this.toastr.error('Failed to update company');
           });
         } else {
           const obj = {
@@ -212,14 +217,13 @@ export class CreateclientComponent {
           client_Name: company.companyName || '',
           contact_Person: company.contactName || '',
           contact_Email: company.contactEmail || '',
-          second_Contact_Email: company.secondContactEmail || '',
+          second_Contact_Email: company.contactEmail2 || company.secondContactEmail || '',
           mobile_Number1: company.contactMobile || '',
-          mobile_Number2: '',
+          mobile_Number2: company.contactMobile2 || '',
           landline_Number: '',
           industry: company.industry || '',
           location: company.consultingPhase || '',
           status: company.status || 'ACTIVE',
-          consultantId: ''
         });
       }
     });

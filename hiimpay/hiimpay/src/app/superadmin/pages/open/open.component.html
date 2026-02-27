@@ -54,7 +54,7 @@
                 {{ item.contactEmail || '-' }}
               </td>
               <td class="text-center align-middle">
-                <span class="status-badge">{{ item.consultinghaseName || 'Open' }}</span>
+                <span class="status-badge">{{ item.status }}</span>
               </td>
               <td class="text-center align-middle">
                 <button *ngIf="isAdmin()" type="button" class="icon-btn" title="Edit" (click)="editClient(item.id); $event.stopPropagation();">

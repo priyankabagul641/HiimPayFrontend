@@ -85,6 +85,9 @@ export class ProjectService {
     return this.http.get<any>(this.baseUrl + `users/${id}`);
   }
 
+    deleteUserByID(id: number): Observable<any> {
+    return this.http.put<any>(this.baseUrl + `users/${id}/soft-delete`, {});
+  }
 
   getExcelFileUrl(): Observable<{ message: string, url: string }> {
     return this.http.get<{ message: string, url: string }>(this.baseUrl + 'userUploadTemplate');
@@ -298,5 +301,87 @@ export class ProjectService {
 // }
   }
 
+  ASsignBrandToCompany(obj: any) {    
+    return this.http.post<any>(this.baseUrl + `user-reward-wallets/assign`, obj)
+//     here is the obj format
+//     {
+//   "userIds": [
+//     0   user is pass
+//   ],
+//   "amount": 0,
+//   "referenceNo": "string", 
+//   "notes": "string",
+//   "companyId": 0, get comapny id from session storage
+//   "assignedByUserId": 0, get currentLoggedInUserData id from session storage
+//   "mode": "Manual", always manual
+//   "fileUrl": "string"
+// }
+  }
   
+   assignRewardsByCompanyID(id: any) {
+    return this.http.get<any>(this.baseUrl + `assignments/reward-amount?companyId=${id}`);
+//     getting responce like this
+
+//   "data": [
+//   {
+//             "assignment": {
+//                 "id": 11,
+//                 "company": {
+//                     "id": 5,
+//                     "companyName": "testing data",
+//                     "industry": "it",
+//                     "contactName": "tester",
+//                     "contactEmail": "tester@yopmail.com",
+//                     "contactEmail2": "string",
+//                     "contactMobile": "8745963210",
+//                     "contactMobile2": "string",
+//                     "status": "true",
+//                     "updatedAt": "2026-02-26T14:58:54.483",
+//                     "isDeleted": null,
+//                     "deletedAt": null
+//                 },
+//                 "assignedBy": {
+//                     "id": 37,
+//                     "fullName": "Rohan gku",
+//                     "email": "rohansf@examplemail.com",
+//                     "mobile": "9878989211",
+//                     "passwordHash": "$2a$10$XyZExampleHashedPassword987654321",
+//                     "userType": "COPC",
+//                     "status": "ACTIVE",
+//                     "companyId": 5,
+//                     "otp": 458921,
+//                     "lastLoginAt": "2026-02-26T18:30:15",
+//                     "createdAt": "2026-02-20T10:15:00",
+//                     "updatedAt": "2026-02-27T11:21:26.171",
+//                     "isDeleted": null,
+//                     "deletedAt": null
+//                 },
+//                 "assignedDate": "2026-02-27T12:19:43.991",
+//                 "mode": "MANUAL",
+//                 "amount": 1000,
+//                 "notes": "Monthly performance reward",
+//                 "fileUrl": null,
+//                 "createdAt": "2026-02-27T12:19:43.991"
+//             },
+//             "employeeCount": 2
+//         },
+
+//   ],
+//   "message": "Assignments fetched successfully",
+//   "success": true
+
+  }
+
+  assignExcelDowloadByCompanyID(id: any) {
+    return this.http.get(this.baseUrl + `assignments/reward-amount/${id}/download`, { responseType: 'blob' });
+  }
+
+  addDataWithExcel(obj: any) {
+    return this.http.post<any>(this.baseUrl + 'user-reward-wallets/assign/excel', obj);
+  }
+
+  excelTemplate (){
+    return this.http.get(this.baseUrl + 'user-reward-wallets/assign/template', { responseType: 'blob' });
+  }
+
 }

@@ -82,7 +82,7 @@
               <td class="text-left">{{ item.assignedDate | date:'medium' }}</td>
               <td class="text-left">{{ item.source }}</td>
               <td class="text-center">{{ item.amount ? ('Rs ' + item.amount) : '-' }}</td>
-              <td class="text-center">{{ item.employees?.length }}</td>
+              <td class="text-center">{{ item.employeeCount ?? '-' }}</td>
               <td class="text-left">{{ item.fileName }}</td>
               <td class="text-center">
                 <button

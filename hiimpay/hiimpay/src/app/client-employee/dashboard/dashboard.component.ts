@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../auth/authservice/api.service';
 import { JwtAuthService } from '../../auth/authservice/jwt-auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from '../Services/userDataService';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,9 +49,9 @@ export class DashboardComponent implements OnInit {
   categorySearchTerm = '';
   walletView: 'coupon' | 'amount' = 'coupon';
 
-  walletBalance = 4280;
-  totalSavings = 12840;
-  usedAmount = 8560;
+  walletBalance = 0;
+  totalSavings = 0;
+  userId: number = 0;
 
   searchTerm = '';
   selectedBrand = 'All';
@@ -168,13 +169,7 @@ export class DashboardComponent implements OnInit {
     { month: 'May', purchased: 40, assigned: 34, expired: 7 },
     { month: 'Jun', purchased: 34, assigned: 27, expired: 6 }
   ];
-  walletTransactions = [
-    { date: '2026-02-18', description: 'Food Coupon Redemption', type: 'debit', amount: 540 },
-    { date: '2026-02-14', description: 'Wallet Top-up', type: 'credit', amount: 1200 },
-    { date: '2026-02-11', description: 'Travel Offer Redemption', type: 'debit', amount: 980 },
-    { date: '2026-02-07', description: 'Shopping Cashback Credit', type: 'credit', amount: 460 },
-    { date: '2026-02-02', description: 'Entertainment Coupon Redemption', type: 'debit', amount: 320 }
-  ];
+  walletTransactions: Array<{ date: string; description: string; type: string; amount: number }> = [];
   notifications: Array<{ message: string; time: string; unread: boolean }> = [
     { message: 'Welcome to Employee Coupon Portal', time: 'Just now', unread: true }
   ];
@@ -204,7 +199,7 @@ export class DashboardComponent implements OnInit {
     { title: 'Explore Categories', description: 'Find offers by use case', action: 'categories', icon: 'grid_view' }
   ];
 
-  constructor(private router: Router, private api: ApiService, private jwtAuthService: JwtAuthService, private toastr: ToastrService) {
+  constructor(private router: Router, private api: ApiService, private jwtAuthService: JwtAuthService, private toastr: ToastrService, private employeeService: EmployeeService) {
     this.generateCaptcha();
   }
 
@@ -212,6 +207,36 @@ export class DashboardComponent implements OnInit {
     setTimeout(() => {
       this.generateCaptcha();
     }, 0);
+
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+    this.userId = userData?.id || 0;
+    if (this.userId) {
+      this.loadWalletBalance();
+      this.loadWalletTransactions();
+    }
+  }
+
+  loadWalletBalance() {
+    this.employeeService.getUserWalletById(this.userId).subscribe({
+      next: (res: any) => {
+        this.walletBalance = res?.data?.balance ?? 0;
+      },
+      error: (err: any) => console.error('loadWalletBalance error:', err)
+    });
+  }
+
+  loadWalletTransactions() {
+    this.employeeService.getUserTransactionsById(this.userId).subscribe({
+      next: (res: any) => {
+        this.walletTransactions = (res?.data || []).map((tx: any) => ({
+          date: tx.createdAt,
+          description: tx.notes || tx.referenceNo || 'Transaction',
+          type: (tx.transactionType || 'CREDIT').toLowerCase(),
+          amount: tx.amount
+        }));
+      },
+      error: (err: any) => console.error('loadWalletTransactions error:', err)
+    });
   }
 
   get selectedOffer() {
@@ -302,7 +327,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get remainingAmount() {
-    return Math.max(this.walletBalance - this.usedAmount, 0);
+    return this.walletBalance;
   }
 
   sendOtp() {

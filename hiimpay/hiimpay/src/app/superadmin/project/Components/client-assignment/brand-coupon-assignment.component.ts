@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { ProjectService } from '../../services/companyService';
 
 @Component({
   selector: 'app-brand-coupon-assignment',
@@ -27,10 +28,18 @@ export class BrandCouponAssignmentComponent implements OnInit {
   amountValue: number | null = null;
   amountNotes = '';
   amountExcelFileName = '';
+  amountExcelFile: File | null = null;
+  companyId: number = 0;
+  currentUserId: number = 0;
+  isAssigningAmount = false;
 
-  constructor(private toastr: ToastrService) {}
+  constructor(private toastr: ToastrService, private service: ProjectService) {}
 
   ngOnInit(): void {
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
+    this.companyId = userData?.companyId;
+    this.currentUserId = userData?.id;
+
     this.brands = [
       { id: 'B1', name: 'Amazon' },
       { id: 'B2', name: 'Bata' },
@@ -43,11 +52,7 @@ export class BrandCouponAssignmentComponent implements OnInit {
       { id: 'C3', name: 'SUPER20' }
     ];
 
-    this.employees = [
-      { id: 'E1', name: 'Amit Sharma' },
-      { id: 'E2', name: 'Priya Singh' },
-      { id: 'E3', name: 'Rahul Verma' }
-    ];
+    this.loadEmployees();
 
     const common = {
       singleSelection: false,
@@ -62,6 +67,18 @@ export class BrandCouponAssignmentComponent implements OnInit {
     this.brandDropdownSettings = { ...common };
     this.couponDropdownSettings = { ...common };
     this.employeeDropdownSettings = { ...common };
+  }
+
+  loadEmployees() {
+    this.service.clientByCompanyID(this.companyId).subscribe({
+      next: (res: any) => {
+        this.employees = (res.data || []).map((u: any) => ({
+          id: u.id,
+          name: u.fullName
+        }));
+      },
+      error: (err: any) => console.error('loadEmployees error:', err)
+    });
   }
 
   assignCouponNow() {
@@ -99,7 +116,8 @@ export class BrandCouponAssignmentComponent implements OnInit {
   }
 
   onAmountExcelSelect(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
+    const file = (event.target as HTMLInputElement).files?.[0] || null;
+    this.amountExcelFile = file;
     this.amountExcelFileName = file?.name || '';
   }
 
@@ -109,33 +127,81 @@ export class BrandCouponAssignmentComponent implements OnInit {
         this.toastr.error('Please select employees and enter a valid amount.');
         return;
       }
-    } else if (!this.amountExcelFileName) {
-      this.toastr.error('Please upload an Excel file to assign amounts.');
+    } else {
+      if (!this.amountExcelFile) {
+        this.toastr.error('Please upload an Excel file to assign amounts.');
+        return;
+      }
+      if (!this.amountValue || this.amountValue <= 0) {
+        this.toastr.error('Please enter a valid amount.');
+        return;
+      }
+
+      const excelObj = {
+        companyId: this.companyId,
+        assignedByUserId: this.currentUserId,
+        amount: Number(this.amountValue),
+        file: this.amountExcelFile
+      };
+
+      const formData = new FormData();
+      Object.entries(excelObj).forEach((val) => {
+        formData.append(val[0], val[1] as any);
+      });
+
+      this.isAssigningAmount = true;
+      this.service.addDataWithExcel(formData).subscribe({
+        next: (res: any) => {
+          this.isAssigningAmount = false;
+          if (res?.success) {
+            this.toastr.success(res.message || 'Amount assigned successfully via Excel.');
+            this.amountExcelFile = null;
+            this.amountExcelFileName = '';
+            this.amountValue = null;
+            this.amountNotes = '';
+          } else {
+            this.toastr.error(res?.message || 'Failed to assign amount via Excel.');
+          }
+        },
+        error: (err: any) => {
+          this.isAssigningAmount = false;
+          console.error('assignAmountNow (excel) error:', err);
+          this.toastr.error('Error uploading Excel. Please try again.');
+        }
+      });
       return;
     }
 
-    const assignmentsRaw = sessionStorage.getItem('clientAmountAssignments');
-    const assignments = assignmentsRaw ? JSON.parse(assignmentsRaw) : [];
-
-    const payload = {
-      id: Date.now().toString(),
-      clientId: sessionStorage.getItem('ClientId'),
-      source: this.amountEntryMode === 'manual' ? 'MANUAL' : 'EXCEL',
-      amount: this.amountEntryMode === 'manual' ? Number(this.amountValue) : null,
-      employees: this.selectedAmountEmployees,
-      fileName: this.amountEntryMode === 'excel' ? this.amountExcelFileName : '',
+    const obj = {
+      userIds: this.selectedAmountEmployees.map((e: any) => e.id),
+      amount: Number(this.amountValue),
+      referenceNo: `REF-${Date.now()}`,
       notes: this.amountNotes,
-      assignedDate: new Date().toISOString(),
-      assignedBy: JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}')?.id || ''
+      companyId: this.companyId,
+      assignedByUserId: this.currentUserId,
+      mode: 'Manual',
+      fileUrl: ''
     };
 
-    assignments.unshift(payload);
-    sessionStorage.setItem('clientAmountAssignments', JSON.stringify(assignments));
-    this.toastr.success('Amount assigned successfully.');
-
-    this.selectedAmountEmployees = [];
-    this.amountValue = null;
-    this.amountNotes = '';
-    this.amountExcelFileName = '';
+    this.isAssigningAmount = true;
+    this.service.ASsignBrandToCompany(obj).subscribe({
+      next: (res: any) => {
+        this.isAssigningAmount = false;
+        if (res?.success) {
+          this.toastr.success(res.message || 'Amount assigned successfully.');
+          this.selectedAmountEmployees = [];
+          this.amountValue = null;
+          this.amountNotes = '';
+          this.amountExcelFileName = '';
+        } else {
+          this.toastr.error(res?.message || 'Failed to assign amount.');
+        }
+      },
+      error: (err: any) => {
+        this.isAssigningAmount = false;
+        console.error('assignAmountNow error:', err);
+        this.toastr.error('Error assigning amount. Please try again.');
+      }
+    });
   }
 }

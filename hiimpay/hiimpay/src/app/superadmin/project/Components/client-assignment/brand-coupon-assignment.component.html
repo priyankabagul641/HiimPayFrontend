@@ -26,8 +26,8 @@
     </div>
 
     <div class="tabs">
-      <button class="tab" [class.active]="activeTab==='coupon'" (click)="activeTab='coupon'">Reward Voucher</button>
-      <button class="tab" [class.active]="activeTab==='amount'" (click)="activeTab='amount'">Reward Coupon</button>
+      <button class="tab" [class.active]="activeTab==='coupon'" (click)="activeTab='coupon'">Reward Coupoun</button>
+      <button class="tab" [class.active]="activeTab==='amount'" (click)="activeTab='amount'">Reward Points</button>
     </div>
 
     <ng-container *ngIf="activeTab==='coupon'">
@@ -103,7 +103,7 @@
 
       <div class="panel" *ngIf="amountEntryMode==='excel'">
         <div class="row-block">
-          <label>Upload Excel</label>
+          <label>Step 1: Upload Excel</label>
           <div class="upload-wrap">
             <input id="amountExcel" type="file" accept=".xlsx,.xls" (change)="onAmountExcelSelect($event)">
             <label class="upload-label" for="amountExcel">
@@ -112,6 +112,15 @@
             </label>
           </div>
           <small class="hint" *ngIf="amountExcelFileName">Selected: {{ amountExcelFileName }}</small>
+        </div>
+           <div class="row-block">
+          <label>Step 2: Enter Amount</label>
+          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter amount">
+        </div>
+
+        <div class="row-block">
+          <label>Notes (Optional)</label>
+          <textarea rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions"></textarea>
         </div>
       </div>
 

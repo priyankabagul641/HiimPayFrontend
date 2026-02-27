@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ProjectService } from '../../services/companyService';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-assigned-brand-list',
@@ -10,14 +12,16 @@ export class AssignedBrandListComponent implements OnInit {
   activeTab: 'coupons' | 'amounts' = 'coupons';
   couponRows: any[] = [];
   amountRows: any[] = [];
+  companyId: number = 0;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private service: ProjectService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
+    this.companyId = userData?.companyId;
+
     const couponAssignmentsRaw = sessionStorage.getItem('clientBrandCouponAssignments');
     const couponAssignments = couponAssignmentsRaw ? JSON.parse(couponAssignmentsRaw) : [];
-    const amountAssignmentsRaw = sessionStorage.getItem('clientAmountAssignments');
-    const amountAssignments = amountAssignmentsRaw ? JSON.parse(amountAssignmentsRaw) : [];
 
     this.couponRows = couponAssignments.flatMap((item: any) => {
       const brands = Array.isArray(item.brands) ? item.brands : [];
@@ -31,14 +35,27 @@ export class AssignedBrandListComponent implements OnInit {
       }));
     });
 
-    this.amountRows = amountAssignments.map((item: any) => ({
-      assignmentId: item.id,
-      assignedDate: item.assignedDate,
-      source: item.source || 'MANUAL',
-      amount: item.amount,
-      fileName: item.fileName || '-',
-      employees: item.employees || []
-    }));
+    this.loadAmountRows();
+  }
+
+  loadAmountRows() {
+    this.service.assignRewardsByCompanyID(this.companyId).subscribe({
+      next: (res: any) => {
+        this.amountRows = (res.data || []).map((item: any) => {
+          const a = item.assignment || item;
+          return {
+            assignmentId: a.id,
+            assignedDate: new Date(a.assignedDate || a.createdAt),
+            source: a.mode || 'MANUAL',
+            amount: a.amount,
+            employeeCount: item.employeeCount ?? 0,
+            assignedByName: a.assignedBy?.fullName || '-',
+            fileName: a.fileUrl || a.notes || '-'
+          };
+        });
+      },
+      error: (err: any) => console.error('loadAmountRows error:', err)
+    });
   }
 
   openDetails(item: { assignmentId: string }, type: 'coupon' | 'amount') {
@@ -48,8 +65,24 @@ export class AssignedBrandListComponent implements OnInit {
     );
   }
 
-  downloadAssignmentReport(item: { assignmentId: string }, type: 'coupon' | 'amount') {
-    // Placeholder hook: replace this navigation with actual excel download implementation.
-    this.openDetails(item, type);
+  downloadAssignmentReport(item: any, type: 'coupon' | 'amount') {
+    if (type === 'amount') {
+      this.service.assignExcelDowloadByCompanyID(item.assignmentId).subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `assignment_${item.assignmentId}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err: any) => {
+          console.error('Download error:', err);
+          this.toastr.error('Failed to download report.');
+        }
+      });
+    } else {
+      this.openDetails(item, type);
+    }
   }
 }
