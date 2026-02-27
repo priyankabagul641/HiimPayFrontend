@@ -1537,3 +1537,304 @@ textarea {
     transform: scale(1);
   }
 }
+
+/* ── Grab Coupon Dialog ─────────────────────────────────── */
+.grab-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 58, 127, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 900;
+}
+
+.grab-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 901;
+  width: min(480px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 24px 22px;
+  box-shadow: 0 24px 64px rgba(16, 58, 127, 0.22);
+  animation: grab-pop .18s ease;
+}
+
+@keyframes grab-pop {
+  from { transform: translate(-50%, -46%); opacity: 0; }
+  to   { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+.grab-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.grab-brand-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.grab-dialog-header h4 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #17274a;
+}
+
+.grab-dialog-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #6a7891;
+}
+
+.grab-close-btn {
+  margin-left: auto;
+  background: #edf3ff;
+  border: 0;
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #103a7f;
+  flex-shrink: 0;
+}
+
+.grab-offer-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.grab-badge {
+  background: linear-gradient(100deg, #103a7f, #2f7bdd);
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.grab-range {
+  background: #edf3ff;
+  color: #103a7f;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.grab-expiry {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #6a7891;
+}
+
+.grab-expiry mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.grab-form { margin-bottom: 14px; }
+
+.grab-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #17274a;
+  margin-bottom: 5px;
+}
+
+.grab-label.mt { margin-top: 14px; }
+
+.grab-label .req { color: #e53e3e; }
+.grab-label .muted { font-weight: 400; color: #6a7891; }
+
+.grab-input {
+  width: 100%;
+  border: 1.5px solid #d4dfef;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 14px;
+  background: #f7faff;
+  color: #17274a;
+  outline: none;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.grab-input:focus { border-color: #2f7bdd; background: #fff; }
+
+.grab-hint {
+  display: block;
+  font-size: 11px;
+  color: #6a7891;
+  margin-top: 4px;
+}
+
+.grab-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: #f4f8ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #6a7891;
+  margin-bottom: 18px;
+}
+
+.grab-terms mat-icon { font-size: 15px; width: 15px; height: 15px; color: #2f7bdd; flex-shrink: 0; margin-top: 1px; }
+
+.grab-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.grab-cancel-btn {
+  flex: 1;
+  background: #edf3ff;
+  color: #103a7f;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.grab-confirm-btn {
+  flex: 2;
+  background: linear-gradient(100deg, #103a7f, #2f7bdd);
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.grab-confirm-btn:disabled { opacity: .55; cursor: not-allowed; }
+.grab-confirm-btn.full-w { flex: 1; width: 100%; }
+
+.grab-spinner { animation: pulse 1s infinite; display: inline-block; }
+
+/* Success screen */
+.grab-success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.grab-success-icon mat-icon {
+  font-size: 60px;
+  width: 60px;
+  height: 60px;
+  color: #22c55e;
+  margin-bottom: 10px;
+}
+
+.grab-success-screen h4 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #17274a;
+  margin: 0 0 6px;
+}
+
+.grab-success-screen > p {
+  font-size: 13px;
+  color: #6a7891;
+  margin-bottom: 18px;
+}
+
+.grab-receipt {
+  width: 100%;
+  background: #f4f8ff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 5px 0;
+  border-bottom: 1px solid #e4edf8;
+  color: #6a7891;
+}
+
+.receipt-row:last-child { border-bottom: 0; }
+.receipt-row strong { color: #17274a; font-weight: 700; }
+.receipt-row .ref-code { color: #103a7f; font-family: monospace; }
+
+.grab-ref-copy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #edf3ff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  width: 100%;
+  margin-bottom: 14px;
+  box-sizing: border-box;
+}
+
+.grab-ref-copy code {
+  flex: 1;
+  font-size: 13px;
+  color: #103a7f;
+  word-break: break-all;
+}
+
+.grab-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1.5px solid #2f7bdd;
+  color: #2f7bdd;
+  border-radius: 9px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.grab-copy-btn mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.grab-redeem-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #6a7891;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.grab-redeem-hint mat-icon { font-size: 15px; width: 15px; height: 15px; color: #2f7bdd; }
+.grab-redeem-hint a { color: #2f7bdd; text-decoration: underline; }

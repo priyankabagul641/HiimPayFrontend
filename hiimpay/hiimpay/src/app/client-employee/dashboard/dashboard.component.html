@@ -335,7 +335,7 @@
             <button [class.active]="walletView === 'amount'" (click)="selectWalletView('amount')">Amount</button>
           </div>
 
-          <ng-container *ngIf="walletView === 'coupon'">
+          <!-- <ng-container *ngIf="walletView === 'coupon'">
            
 
             <article class="ratio-card">
@@ -359,7 +359,7 @@
             </article>
 
           
-          </ng-container>
+          </ng-container> -->
 
           <ng-container *ngIf="walletView === 'amount'">
             <div class="amount-summary-grid">
@@ -393,5 +393,124 @@
   </section>
 
   <div class="toast" *ngIf="showToast">{{ toastMessage }}</div>
+
+  <!-- Grab Coupon Dialog -->
+  <div class="grab-overlay" *ngIf="showGrabDialog" (click)="closeGrabDialog()"></div>
+  <div class="grab-dialog" *ngIf="showGrabDialog">
+
+    <!-- CONFIRM SCREEN -->
+    <ng-container *ngIf="grabDialogStep === 'confirm'">
+      <div class="grab-dialog-header">
+        <div class="grab-brand-logo" [style.background]="grabDialogOffer?.brandColor">
+          {{ grabDialogOffer?.brandLogo }}
+        </div>
+        <div>
+          <h4>{{ grabDialogOffer?.brand }}</h4>
+          <p>{{ grabDialogOffer?.title }}</p>
+        </div>
+        <button class="grab-close-btn" type="button" (click)="closeGrabDialog()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="grab-offer-meta">
+        <span class="grab-badge">{{ grabDialogOffer?.discountBadge }}</span>
+        <span class="grab-range" *ngIf="grabDialogOffer?.minValue">
+          ₹{{ grabDialogOffer?.minValue }} – ₹{{ grabDialogOffer?.maxValue }}
+        </span>
+        <span class="grab-expiry">
+          <mat-icon>schedule</mat-icon> Valid till {{ grabDialogOffer?.validTill | date:'d MMM yyyy' }}
+        </span>
+      </div>
+
+      <div class="grab-form">
+        <label class="grab-label">Amount (₹) <span class="req">*</span></label>
+        <input
+          type="number"
+          class="grab-input"
+          [(ngModel)]="grabAmount"
+          [min]="grabDialogOffer?.minValue || 1"
+          [max]="grabDialogOffer?.maxValue"
+          placeholder="Enter amount"
+        />
+        <small class="grab-hint" *ngIf="grabDialogOffer?.minValue">
+          Min ₹{{ grabDialogOffer?.minValue }} &nbsp;·&nbsp; Max ₹{{ grabDialogOffer?.maxValue }}
+        </small>
+
+        <label class="grab-label mt">Notes <span class="muted">(optional)</span></label>
+        <input
+          type="text"
+          class="grab-input"
+          [(ngModel)]="grabNotes"
+          placeholder="e.g. Birthday gift, quarterly bonus…"
+        />
+      </div>
+
+      <div class="grab-terms">
+        <mat-icon>info_outline</mat-icon>
+        <span>{{ grabDialogOffer?.terms }}</span>
+      </div>
+
+      <div class="grab-actions">
+        <button class="grab-cancel-btn" type="button" (click)="closeGrabDialog()">Cancel</button>
+        <button
+          class="grab-confirm-btn"
+          type="button"
+          [disabled]="!grabAmount || isProcessingGrab"
+          (click)="confirmPurchase()"
+        >
+          <span *ngIf="!isProcessingGrab">Confirm Purchase</span>
+          <span *ngIf="isProcessingGrab" class="grab-spinner">Processing…</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- CHECKOUT / SUCCESS SCREEN -->
+    <ng-container *ngIf="grabDialogStep === 'checkout'">
+      <div class="grab-success-screen">
+        <div class="grab-success-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <h4>Voucher Claimed!</h4>
+        <p>{{ grabResult?.message }}</p>
+
+        <div class="grab-receipt">
+          <div class="receipt-row">
+            <span>Brand</span>
+            <strong>{{ grabDialogOffer?.brand }}</strong>
+          </div>
+          <div class="receipt-row">
+            <span>Amount Paid</span>
+            <strong>₹{{ grabResult?.amount }}</strong>
+          </div>
+          <div class="receipt-row">
+            <span>Reference No.</span>
+            <strong class="ref-code">{{ grabResult?.refNo }}</strong>
+          </div>
+        </div>
+
+        <div class="grab-ref-copy">
+          <code>{{ grabResult?.refNo }}</code>
+          <button class="grab-copy-btn" type="button" (click)="copyCode(grabResult?.refNo)">
+            <mat-icon>content_copy</mat-icon> Copy
+          </button>
+        </div>
+
+        <p class="grab-redeem-hint">
+          <mat-icon>storefront</mat-icon> Use this reference at
+          <a [href]="grabDialogOffer?.redemptionUrl" target="_blank" *ngIf="grabDialogOffer?.redemptionUrl">
+            {{ grabDialogOffer?.brand }} website
+          </a>
+          <span *ngIf="!grabDialogOffer?.redemptionUrl">the brand website</span>
+          to redeem your voucher.
+        </p>
+
+        <button class="grab-confirm-btn full-w" type="button" (click)="closeGrabDialog()">
+          Done
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
 </div>
 

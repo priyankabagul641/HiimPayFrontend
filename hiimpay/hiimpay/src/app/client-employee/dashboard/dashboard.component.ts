@@ -52,6 +52,18 @@ export class DashboardComponent implements OnInit {
   walletBalance = 0;
   totalSavings = 0;
   userId: number = 0;
+  companyId: number = 0;
+  browseCoupons: any[] = [];
+  browseCouponsLoading = false;
+
+  // Grab-coupon dialog
+  showGrabDialog = false;
+  grabDialogStep: 'confirm' | 'checkout' = 'confirm';
+  grabDialogOffer: any = null;
+  grabAmount: number | null = null;
+  grabNotes = '';
+  isProcessingGrab = false;
+  grabResult: any = null;
 
   searchTerm = '';
   selectedBrand = 'All';
@@ -67,72 +79,7 @@ export class DashboardComponent implements OnInit {
     { icon: 'self_improvement', label: 'Health & Wellness', accent: 'wellness' }
   ];
 
-  offers = [
-    {
-      id: 1,
-      brand: 'Swiggy',
-      title: 'Flat Rs 500 Off',
-      validTill: '2026-03-08',
-      discountBadge: '40% OFF',
-      discountType: 'Flat',
-      category: 'Food & Dining',
-      brandLogo: 'SW',
-      brandColor: '#ff6b2b',
-      image: 'assets/images/servey1.jfif',
-      description: 'Get instant discount on food orders above Rs 1499.',
-      terms: 'Valid once per employee. Not valid with other promo codes.',
-      redeemSteps: ['Tap Grab Coupon', 'Copy the code', 'Apply at checkout'],
-      isTrending: true
-    },
-    {
-      id: 2,
-      brand: 'Myntra',
-      title: 'Extra 25% Off',
-      validTill: '2026-03-20',
-      discountBadge: '25% OFF',
-      discountType: 'Percentage',
-      category: 'Shopping',
-      brandLogo: 'MY',
-      brandColor: '#ff3f7f',
-      image: 'assets/images/servey2.png',
-      description: 'Extra discount on top fashion brands and beauty.',
-      terms: 'Min order value Rs 1999. Select categories only.',
-      redeemSteps: ['Grab the coupon', 'Copy code', 'Paste in payment page'],
-      isTrending: true
-    },
-    {
-      id: 3,
-      brand: 'MakeMyTrip',
-      title: 'Save Rs 1200 on Flights',
-      validTill: '2026-03-14',
-      discountBadge: 'Rs 1200 OFF',
-      discountType: 'Flat',
-      category: 'Travel',
-      brandLogo: 'MM',
-      brandColor: '#2e7bdd',
-      image: 'assets/images/servey3.jfif',
-      description: 'Discount on domestic one-way and round-trip flights.',
-      terms: 'Only for bookings above Rs 7000. Limited seats.',
-      redeemSteps: ['Tap Grab Coupon', 'Use code on flight checkout', 'Confirm booking'],
-      isTrending: false
-    },
-    {
-      id: 4,
-      brand: 'Croma',
-      title: 'Up to 15% Cashback',
-      validTill: '2026-03-30',
-      discountBadge: 'Cashback',
-      discountType: 'Cashback',
-      category: 'Electronics',
-      brandLogo: 'CR',
-      brandColor: '#2f4e7a',
-      image: 'assets/images/servey4.png',
-      description: 'Cashback on gadgets, accessories and smart appliances.',
-      terms: 'Cashback credited in 7 business days.',
-      redeemSteps: ['Claim the offer', 'Pay via supported method', 'Cashback auto-credits'],
-      isTrending: true
-    }
-  ];
+  offers: any[] = [];
 
   ownedCoupons = [
     {
@@ -210,10 +157,74 @@ export class DashboardComponent implements OnInit {
 
     const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
     this.userId = userData?.id || 0;
+    this.companyId = userData?.companyId || userData?.clientId || 0;
     if (this.userId) {
       this.loadWalletBalance();
       this.loadWalletTransactions();
     }
+    if (this.companyId) {
+      this.loadBrowseCoupons();
+    }
+  }
+
+  loadBrowseCoupons() {
+    this.browseCouponsLoading = true;
+    this.employeeService.getUserCoupounById(this.companyId).subscribe({
+      next: (res: any) => {
+        this.browseCouponsLoading = false;
+        this.browseCoupons = (res?.data || []).map((b: any, idx: number) => this.normalizeBrand(b, idx));
+      },
+      error: (err: any) => {
+        this.browseCouponsLoading = false;
+        console.error('loadBrowseCoupons error:', err);
+      }
+    });
+  }
+
+  private normalizeBrand(b: any, idx: number): any {
+    const name: string = b.brandName || 'Brand';
+    const logo = name.substring(0, 2).toUpperCase();
+    const colorMap: Record<string, string> = {
+      'E-COMMERCE': '#ff9900', 'GIFT_CARD': '#6c5ce7', 'RETAIL': '#2ecc71',
+      'E-VOUCHER': '#00b894', 'FASHION': '#fd79a8'
+    };
+    const brandColor = colorMap[(b.brandType || '').toUpperCase()] || '#2980b9';
+    const discount = b.epayDiscount || 0;
+    const discountBadge = discount > 0 ? `${discount}% OFF` : 'Offer';
+    const discountType = discount > 0 ? 'Percentage' : 'Flat';
+    const category = this.brandTypeToCategory(b.brandType);
+    const validTill = new Date();
+    validTill.setFullYear(validTill.getFullYear() + 1);
+    return {
+      id:           b.id ?? idx + 1,
+      brand:        name,
+      title:        b.description || `${name} gift voucher`,
+      validTill:    validTill.toISOString().split('T')[0],
+      discountBadge,
+      discountType,
+      category,
+      brandLogo:    logo,
+      brandColor,
+      image:        b.brandImage || 'assets/images/servey1.jfif',
+      description:  b.description || '',
+      terms:        b.tnc || 'Terms and conditions apply.',
+      redeemSteps:  b.importantInstruction
+                      ? [b.importantInstruction]
+                      : ['Grab the coupon', 'Copy the code', 'Apply at checkout'],
+      isTrending:   b.stockAvailable !== false,
+      minValue:     b.epayMinValue,
+      maxValue:     b.epayMaxValue,
+      redemptionUrl:b.onlineRedemptionUrl || ''
+    };
+  }
+
+  private brandTypeToCategory(brandType: string): string {
+    const map: Record<string, string> = {
+      'E-COMMERCE': 'Shopping', 'GIFT_CARD': 'Shopping', 'RETAIL': 'Shopping',
+      'FOOD': 'Food & Dining', 'TRAVEL': 'Travel', 'ELECTRONICS': 'Electronics',
+      'FASHION': 'Shopping', 'E-VOUCHER': 'Shopping'
+    };
+    return map[(brandType || '').toUpperCase()] || 'Shopping';
   }
 
   loadWalletBalance() {
@@ -239,12 +250,16 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  get activeOffers(): any[] {
+    return this.browseCoupons;
+  }
+
   get selectedOffer() {
-    return this.offers.find((offer) => offer.id === this.selectedOfferId) || this.offers[0];
+    return this.activeOffers.find((offer) => offer.id === this.selectedOfferId) || this.activeOffers[0] || {};
   }
 
   get featuredOffers() {
-    return this.offers.filter((offer) => offer.isTrending);
+    return this.activeOffers.filter((offer) => offer.isTrending);
   }
 
   get redeemedCount() {
@@ -297,7 +312,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredOffers() {
-    return this.offers.filter((offer) => {
+    return this.activeOffers.filter((offer) => {
       const searchMatch =
         this.searchTerm.trim().length === 0 ||
         offer.brand.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -315,7 +330,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get categoryOffers() {
-    return this.offers.filter((offer) => offer.category === this.selectedCategoryView);
+    return this.activeOffers.filter((offer) => offer.category === this.selectedCategoryView);
   }
 
   get filteredCategories() {
@@ -482,28 +497,64 @@ export class DashboardComponent implements OnInit {
   }
 
   grabCoupon(offerId: number) {
-    const offer = this.offers.find((item) => item.id === offerId);
-    if (!offer) {
-      return;
-    }
+    const offer = this.activeOffers.find((item) => item.id === offerId);
+    if (!offer) return;
+    this.grabDialogOffer = offer;
+    this.grabAmount = offer.minValue || null;
+    this.grabNotes = '';
+    this.grabResult = null;
+    this.grabDialogStep = 'confirm';
+    this.showGrabDialog = true;
+  }
 
-    const alreadyClaimed = this.ownedCoupons.some((coupon) => coupon.title === offer.title);
-    if (!alreadyClaimed) {
-      const randomSuffix = Math.floor(100 + Math.random() * 900);
-      const code = `${offer.brand.toUpperCase().slice(0, 4)}${randomSuffix}`;
-      this.ownedCoupons.unshift({
-        brand: offer.brand,
-        title: offer.title,
-        code,
-        status: 'active',
-        expiresOn: offer.validTill,
-        redeemInstruction: 'Copy code and apply during checkout'
-      });
-      this.totalSavings += 500;
-    }
+  confirmPurchase() {
+    if (!this.grabDialogOffer || !this.grabAmount) return;
+    this.isProcessingGrab = true;
+    const refNo = `REF-${Date.now()}`;
+    const payload = {
+      userId:           this.userId,
+      voucherId:        this.grabDialogOffer.id,
+      amount:           this.grabAmount,
+      referenceNo:      refNo,
+      notes:            this.grabNotes || this.grabDialogOffer.title,
+      allocationSource: 'WALLET',
+      status:           'PENDING',
+      redemptionChannel: this.grabDialogOffer.redemptionType || 'ONLINE'
+    };
+    this.employeeService.submitPurchase(payload).subscribe({
+      next: (res: any) => {
+        this.isProcessingGrab = false;
+        this.grabResult = {
+          refNo:   res?.data?.referenceNo || refNo,
+          message: res?.message || 'Voucher claimed successfully!',
+          amount:  this.grabAmount
+        };
+        this.grabDialogStep = 'checkout';
+        // Add to owned coupons
+        this.ownedCoupons.unshift({
+          brand:             this.grabDialogOffer.brand,
+          title:             this.grabDialogOffer.title,
+          code:              this.grabResult.refNo,
+          status:            'active',
+          expiresOn:         this.grabDialogOffer.validTill,
+          redeemInstruction: 'Copy the reference and apply at checkout'
+        });
+        this.loadWalletBalance();
+        this.pushNotification(`${this.grabDialogOffer.brand} voucher claimed`);
+      },
+      error: (err: any) => {
+        this.isProcessingGrab = false;
+        const msg = err?.error?.message || 'Purchase failed. Please try again.';
+        this.showToastMessage(msg);
+      }
+    });
+  }
 
-    this.showToastMessage(`${offer.brand} coupon grabbed successfully`);
-    this.pushNotification(`${offer.brand} coupon grabbed`);
+  closeGrabDialog() {
+    this.showGrabDialog = false;
+    this.grabDialogOffer = null;
+    this.grabResult = null;
+    this.grabDialogStep = 'confirm';
   }
 
   copyCode(code: string) {

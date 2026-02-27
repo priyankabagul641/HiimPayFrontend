@@ -223,6 +223,9 @@ export class EmployeeService {
 //   "success": true
 // }
   }
-
+ 
+   submitPurchase (data:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-wallets/purchase`, data);
+  }
 
 }
