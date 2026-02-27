@@ -458,7 +458,7 @@ export class AdminDataService {
 
   }
 
-getAllCategory(): Observable<any> {
+  getAllCategory(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `brand-categories`);
 // {
 //   "data": [
@@ -477,6 +477,45 @@ getAllCategory(): Observable<any> {
 //   "success": true
 // }
 
+  }
+
+  getAllAdmin(): Observable<any> {
+    return this.http.get<any>(this.baseUrl + `users/filter?userType=ADMIN&status=active`);
+    // expected response shape:
+//   {
+//   "data": [
+//     {
+//       "id": 40,
+//       "fullName": "System Administrator",
+//       "email": "admin@admin.com",
+//       "mobile": null,
+//       "passwordHash": "$2a$10$AdminHashedPasswordExample123456",
+//       "userType": "ADMIN",
+//       "status": "ACTIVE",
+//       "companyId": null,
+//       "otp": null,
+//       "lastLoginAt": null,
+//       "createdAt": "2026-02-27T18:32:59.803",
+//       "updatedAt": "2026-02-27T18:32:59.803",
+//       "isDeleted": false,
+//       "deletedAt": null
+//     }
+//   ],
+//   "message": "Users fetched successfully",
+//   "success": true
+// }
+  }
+
+     createAdmin(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `/users/createAdmin`, obj);
+    //obj should be like this
+//     {
+//   "fullName": "System Administrator",
+//   "email": "admin@admin.com",
+//   "passwordHash": "$2a$10$AdminHashedPasswordExample123456",
+//   "userType": "ADMIN",
+//   "status": "ACTIVE"
+// }
   }
 
 

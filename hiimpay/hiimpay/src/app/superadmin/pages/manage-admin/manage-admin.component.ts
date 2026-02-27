@@ -1,8 +1,28 @@
 import { Component, OnInit } from '@angular/core';
+import { AdminDataService } from '../../services/adminData.service';
+import { ToastrService } from 'ngx-toastr';
 
 interface Admin {
+  id?: number;
   name: string;
   email: string;
+  contact: string;
+  address: string;
+  active: boolean;
+  permissions: {
+    dashboard: boolean;
+    brands: boolean;
+    coupons: boolean;
+    clients: boolean;
+    employees: boolean;
+    reports: boolean;
+  };
+}
+
+interface NewAdmin {
+  name: string;
+  email: string;
+  password: string;
   contact: string;
   address: string;
   active: boolean;
@@ -22,81 +42,68 @@ interface Admin {
   styleUrls: ['./manage-admin.component.scss']
 })
 export class ManageAdminComponent implements OnInit {
-  admins: Admin[] = [
-    {
-      name: 'Super Admin',
-      email: 'admin@himpay.com',
-      contact: '9999999999',
-      address: 'Mumbai',
-      active: true,
-      permissions: {
-        dashboard: true,
-        brands: true,
-        coupons: true,
-        clients: true,
-        employees: true,
-        reports: true
-      }
-    },
-    {
-      name: 'Brand Manager',
-      email: 'brand.manager@himpay.com',
-      contact: '9876543210',
-      address: 'Bengaluru',
-      active: true,
-      permissions: {
-        dashboard: true,
-        brands: true,
-        coupons: true,
-        clients: false,
-        employees: false,
-        reports: false
-      }
-    },
-    {
-      name: 'Ops Admin',
-      email: 'ops.admin@himpay.com',
-      contact: '9123456789',
-      address: 'Hyderabad',
-      active: false,
-      permissions: {
-        dashboard: true,
-        brands: false,
-        coupons: false,
-        clients: true,
-        employees: true,
-        reports: true
-      }
-    }
-  ];
+  admins: Admin[] = [];
   filteredAdmins: Admin[] = [];
   searchTerm = '';
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
+  isLoading = false;
 
   showCreatePopup = false;
   showAccessPopup = false;
   selectedAdmin!: Admin;
 
-  newAdmin: Admin = this.getEmptyAdmin();
+  newAdmin: NewAdmin = this.getEmptyAdmin();
+
+  constructor(
+    private adminService: AdminDataService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
-    this.applyFilters();
+    this.loadAdmins();
   }
 
-  getEmptyAdmin(): Admin {
+  loadAdmins() {
+    this.isLoading = true;
+    this.adminService.getAllAdmin().subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        this.admins = (res?.data || []).map((u: any) => this.normalize(u));
+        this.applyFilters();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toastr.error('Failed to load admins');
+      }
+    });
+  }
+
+  private normalize(u: any): Admin {
+    return {
+      id:      u.id,
+      name:    u.fullName || u.name || '-',
+      email:   u.email || '-',
+      contact: u.mobile  || u.contact || '-',
+      address: u.address || '-',
+      active:  (u.status || '').toUpperCase() === 'ACTIVE',
+      permissions: {
+        dashboard: false, brands: false, coupons: false,
+        clients: false, employees: false, reports: false
+      }
+    };
+  }
+
+  getEmptyAdmin(): NewAdmin {
     return {
       name: '',
       email: '',
+      password: '',
       contact: '',
       address: '',
       active: true,
       permissions: {
-        dashboard: false,
-        brands: false,
-        coupons: false,
-        clients: false,
-        employees: false,
-        reports: false
+        dashboard: false, brands: false, coupons: false,
+        clients: false, employees: false, reports: false
       }
     };
   }
@@ -107,9 +114,31 @@ export class ManageAdminComponent implements OnInit {
   }
 
   createAdmin() {
-    this.admins.push({ ...this.newAdmin });
-    this.showCreatePopup = false;
-    this.applyFilters();
+    if (!this.newAdmin.name || !this.newAdmin.email || !this.newAdmin.password) {
+      this.toastr.error('Name, email and password are required.');
+      return;
+    }
+    const payload = {
+      fullName:     this.newAdmin.name,
+      email:        this.newAdmin.email,
+      passwordHash: this.newAdmin.password,
+      userType:     'ADMIN',
+      status:       this.newAdmin.active ? 'ACTIVE' : 'INACTIVE'
+    };
+    this.adminService.createAdmin(payload).subscribe({
+      next: (res: any) => {
+        if (res?.success !== false) {
+          this.toastr.success(res?.message || 'Admin created successfully.');
+          this.showCreatePopup = false;
+          this.loadAdmins();
+        } else {
+          this.toastr.error(res?.message || 'Failed to create admin.');
+        }
+      },
+      error: (err: any) => {
+        this.toastr.error(err?.error?.message || 'Failed to create admin.');
+      }
+    });
   }
 
   openAccessPopup(admin: Admin) {
