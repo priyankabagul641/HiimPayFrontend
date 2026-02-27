@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClientBrandDialogComponent } from './client-brand-dialog.component';
 import { ClientBrandCategoryCouponsDialogComponent } from './client-brand-category-coupons-dialog.component';
+import { ProjectService } from '../../services/companyService';
 
 interface Brand {
   id: string;
@@ -26,54 +27,53 @@ interface Brand {
 })
 export class ClientBrandListComponent implements OnInit {
   clientId = '';
+  companyId: number = 0;
   brands: Brand[] = [];
   filtered: Brand[] = [];
   q = '';
   inStockOnly = false;
+  isLoading = false;
 
   constructor(
     private dialog: MatDialog,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private service: ProjectService
   ) {}
 
   ngOnInit(): void {
     this.clientId = sessionStorage.getItem('ClientId') || '';
-    this.seedBrands();
-    this.applyFilters();
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
+    this.companyId = userData?.companyId;
+    this.loadBrands();
   }
 
-  seedBrands() {
-    this.brands = [
-      {
-        id: '1',
-        brandProductCode: 'BATA001',
-        brandSku: this.generateBrandSku('Bata'),
-        name: 'Bata',
-        brandType: 'VOUCHER',
-        onlineRedemptionUrl: 'https://www.bata.in/',
-        brandImage: 'https://cdn.gyftr.com/comm_engine/stag/images/brands/1593693691875_u3qtc3vzkc4s2qqr.png',
-        epayMinValue: 10,
-        epayMaxValue: 1050,
-        epayDiscount: 10,
-        stockAvailable: true,
-        categories: ['Lifestyle']
+  loadBrands() {
+    this.isLoading = true;
+    this.service.brandsByCompanyID(this.companyId).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        this.brands = (res.data || []).map((b: any) => ({
+          id: b.id,
+          brandProductCode: b.brandProductCode || '',
+          brandSku: b.brandSku || '',
+          name: b.brandName || '',
+          brandType: b.brandType || '',
+          onlineRedemptionUrl: b.onlineRedemptionUrl || '',
+          brandImage: b.brandImage || '',
+          epayMinValue: b.epayMinValue ?? 0,
+          epayMaxValue: b.epayMaxValue ?? 0,
+          epayDiscount: b.epayDiscount ?? 0,
+          stockAvailable: b.stockAvailable ?? false,
+          categories: b.serviceType ? [b.serviceType] : []
+        }));
+        this.applyFilters();
       },
-      {
-        id: '2',
-        brandProductCode: 'AMZN001',
-        brandSku: this.generateBrandSku('Amazon'),
-        name: 'Amazon',
-        brandType: 'VOUCHER',
-        onlineRedemptionUrl: 'https://www.amazon.in/',
-        brandImage: '',
-        epayMinValue: 100,
-        epayMaxValue: 10000,
-        epayDiscount: 5,
-        stockAvailable: true,
-        categories: ['E-Commerce']
+      error: (err: any) => {
+        this.isLoading = false;
+        console.error('loadBrands error:', err);
       }
-    ];
+    });
   }
 
   applyFilters() {
@@ -124,17 +124,43 @@ export class ClientBrandListComponent implements OnInit {
   openBrandCategoryCoupons(brand: Brand, event: MouseEvent) {
     event.stopPropagation();
 
-    this.dialog.open(ClientBrandCategoryCouponsDialogComponent, {
-      width: '980px',
-      maxHeight: '90vh',
-      disableClose: false,
-      data: {
-        brand: {
-          name: brand.name,
-          brandSku: brand.brandSku,
-          categories: brand.categories
-        },
-        categoryCoupons: this.buildCategoryCoupons(brand)
+    this.service.CoupounDataByBrandID(brand.id).subscribe({
+      next: (res: any) => {
+        const apiCoupons: any[] = res?.data || [];
+
+        // Group by providerName (fallback to categoryName → 'General')
+        const groupMap = new Map<string, any[]>();
+        apiCoupons.forEach((c: any) => {
+          const key = c.providerName || c.categoryName || 'General';
+          if (!groupMap.has(key)) groupMap.set(key, []);
+          groupMap.get(key)!.push({
+            coupon_sku: c.sku || c.productCode || '-',
+            product_name: c.productName || '-',
+            min_value: c.minValue ?? c.brand?.epayMinValue ?? 0,
+            max_value: c.maxValue ?? c.brand?.epayMaxValue ?? 0,
+            discount_percent: c.discountPercent ?? 0,
+            is_active: c.active ?? false
+          });
+        });
+
+        const categoryCoupons = Array.from(groupMap.entries()).map(([category, coupons]) => ({ category, coupons }));
+
+        this.dialog.open(ClientBrandCategoryCouponsDialogComponent, {
+          width: '980px',
+          maxHeight: '90vh',
+          disableClose: false,
+          data: {
+            brand: {
+              name: brand.name,
+              brandSku: brand.brandSku,
+              categories: brand.categories
+            },
+            categoryCoupons
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error('CoupounDataByBrandID error:', err);
       }
     });
   }
@@ -145,30 +171,5 @@ export class ClientBrandListComponent implements OnInit {
     const hash = Array.from(cleaned || 'brand').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
     const num = ((hash % 900) + 100).toString();
     return `${prefix}${num}`;
-  }
-
-  private buildCategoryCoupons(brand: Brand) {
-    const providers = ['GYFTR', 'XOXODAY', 'MYHUMBLE'];
-
-    return brand.categories.map((category, index) => {
-      const categoryNo = (index + 1).toString().padStart(4, '0');
-      const coupons = [1, 2].map((serial) => {
-        const productCode = `${category.replace(/[^a-z]/gi, '').toLowerCase().slice(0, 2) || 'ct'}${serial}`.padEnd(4, 'x');
-        const valueMin = serial === 1 ? brand.epayMinValue : Math.max(brand.epayMinValue, 500);
-        const valueMax = serial === 1 ? Math.min(brand.epayMaxValue, 1000) : brand.epayMaxValue;
-
-        return {
-          product_name: `${brand.name} ${category} Voucher ${serial}`,
-          provider_name: providers[(index + serial - 1) % providers.length],
-          coupon_sku: `${brand.brandSku}-${categoryNo}-${productCode}`,
-          min_value: valueMin,
-          max_value: valueMax,
-          discount_percent: serial === 1 ? 5 : 10,
-          is_active: brand.stockAvailable
-        };
-      });
-
-      return { category, coupons };
-    });
   }
 }

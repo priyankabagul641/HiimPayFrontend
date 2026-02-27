@@ -1,430 +1,106 @@
 <section>
-  <div class="col-12 my-2">
-    <h2 class="font-weight-bold" style="display: inline; color: #103a7f; font-style: poppins">
-      {{ btnName }}
-    </h2>
+  <div class="col-12 my-2 d-flex align-items-center justify-content-between">
+    <h2 class="font-weight-bold mb-0" style="color: #103a7f;">{{ btnName }}</h2>
     <button type="button" class="close bthnHover" aria-label="Close" (click)="onClose()">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
+
   <div class="container py-3">
     <form [formGroup]="createForm" class="w-100">
-      <div class="row px-2" *ngIf="!show">
+      <div class="row px-2">
+
+        <!-- Full Name -->
         <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Name</label>
-          <input type="text" class="form-control" formControlName="name" placeholder="Enter user name" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('name')?.touched &&
-                createForm.get('name')?.hasError('required')
-              " class="text-danger">
-              User name is required
+          <label class="label-control blue-color">Full Name</label>
+          <input type="text" class="form-control" formControlName="fullName" placeholder="Enter full name" />
+          <small>
+            <p *ngIf="createForm.get('fullName')?.touched && createForm.get('fullName')?.hasError('required')"
+              class="text-danger">Full name is required</p>
+          </small>
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6 col-sm-12 mt-3">
+          <label class="label-control blue-color">Email</label>
+          <input type="email" class="form-control" formControlName="email" placeholder="Enter email" />
+          <small>
+            <p *ngIf="createForm.get('email')?.touched && createForm.get('email')?.hasError('required')"
+              class="text-danger">Email is required</p>
+            <p *ngIf="createForm.get('email')?.hasError('pattern')" class="text-danger">Invalid email address</p>
+          </small>
+        </div>
+
+        <!-- Mobile -->
+        <div class="col-md-6 col-sm-12 mt-3">
+          <label class="label-control blue-color">Mobile</label>
+          <input type="text" class="form-control" formControlName="mobile" placeholder="Enter 10-digit mobile number" />
+          <small>
+            <p *ngIf="createForm.get('mobile')?.touched && createForm.get('mobile')?.hasError('required')"
+              class="text-danger">Mobile number is required</p>
+            <p *ngIf="createForm.get('mobile')?.hasError('pattern')" class="text-danger">
+              Invalid mobile number (10 digits required)
             </p>
           </small>
         </div>
 
+        <!-- Password -->
         <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Email</label>
-          <input type="text" class="form-control" formControlName="email" placeholder="Enter email ID" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('email')?.touched &&
-                createForm.get('email')?.hasError('required')
-              " class="text-danger">
-              User email is required
-            </p>
-            <p *ngIf="createForm.get('email')?.hasError('pattern')" class="text-danger">
-              Invalid email ID
-            </p>
+          <label class="label-control blue-color">Password</label>
+          <input type="password" class="form-control" formControlName="passwordHash" placeholder="Enter password" />
+          <small>
+            <p *ngIf="createForm.get('passwordHash')?.touched && createForm.get('passwordHash')?.hasError('required')"
+              class="text-danger">Password is required</p>
           </small>
         </div>
 
+        <!-- User Type -->
         <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Contact number</label>
-          <input type="text" class="form-control" formControlName="contactNumber" placeholder="Enter contact number" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('contactNumber')?.touched &&
-                createForm.get('contactNumber')?.hasError('required')
-              " class="text-danger">
-              User Contact number is required
-            </p>
-            <p *ngIf="createForm.get('contactNumber')?.hasError('pattern')" class="text-danger">
-              Invalid contact number
-            </p>
-          </small>
-        </div>
-
-        <!-- <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">BirthDate</label>
-          <input type="date" class="form-control" formControlName="birthDate" placeholder="Enter birthDate" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('birthDate')?.touched &&
-                createForm.get('birthDate')?.hasError('required')
-              " class="text-danger">
-              Birthdate is required
-            </p>
-          </small>
-        </div> -->
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Workplace location</label>
-          <input type="text" class="form-control" formControlName="workLocation" placeholder="Enter workplace location" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('workLocation')?.touched &&
-                createForm.get('workLocation')?.hasError('required')
-              " class="text-danger">
-              Workplace location is required
-            </p>
-          </small>
-        </div>
-
-        <!-- <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Address</label>
-          <input type="text" class="form-control" formControlName="address" placeholder="Enter address" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('address')?.touched &&
-                createForm.get('address')?.hasError('required')
-              " class="text-danger">
-              Address is required
-            </p>
-          </small>
-        </div> -->
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Job type</label>
-          <input type="text" class="form-control" formControlName="jobType" placeholder="Enter job type" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('jobType')?.touched &&
-                createForm.get('jobType')?.hasError('required')
-              " class="text-danger">
-              Job type is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3" *ngIf="isAdmin">
-          <label for="" class="label-control blue-color">User role</label>
-          <select name="" id="" class="form-select" formControlName="typeOfUser">
-            <option value="" disabled selected>Please select role</option>
-            <option value="2">Employee</option>
-            <option value="1">CPOC</option>
+          <label class="label-control blue-color">User Type</label>
+          <select class="form-select" formControlName="userType">
+            <option value="" disabled selected>Select user type</option>
+            
+            <option value="EMPLOYEE">USER</option>
+            <option value="CPOC">CPOC</option>
           </select>
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('typeOfUser')?.touched &&
-                createForm.get('typeOfUser')?.hasError('required')
-              " class="text-danger">
-              Type of user is required
-            </p>
+          <small>
+            <p *ngIf="createForm.get('userType')?.touched && createForm.get('userType')?.hasError('required')"
+              class="text-danger">User type is required</p>
           </small>
         </div>
 
+        <!-- Status -->
         <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">City</label>
-          <input type="text" class="form-control" formControlName="city" placeholder="Enter city" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('city')?.touched &&
-                createForm.get('city')?.hasError('required')
-              " class="text-danger">
-              City is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">State</label>
-          <input type="text" class="form-control" formControlName="state" placeholder="Enter state" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('state')?.touched &&
-                createForm.get('state')?.hasError('required')
-              " class="text-danger">
-              State is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Country</label>
-          <input type="text" class="form-control" formControlName="country" placeholder="Enter country" />
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('country')?.touched &&
-                createForm.get('country')?.hasError('required')
-              " class="text-danger">
-              Country is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Gender</label>
-          <select name="" id="" class="form-select" formControlName="gender">
-            <option value="" disabled selected>Please select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
+          <label class="label-control blue-color">Status</label>
+          <select class="form-select" formControlName="status">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
           </select>
-          <small class="p-0 ps-4">
-            <p *ngIf="
-                createForm.get('gender')?.touched &&
-                createForm.get('gender')?.hasError('required')
-              " class="text-danger">
-              Gender is required
-            </p>
+          <small>
+            <p *ngIf="createForm.get('status')?.touched && createForm.get('status')?.hasError('required')"
+              class="text-danger">Status is required</p>
           </small>
         </div>
 
-
-        <div class="col-md-6 col-sm-12 mt-5 d-inline-flex justify-content-start">
-          <!-- <div class="row mt-2 text-center" style="vertical-align: middle">
-            <div class="col-md-3">
-              <label for="" class="label-control blue-color me-5">Gender</label>
-            </div>
-            <div class="col-md-3">
-              <input
-                type="radio"
-                class="form-check-input"
-                id="maleRadio"
-                formControlName="gender"
-                name="gender"
-                value="male"
-              />
-              <label class="form-check-label ms-1" for="maleRadio">Male</label>
-            </div>
-            <div class="col-md-3">
-              <input
-                type="radio"
-                class="form-check-input"
-                id="femaleRadio"
-                formControlName="gender"
-                name="gender"
-                value="female"
-              />
-              <label class="form-check-label ms-1" for="femaleRadio"
-                >Female</label
-              >
-            </div>
-            <div class="col-md-3">
-              <input
-                type="radio"
-                class="form-check-input"
-                id="otherRadio"
-                formControlName="gender"
-                name="gender"
-                value="other"
-              />
-              <label class="form-check-label ms-1" for="otherRadio"
-                >Other</label
-              >
-            </div>
-          
-          </div> -->
-          <!-- <small class="p-2 ps-4">
-            <p
-              *ngIf="
-                createForm.get('gender')?.touched &&
-                createForm.get('gender')?.hasError('required')
-              "
-              class="text-danger"
-            >
-              *
-            </p>
-          </small> -->
-        </div>
-
-        <div class="row">
-          <div class="col-md-12 col-sm-12 text-right">
-            <button type="submit" [disabled]="!isFormValid()" class="btn px-4 py-2 button-color text-white mt-5" (click)="changeContent()">
-              Next
-            </button>
-            <!-- <button
-              type="submit"
-              class="btn px-4 py-2 button-color text-white mt-5"
-              (click)="createUser()"
-            >
-              {{ btnName }}
-            </button> -->
-          </div>
-
-        </div>
-      </div>
-      <div class="row px-2" *ngIf="show">
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Tenure</label>
-          <select name="" id="" class="form-select" formControlName="tenure">
-            <option value="" disabled selected>Please select tenure</option>
-            <option value="<3 months">&lt; 3 months</option>
-            <option value="3-11 months">3-11 months</option>
-            <option value="1-2 years">1-2 years</option>
-            <option value="3-5 years">3-5 years</option>
-            <option value="5-10 years">5-10 years</option>
-            <option value=">10 years">&gt; 10 years</option>
-          </select>
-          
-          <small class="p-0 ps-4">
-            <p *ngIf="
-                createForm.get('tenure')?.touched &&
-                createForm.get('tenure')?.hasError('required')
-              " class="text-danger">
-              Tenure is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Age</label>
-          <select name="" id="" class="form-select" formControlName="age">
-            <option value="" disabled selected>Please select age</option>
-            <option value="<25 years">&lt; 25 years</option>
-            <option value="26-30 years">26-30 years</option>
-            <option value="31-40 years">31-40 years</option>
-            <option value="41-50 years">41-50 years</option>
-            <option value="51-60 years">51-60 years</option>
-            <option value=">61 years">&gt; 61 years</option>
-          </select>
-          
-          <small class="p-0 ps-4">
-            <p *ngIf="
-                createForm.get('age')?.touched &&
-                createForm.get('age')?.hasError('required')
-              " class="text-danger">
-              Age is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Department</label>
-          <select name="" id="" class="form-select" formControlName="departmentName">
-            <option value="" disabled selected>Please select Department</option>
-            <option *ngFor="let item of departmentOptions" [value]="item">{{item}}</option>
-          </select>
-          <small class="p-0 ps-4">
-            <p *ngIf="
-                createForm.get('departmentName')?.touched &&
-                createForm.get('departmentName')?.hasError('required')
-              " class="text-danger">
-              Department is required
-            </p>
-          </small>
-        </div>
-
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Preferred communication channel</label>
-          <select name="" id="" class="form-select" formControlName="preferred_Communication_Channels">
-            <option value="" disabled selected>Please select preferred communication channel</option>
-            <option value="SMS">SMS</option>
-            <option value="WhatsApp">WhatsApp</option>
-            <option value="Email">Email</option>
-            <option value="Other">Other</option>
-          </select>
-          <small class="p-0">
-            <p *ngIf="
-                createForm.get('preferred_Communication_Channels')?.touched &&
-                createForm.get('preferred_Communication_Channels')?.hasError('required')
-              " class="text-danger">
-              Preferred communication channel is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Contract type</label>
-          <select name="" id="" class="form-select" formControlName="contractType">
-            <option value="" disabled selected>Please select Contract type</option>
-            <option value="Fulltime">Full time</option>
-            <option value="Parttime">Part time</option>
-            <option value="Fixed contract">Fixed contract</option>
-            <option value="Casual">Casual</option>
-            <option value="Other">Other</option>
-          </select>
-          <small class="p-2 ps-4">
-            <p *ngIf="
-                createForm.get('contractType')?.touched &&
-                createForm.get('contractType')?.hasError('required')
-              " class="text-danger">
-              Contract type is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3">
-          <label for="" class="label-control blue-color">Work flexibility</label>
-          <select name="" id="" class="form-select" formControlName="workFlexibility">
-            <option value="" disabled selected>Please select Work flexibility</option>
-            <option value="Work from office">Work from office</option>
-            <option value="Work from home">Work from home</option>
-            <option value="Hybrid">Hybrid</option>
-            <option value="Other">Other</option>
-          </select>
-          <small class="p-2 ps-4">
-            <p *ngIf="
-                createForm.get('workFlexibility')?.touched &&
-                createForm.get('workFlexibility')?.hasError('required')
-              " class="text-danger">
-              Work flexibility is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-6 col-sm-12 mt-3" *ngIf="isAdmin || isCpoc">
-          <label for="" class="label-control blue-color">Life cycle</label>
-          <select name="" id="" class="form-select" formControlName="lifeCycle">
-            <option value="" disabled selected>Please select life cycle</option>
-            <option value="Attract">Attract</option>
-            <option value="Onboard">Onboard</option>
-            <option value="Develop">Develop</option>
-            <option value="Retain">Retain</option>
-            <option value="Separate">Separate</option>
-          </select>
-          <small class="p-2 ps-4">
-            <p *ngIf="
-                createForm.get('lifeCycle')?.touched &&
-                createForm.get('lifeCycle')?.hasError('required')
-              " class="text-danger">
-              Life cycle is required
-            </p>
-          </small>
-        </div>
-
-
-        <div class="col-md-6 col-sm-12 mt-3"  *ngIf="isAdmin || isCpoc">
-          <label for="" class="label-control blue-color">Status</label>
-          <select name="" id="" class="form-select" formControlName="verified">
-            <option value="" disabled selected>Please select status</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </select>
-          <small class="p-0 ps-4">
-            <p *ngIf="
-                createForm.get('verified')?.touched &&
-                createForm.get('verified')?.hasError('required')
-              " class="text-danger">
-              Status is required
-            </p>
-          </small>
-        </div>
-
-        <div class="col-md-12 col-sm-12 d-flex justify-content-between">
-
-          <button type="submit" class="btn px-4 py-2 button-color text-white mt-5" (click)="changeContent()">
-            Back
-          </button>
-
-          <button type="submit" class="btn px-4 py-2 button-color text-white mt-5" (click)="createUser()">
+        <!-- Submit Button -->
+        <div class="col-md-12 col-sm-12 d-flex justify-content-end mt-4">
+          <button type="button" class="btn button-color text-white px-4 py-2" (click)="createUser()"
+            [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status"
+              aria-hidden="true"></span>
             {{ btnName }}
           </button>
         </div>
+
       </div>
     </form>
   </div>
 </section>
+
+
+
+
+
+
+
+

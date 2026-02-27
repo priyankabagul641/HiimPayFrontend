@@ -67,21 +67,9 @@
     </div>
   </div>
 
-  <div class="api-action-row">
-    <button type="button" class="cancel" (click)="addEndpoint('auth')">+ Add Auth API</button>
-    <button type="button" class="cancel" (click)="addEndpoint('data')">+ Add Data API</button>
-  </div>
+  
 
-  <label>Sample Request</label>
-  <pre class="code"><code [innerText]="apiSample"></code></pre>
 
-  <div class="api-action-row">
-    <button type="button" class="cancel" (click)="save()">Save API Setup</button>
-    <button type="button" class="save" [disabled]="pullInProgress" (click)="pullFromApi()">
-      {{ pullInProgress ? 'Pulling...' : 'Pull Brand Data' }}
-    </button>
-  </div>
-  <small class="hint" *ngIf="pullMessage">{{ pullMessage }}</small>
 </div>
 
 <div class="actions">

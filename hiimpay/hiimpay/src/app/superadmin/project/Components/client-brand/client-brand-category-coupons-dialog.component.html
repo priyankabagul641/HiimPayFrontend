@@ -17,7 +17,7 @@
     <div class="coupon-head row gx-0">
       <div class="col">Coupon SKU</div>
       <div class="col">Product Name</div>
-      <div class="col">Provider</div>
+    
       <div class="col">Value Range</div>
       <div class="col">Discount %</div>
       <div class="col">Status</div>
@@ -26,7 +26,7 @@
     <div class="coupon-row row gx-0" *ngFor="let coupon of block.coupons">
       <div class="col">{{ coupon.coupon_sku }}</div>
       <div class="col">{{ coupon.product_name }}</div>
-      <div class="col">{{ coupon.provider_name }}</div>
+    
       <div class="col">{{ coupon.min_value }} / {{ coupon.max_value }}</div>
       <div class="col">{{ coupon.discount_percent }}</div>
       <div class="col">{{ coupon.is_active ? 'Active' : 'Inactive' }}</div>

@@ -10,7 +10,7 @@
         <span
           class="blue-color font-weight-bold"
           style="font-weight: 700; max-width: 500px; text-wrap: wrap;">
-          Company name : TCS
+          Company name : {{ companyName }}
         </span>
 
       </div>
@@ -76,15 +76,12 @@
             <!-- <div class="col">Record owner</div> -->
             <div class="col">Action</div>
           </div>
-          <div class="tableCointainer" style="height: 100%; padding-bottom: 5%;" *ngIf="details?.length > 0">
+          <div class="tableCointainer" style="height: 100%; padding-bottom: 5%;" *ngIf="(details?.length ?? 0) > 0">
             <div class="row gx-0 table-row row-body px-0"
               *ngFor="let data of details | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }">
               <div class="col d-flex align-items-center">
-                <!-- <img src="../../../../../assets/boy.jpg" alt="" style="width: 48px; height: 48px"
-                  class="rounded-circle"/> -->
                 <div class="col ms-1" style="overflow: hidden">
-                  <p class="fw-bold mb-1">{{ data.name }}</p>
-                  <!-- <p class="text-muted mb-0">{{data.email}}</p> -->
+                  <p class="fw-bold mb-1">{{ data.fullName }}</p>
                 </div>
               </div>
               <div class="col">
@@ -94,14 +91,14 @@
                 <!-- <p class="badge rounded-pill" style="background-color: #069de0">
                   Active
                 </p> -->
-                <span *ngIf="data.verified==true" class="badge rounded-pill d-inline"
+                <span *ngIf="data.status=='ACTIVE'" class="badge rounded-pill d-inline"
                   style="background-color: green;">Active</span>
-                <span *ngIf="data.verified==false" class="badge rounded-pill d-inline"
-                  style="background-color:  red;">Inactive</span>
+                <span *ngIf="data.status!='ACTIVE'" class="badge rounded-pill d-inline"
+                  style="background-color: red;">Inactive</span>
               </div>
 
               <div class="col">
-                <p class="text-muted mb-0">{{data.contactNumber}}</p>
+                <p class="text-muted mb-0">{{data.mobile}}</p>
               </div>
               <!-- <div class="col">
                 <p>
@@ -113,7 +110,7 @@
                   <button class="border-0 m-2" style="font-size: 20px" (click)="editUser(data.id)">
                     <i class="fa fa-pencil" style="color: #103a7f"></i>
                   </button>
-                  <mat-slide-toggle class="green-toggle" [checked]="data?.verified" (change)="activeDeactiveUser(data)"></mat-slide-toggle>
+                  <mat-slide-toggle class="green-toggle" [checked]="data?.status=='ACTIVE'" (change)="activeDeactiveUser(data)"></mat-slide-toggle>
                   <!-- <button class="border-0 m-2" style="font-size: 20px" (click)="deleteUser(data)">
                     <i class="fa fa-trash" style="color: #103a7f"></i>
                   </button> -->

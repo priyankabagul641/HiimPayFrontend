@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ProjectService } from '../../services/project.service';
+import { ProjectService } from '../../services/companyService';
 import { ToastrService } from 'ngx-toastr';
 import { CreateUserComponent } from './create-user/create-user.component';
-import { SearchService } from '../../services/search.service';
-import { DeleteComponent } from '../../../pages/delete/delete.component';
 import { jsPDF } from "jspdf";
-import { getDate } from 'date-fns';
 
 @Component({
   selector: 'app-project-admin',
@@ -15,57 +12,55 @@ import { getDate } from 'date-fns';
 })
 export class ProjectAdminComponent implements OnInit {
   filterToggle: boolean = false;
-  details: any;
+  details: any[] = [];
   info: any;
   file: any;
   page: any = 1;
   size: any = 10;
-  sortBy: any = 'name';
-  orderBy: any = 'asc';
   itemPerPage: number = 10;
   totalItems: number = 0;
   isSelectedFileValid: boolean = false;
   checkDownloadExcelSpinner: boolean = false;
   checkuploadExcelSpinner: boolean = false;
   displayClientData: any;
+  companyId: number = 0;
+  companyName: string = '';
 
   isLoading: boolean = true;
   constructor(
     public dialog: MatDialog,
     private service: ProjectService,
     private toaster: ToastrService,
-    private searchservice: SearchService
   ) { }
 
   ngOnInit(): void {
-    this.displayClientData = JSON.parse(sessionStorage.getItem('ClientData')!);
-    this.searchservice.sendResults().subscribe({
-      next: (res: any) => {
-        if (res.length == 0) {
-          this.getAllUsers();
-        } else {
-          if (res.success) {
-            this.details = res.data;
-          } else {
-            this.details = [];
-          }
-        }
-      },
-      error: (err: any) => { },
-      complete: () => { },
-    });
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
+    this.companyId = userData?.companyId;
     this.getAllUsers();
+    this.getCompanyName();
+  }
+
+  getCompanyName() {
+    this.service.CompanyDATA(this.companyId).subscribe({
+      next: (res: any) => {
+        this.companyName = res?.data?.companyName || '';
+      },
+      error: (err: any) => console.log(err)
+    });
   }
 
   getAllUsers() {
     this.isLoading = true;
-    this.service.getUserByClientIDWithPagination(sessionStorage.getItem('ClientId'), this.orderBy, this.page - 1, this.size, this.sortBy).subscribe({
+    this.service.clientByCompanyID(this.companyId).subscribe({
       next: (res) => {
         this.isLoading = false;
-        this.details = res.data;
-        // this.onclick(this.details[0].id);
-        this.totalItems = res.totalItems;
-      }, error: (err) => { console.log(err) }, complete: () => { }
+        this.details = res.data || [];
+        this.totalItems = this.details.length;
+      },
+      error: (err) => {
+        console.log(err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -85,73 +80,46 @@ export class ProjectAdminComponent implements OnInit {
   // }
   openPopup(): void {
     const dialogRef = this.dialog.open(CreateUserComponent, {
-      width: '800px',
-      height: '600px',
+      width: '700px',
       disableClose: true,
-      data: { name: 'Create User', isConsultant: true },
+      data: { name: 'Create User', companyId: this.companyId },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getAllUsers();
     });
   }
 
   editUser(userId: number) {
-    console.log(userId);
-
     const dialogRef = this.dialog.open(CreateUserComponent, {
-      width: '800px',
-      height: '600px',
+      width: '700px',
       disableClose: true,
-      data: { name: 'edit-user', id: userId, isConsultant: true },
+      data: { name: 'edit-user', id: userId, companyId: this.companyId },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      // this.getAllUsers();
-      window.location.reload();
+    dialogRef.afterClosed().subscribe(() => {
+      this.getAllUsers();
     });
   }
 
   activeDeactiveUser(user: any) {
-    const obj = {
-      verified: !user.verified,
-    };
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    const obj = { status: newStatus };
 
-    this.service.updateUser(user.id, obj).subscribe((res) => {
-      if (res.success) {
-        if (res?.message === 'User updated successfully.' && res?.data?.verified === true) {
-          this.toaster.success('User activated successfully', 'Success');
+    this.service.updateUser(user.id, obj).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toaster.success(
+            newStatus === 'ACTIVE' ? 'User activated successfully' : 'User deactivated successfully',
+            'Success'
+          );
+          this.getAllUsers();
         }
-        else {
-          this.toaster.success('User Inactivated successfully', 'Success');
-        }
-        // this.getAllUsers();
-        window.location.reload();
-      }
+      },
+      error: (err) => console.log(err)
     });
   }
 
-
-  //   deleteUser(user:any){
-  //     const dialogRef = this.dialog.open(DeleteComponent, {
-  //       data: {
-  //         message: `Do you really want to deactivate user ${user.name}?`,
-  //       },
-  //       disableClose:true
-  //     });
-
-  //     dialogRef.afterClosed().subscribe((result) => {
-  //       if (result.action == 'ok') {
-  //         this.service.deleteUser(user.id).subscribe((res) => {
-  //           if (res.success) {
-  //             this.toaster.success('User deactivated successfully', 'Success');
-  //             // this.getAllUsers();
-  //             window.location.reload();
-  //           }
-  //         });
-  //       }
-  //     });
-  // }
 
   itemsCard: any[] = [];
 
@@ -176,9 +144,7 @@ export class ProjectAdminComponent implements OnInit {
   generateErrorPdf(errors: string[]) {
     const doc = new jsPDF();
     doc.setFontSize(12);
-    doc.text("Bulk upload errors :: Client name - " + this.displayClientData?.clientName + " :: Date - " + this.getCurrentDate(), 10, 10);
-
-    // Bulk upload errors :: Client name - <client name> :: Date - <date>
+    doc.text("Bulk upload errors :: Date - " + this.getCurrentDate(), 10, 10);
 
 
     let yPos = 20;
@@ -199,58 +165,15 @@ export class ProjectAdminComponent implements OnInit {
 
 
   uploadFile() {
-    const formData = new FormData();
-    formData.append('file', this.file);
-    console.log(formData);
-    this.checkuploadExcelSpinner = true;
-    this.service.uploadUserfromExcel(sessionStorage.getItem('ClientId'), formData).subscribe({
-      next: (res: any) => {
-        this.checkuploadExcelSpinner = false;
-        console.log(res);
-        if (res?.savedUsers?.length > 0) {
-          this.getAllUsers();
-          this.toaster.success('Users registered suceessfully');
-        }
-        this.isSelectedFileValid = false;
-        if (res?.errors?.length > 0) {
-          const errorMessage = res.errors.join('\n');
-          // this.toaster.error(errorMessage);
-          // this.toaster.error(errorMessage, 'Error', {
-          //   timeOut: 12000, // 12 seconds for error messages
-          // });
-          this.generateErrorPdf(res.errors);
-        }
-
-        if (res.message === "Some records were skipped due to validation errors.") {
-          this.toaster.error("Some records were skipped due to validation errors.");
-          this.isSelectedFileValid = false;
-        } else if (res.message === "File uploaded and user data saved successfully!") {
-          this.toaster.success("File uploaded and user data saved successfully!");
-          this.isSelectedFileValid = false;
-          this.getAllUsers()
-        } else { }
-        // window.location.reload();
-      },
-      error: (err) => { this.checkuploadExcelSpinner = false; },
-    });
+    // Excel bulk upload not yet supported for this API
+    this.toaster.info('Bulk upload not available', 'Info');
   }
-
-  // onFileBrowse(event: any) {
-  //   const inputElement = event.target as HTMLInputElement;
-  //   this.file = inputElement?.files?.[0]; // Get the selected file
-  //   if (this.file) {
-  //     this.validateFile();
-  //   }
-  // }
 
   onFileBrowse(event: any) {
     const inputElement = event.target as HTMLInputElement;
-    this.file = inputElement?.files?.[0]; // Get the selected file
+    this.file = inputElement?.files?.[0];
     if (this.file) {
       this.validateFile();
-      if (this.isSelectedFileValid) {
-        this.uploadFile();  // Automatically upload file if valid
-      }
       inputElement.value = '';
     }
   }
