@@ -22,21 +22,27 @@
         (ngSubmit)="submit()">
 
     <section class="section">
-      <h4>Company Details</h4>
+      <h4>Brand &amp; Category</h4>
 
       <div class="row">
         <div class="col">
-          <label>Brand Name</label>
-          <select formControlName="companyId" class="form-control">
-            <option *ngFor="let c of companies" [value]="c.id">
-              {{ c.name }}
-            </option>
+          <label>Brand <span class="text-danger">*</span></label>
+          <select formControlName="brandId" class="form-control"
+                  [class.is-invalid]="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched">
+            <option [ngValue]="null" disabled>Select brand</option>
+            <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.brandName }}</option>
           </select>
+          <div class="invalid-feedback">Brand is required.</div>
         </div>
 
         <div class="col">
-          <label>Coupon Poster</label>
-          <input type="file" class="form-control" (change)="onPosterChange($event)">
+          <label>Category <span class="text-danger">*</span></label>
+          <select formControlName="categoryId" class="form-control"
+                  [class.is-invalid]="couponForm.get('categoryId')?.invalid && couponForm.get('categoryId')?.touched">
+            <option [ngValue]="null" disabled>Select category</option>
+            <option *ngFor="let cat of categoriesList" [ngValue]="cat.id">{{ cat.categoryName }}</option>
+          </select>
+          <div class="invalid-feedback">Category is required.</div>
         </div>
       </div>
     </section>
@@ -46,54 +52,98 @@
 
       <div class="row">
         <div class="col">
-          <label>Coupon Title</label>
-          <input formControlName="title" class="form-control">
+          <label>Product Name <span class="text-danger">*</span></label>
+          <input formControlName="productName" class="form-control"
+                 placeholder="e.g. Amazon 50% Discount"
+                 [class.is-invalid]="couponForm.get('productName')?.invalid && couponForm.get('productName')?.touched">
+          <div class="invalid-feedback">Product name is required.</div>
         </div>
 
         <div class="col">
-          <label>Coupon Code</label>
+          <label>Coupon Code <span class="text-danger">*</span></label>
           <div class="d-flex">
-            <input formControlName="code"
+            <input formControlName="couponCode"
                    class="form-control"
-                   [readonly]="!manualCode">
-
-            <button type="button" class="btn btn-outline-secondary ms-2"
-                    (click)="generateCode()">
-              Generate
-            </button>
-
-            <button type="button" class="btn btn-link ms-2"
-                    (click)="toggleManual()">
-              {{ manualCode ? 'Auto' : 'Manual' }}
-            </button>
+                   [readonly]="!manualCode"
+                   [class.is-invalid]="couponForm.get('couponCode')?.invalid && couponForm.get('couponCode')?.touched"
+                   placeholder="Auto-generated">
+            <button type="button" class="btn btn-outline-secondary ms-2" (click)="generateCode()">Generate</button>
+            <button type="button" class="btn btn-link ms-2" (click)="toggleManual()">{{ manualCode ? 'Auto' : 'Manual' }}</button>
+          </div>
+          <div class="invalid-feedback d-block"
+               *ngIf="couponForm.get('couponCode')?.invalid && couponForm.get('couponCode')?.touched">
+            Coupon code is required.
           </div>
         </div>
       </div>
 
       <div class="row mt-2">
         <div class="col">
-          <label>Category</label>
-          <select formControlName="category" class="form-control">
-            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          <label>Provider Name</label>
+          <input formControlName="providerName" class="form-control" placeholder="e.g. Amazon API">
+        </div>
+
+        <div class="col">
+          <label>Serial No</label>
+          <input type="number" formControlName="serialNo" class="form-control" placeholder="e.g. 20001">
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col">
+          <label>Redemption Type <span class="text-danger">*</span></label>
+          <select formControlName="redemptionType" class="form-control">
+            <option value="ONLINE">ONLINE</option>
+            <option value="OFFLINE">OFFLINE</option>
           </select>
         </div>
+      </div>
 
+      <div class="row mt-2">
         <div class="col">
-          <label>Discount Type</label>
-          <select formControlName="discountType" class="form-control">
-            <option>Percentage</option>
-            <option>Flat Amount</option>
-          </select>
+          <label>Discount % <span class="text-danger">*</span></label>
+          <input type="number" formControlName="discountPercent" class="form-control" min="0" max="100"
+                 [class.is-invalid]="couponForm.get('discountPercent')?.invalid && couponForm.get('discountPercent')?.touched">
+          <div class="invalid-feedback">Discount % (0–100) is required.</div>
         </div>
 
         <div class="col">
-          <label>Discount Value</label>
-          <input type="number" formControlName="discountValue" class="form-control">
+          <label>Min Value</label>
+          <input type="number" formControlName="minValue" class="form-control" min="0" placeholder="0">
         </div>
 
         <div class="col">
-          <label>Min Purchase</label>
-          <input type="number" formControlName="minPurchase" class="form-control">
+          <label>Max Value</label>
+          <input type="number" formControlName="maxValue" class="form-control" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col">
+          <label>Denominations</label>
+          <input formControlName="denominations" class="form-control" placeholder="e.g. 100,500,1000">
+        </div>
+
+        <div class="col">
+          <label>Currency Code</label>
+          <input formControlName="currencyCode" class="form-control" placeholder="INR">
+        </div>
+
+        <div class="col">
+          <label>Country Code</label>
+          <input formControlName="countryCode" class="form-control" placeholder="IN">
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col">
+          <label>Description</label>
+          <textarea formControlName="description" class="form-control" rows="2" placeholder="Short description"></textarea>
+        </div>
+
+        <div class="col">
+          <label>Image URL</label>
+          <input formControlName="imageUrl" class="form-control" placeholder="https://example.com/image.png">
         </div>
       </div>
     </section>
@@ -103,13 +153,11 @@
 
       <div class="row">
         <div class="col">
-          <label>Start Date</label>
-          <input type="date" formControlName="startDate" class="form-control">
-        </div>
-
-        <div class="col">
-          <label>Expiry Date</label>
-          <input type="date" formControlName="expiryDate" class="form-control">
+          <label>Expiry Date <span class="text-danger">*</span></label>
+          <input type="date" formControlName="expiryDate" class="form-control"
+                 [min]="today"
+                 [class.is-invalid]="couponForm.get('expiryDate')?.invalid && couponForm.get('expiryDate')?.touched">
+          <div class="invalid-feedback">Expiry date is required and cannot be in the past.</div>
         </div>
       </div>
     </section>
@@ -117,7 +165,7 @@
     <div class="actions">
       <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       <button type="submit" class="btn btn-primary" [disabled]="couponForm.invalid">
-        Create Coupon
+        {{ title }}
       </button>
     </div>
   </form>
@@ -155,26 +203,34 @@
 
     <div class="api-box">
       <h4>API Integration</h4>
-      <p>Select one provider, configure auth and data endpoints, then save/pull.</p>
+      <p>Select a provider to auto-fill endpoint configuration, then save to sync coupons.</p>
     </div>
 
-    <label>API Profile</label>
-    <select [ngModel]="selectedApiProfileId" (ngModelChange)="onApiProfileChange($event)" class="form-control">
-      <option *ngFor="let profile of apiProfiles" [ngValue]="profile.id">{{ profile.name }}</option>
+    <label>API Provider</label>
+    <select [ngModel]="selectedProviderName" (ngModelChange)="onProviderChange($event)" class="form-control">
+      <option value="" disabled>Select provider</option>
+      <option *ngFor="let p of providerNames" [ngValue]="p">{{ p }}</option>
     </select>
-    <small class="hint">{{ selectedApiProfileDescription }}</small>
+    <small class="hint" *ngIf="!providerNames.length">Loading providers...</small>
 
     <div class="api-endpoint-card" *ngFor="let endpoint of apiEndpoints; let i = index">
       <div class="api-endpoint-header">
-        <strong>{{ endpoint.type === 'auth' ? 'Auth API' : 'Data API' }}</strong>
+        <strong>{{ endpoint.endpointType || 'Endpoint' }}</strong>
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="removeEndpoint(i)">Remove</button>
       </div>
 
       <div class="row">
         <div class="col">
+          <label>Endpoint Type</label>
+          <input type="text" class="form-control" [(ngModel)]="endpoint.endpointType" placeholder="e.g. ISSUE_VOUCHER">
+        </div>
+        <div class="col">
           <label>Endpoint Name</label>
           <input type="text" class="form-control" [(ngModel)]="endpoint.name">
         </div>
+      </div>
+
+      <div class="row mt-2">
         <div class="col">
           <label>Method</label>
           <select class="form-control" [(ngModel)]="endpoint.method">
@@ -182,11 +238,10 @@
             <option value="POST">POST</option>
           </select>
         </div>
-      </div>
-
-      <div class="mt-2">
-        <label>URL</label>
-        <input type="text" class="form-control" [(ngModel)]="endpoint.url" placeholder="https://api.example.com/endpoint">
+        <div class="col">
+          <label>URL</label>
+          <input type="text" class="form-control" [(ngModel)]="endpoint.url" placeholder="https://api.example.com/endpoint">
+        </div>
       </div>
 
       <div class="row mt-2">
@@ -201,21 +256,14 @@
       </div>
     </div>
 
-    <div class="api-action-row">
-      <button type="button" class="btn btn-outline-secondary" (click)="addEndpoint('auth')">+ Add Auth API</button>
-      <button type="button" class="btn btn-outline-secondary" (click)="addEndpoint('data')">+ Add Data API</button>
-    </div>
-
-    <label class="mt-3">Sample Request</label>
-    <pre class="code"><code [innerText]="apiSample"></code></pre>
+    <small class="hint" *ngIf="pullMessage">{{ pullMessage }}</small>
 
     <div class="actions">
-      <button class="btn btn-secondary" (click)="saveApiSetup()">Save API Setup</button>
-      <button class="btn btn-primary" [disabled]="pullInProgress" (click)="pullFromApi()">
-        {{ pullInProgress ? 'Pulling...' : 'Pull Coupon Data' }}
+      <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="isSaving || !selectedProviderName" (click)="saveApiSetup()">
+        {{ isSaving ? 'Saving...' : 'Save' }}
       </button>
     </div>
-    <small class="hint" *ngIf="pullMessage">{{ pullMessage }}</small>
 
   </div>
 

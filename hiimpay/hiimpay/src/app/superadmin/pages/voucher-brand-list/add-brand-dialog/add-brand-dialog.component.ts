@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AdminDataService } from '../../../services/adminData.service';
+import { ToastrService } from 'ngx-toastr';
 
 type TabType = 'excel' | 'api';
 type OnboardingType = 'EXCEL' | 'API';
 type ApiEndpointType = 'auth' | 'data';
 
 interface ApiEndpointConfig {
+  endpointType: string;
   name: string;
   type: ApiEndpointType;
   method: 'GET' | 'POST';
@@ -14,21 +17,14 @@ interface ApiEndpointConfig {
   requestSecret: string;
 }
 
-interface ApiProfile {
-  id: string;
-  name: string;
-  description: string;
-  endpoints: ApiEndpointConfig[];
-}
-
 @Component({
   selector: 'app-add-brand-dialog',
   templateUrl: './add-brand-dialog.component.html',
   styleUrls: ['./add-brand-dialog.component.scss']
 })
-export class AddBrandDialogComponent {
+export class AddBrandDialogComponent implements OnInit {
 
-  activeTab: TabType = 'excel';
+  activeTab: TabType = 'api';
 
   brand: {
     onboardingType: OnboardingType;
@@ -83,97 +79,62 @@ export class AddBrandDialogComponent {
 
   categories = ['Food & Beverages', 'Lifestyle', 'E-Commerce', 'Fashion', 'Electronics'];
 
-  apiSample = `POST /api/brands
-Content-Type: application/json
+  // Provider dropdown (loaded from getapi())
+  providerNames: string[] = [];
+  selectedProviderName = '';
+  providerEndpointsMap = new Map<string, any[]>();
 
-{
-  "BrandName": "Nike",
-  "Category": "Retail",
-  "OnlineRedemptionUrl": "https://nike.com",
-  "EpayMinValue": 10,
-  "EpayMaxValue": 500
-}`;
-
-  apiProfiles: ApiProfile[] = [
-    {
-      id: 'gyftr_v1',
-      name: 'GyFTR - v1',
-      description: 'Token based flow for brand and voucher data.',
-      endpoints: [
-        {
-          name: 'Get Token',
-          type: 'auth',
-          method: 'GET',
-          url: '/API/v1/gettoken',
-          apiKey: '',
-          requestSecret: ''
-        },
-        {
-          name: 'Get Brands',
-          type: 'data',
-          method: 'POST',
-          url: '/API/v1/getbrands',
-          apiKey: '',
-          requestSecret: ''
-        }
-      ]
-    },
-    {
-      id: 'pine_labs_v2',
-      name: 'Pine Labs - v2',
-      description: 'OAuth authentication followed by catalog sync.',
-      endpoints: [
-        {
-          name: 'OAuth Token',
-          type: 'auth',
-          method: 'POST',
-          url: '/oauth/token',
-          apiKey: '',
-          requestSecret: ''
-        },
-        {
-          name: 'Get Brand Catalog',
-          type: 'data',
-          method: 'GET',
-          url: '/v2/catalog/brands',
-          apiKey: '',
-          requestSecret: ''
-        }
-      ]
-    },
-    {
-      id: 'woohoo_v3',
-      name: 'Woohoo - v3',
-      description: 'API key and secret based partner integration.',
-      endpoints: [
-        {
-          name: 'Partner Auth',
-          type: 'auth',
-          method: 'POST',
-          url: '/partner/authenticate',
-          apiKey: '',
-          requestSecret: ''
-        },
-        {
-          name: 'Fetch Brands',
-          type: 'data',
-          method: 'GET',
-          url: '/partner/brands',
-          apiKey: '',
-          requestSecret: ''
-        }
-      ]
-    }
-  ];
-
-  selectedApiProfileId = this.apiProfiles[0].id;
-  selectedApiProfileDescription = this.apiProfiles[0].description;
-  apiEndpoints: ApiEndpointConfig[] = this.cloneEndpoints(this.apiProfiles[0].endpoints);
+  // Displayed endpoint cards (auth section)
+  apiEndpoints: ApiEndpointConfig[] = [];
   pullInProgress = false;
   pullMessage = '';
   lastPulledAt = '';
+  isSaving = false;
 
-  constructor(private dialogRef: MatDialogRef<AddBrandDialogComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<AddBrandDialogComponent>,
+    private adminService: AdminDataService,
+    private toastr: ToastrService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadApiProfiles();
+  }
+
+  loadApiProfiles() {
+    this.adminService.getapi().subscribe({
+      next: (res: any) => {
+        const allEndpoints: any[] = (res.data || []).flatMap((item: any) => item.endpoints || [item].filter((e: any) => e.endpointType));
+        const map = new Map<string, any[]>();
+        for (const ep of allEndpoints) {
+          const provName: string = ep.integration?.providerName || 'Unknown';
+          if (!map.has(provName)) map.set(provName, []);
+          map.get(provName)!.push(ep);
+        }
+        this.providerEndpointsMap = map;
+        this.providerNames = Array.from(map.keys());
+        if (this.providerNames.length) {
+          this.onProviderChange(this.providerNames[0]);
+        }
+      },
+      error: (err: any) => console.error('loadApiProfiles error:', err)
+    });
+  }
+
+  onProviderChange(providerName: string) {
+    this.selectedProviderName = providerName;
+    const endpoints = this.providerEndpointsMap.get(providerName) || [];
+    this.apiEndpoints = endpoints.map((ep: any) => ({
+      endpointType: ep.endpointType || '',
+      name: ep.endpointName || '',
+      type: (ep.endpointType || '').toLowerCase().includes('auth') ? 'auth' : 'auth',
+      method: (ep.method === 'GET' || ep.method === 'POST') ? ep.method : 'POST',
+      url: ep.url || '',
+      apiKey: ep.apiKey || '',
+      requestSecret: ep.requestSecret || ''
+    }));
+    this.pullMessage = '';
+  }
 
   get isSkuValid(): boolean {
     return true;
@@ -181,12 +142,8 @@ Content-Type: application/json
 
   switchTab(tab: TabType) {
     this.activeTab = tab;
-
     if (tab === 'excel') this.brand.onboardingType = 'EXCEL';
-    if (tab === 'api') {
-      this.brand.onboardingType = 'API';
-      this.onApiProfileChange(this.selectedApiProfileId);
-    }
+    if (tab === 'api') this.brand.onboardingType = 'API';
   }
 
   toggleCategory(cat: string) {
@@ -201,19 +158,9 @@ Content-Type: application/json
     if (file) console.log('Excel selected:', file.name);
   }
 
-  onApiProfileChange(profileId: string) {
-    const profile = this.apiProfiles.find((item) => item.id === profileId);
-    if (!profile) {
-      return;
-    }
-    this.selectedApiProfileId = profile.id;
-    this.selectedApiProfileDescription = profile.description;
-    this.apiEndpoints = this.cloneEndpoints(profile.endpoints);
-    this.pullMessage = '';
-  }
-
   addEndpoint(type: ApiEndpointType) {
     this.apiEndpoints.push({
+      endpointType: type === 'auth' ? 'AUTH' : 'DATA',
       name: type === 'auth' ? 'Auth Endpoint' : 'Data Endpoint',
       type,
       method: type === 'auth' ? 'POST' : 'GET',
@@ -227,43 +174,42 @@ Content-Type: application/json
     this.apiEndpoints.splice(index, 1);
   }
 
-  pullFromApi() {
-    if (!this.apiEndpoints.length) {
-      this.pullMessage = 'Add at least one endpoint before pulling data.';
-      return;
-    }
-
-    this.pullInProgress = true;
-    this.pullMessage = 'Pulling brand data from API...';
-
-    setTimeout(() => {
-      this.pullInProgress = false;
-      this.lastPulledAt = new Date().toISOString();
-      this.pullMessage = `Pull completed successfully at ${new Date(this.lastPulledAt).toLocaleString()}.`;
-    }, 900);
-  }
-
   save() {
-    if (!this.isSkuValid) {
+    if (!this.selectedProviderName) {
+      this.toastr.error('Please select an API provider.');
       return;
     }
-    this.dialogRef.close({
-      ...this.brand,
-      Category: this.brand.Category.join(','),
-      activeTab: this.activeTab,
-      apiIntegration: this.activeTab === 'api' ? {
-        profileId: this.selectedApiProfileId,
-        endpoints: this.apiEndpoints,
-        lastPulledAt: this.lastPulledAt
-      } : null
+    this.isSaving = true;
+    const provider = this.selectedProviderName.toLowerCase();
+    let call$;
+    if (provider.includes('xoxoday')) {
+      call$ = this.adminService.createxoxoday({});
+    } else if (provider.includes('humble')) {
+      call$ = this.adminService.createmyhumble({});
+    } else if (provider.includes('gyftr')) {
+      call$ = this.adminService.creategyftr({});
+    } else {
+      call$ = this.adminService.createxoxoday({});
+    }
+    call$.subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        if (res?.success !== false) {
+          this.toastr.success(res?.message || 'Brand synced successfully.');
+          this.dialogRef.close(true);
+        } else {
+          this.toastr.error(res?.message || 'Failed to sync brand.');
+        }
+      },
+      error: (err: any) => {
+        this.isSaving = false;
+        console.error('save brand error:', err);
+        this.toastr.error(err?.error?.message || 'Failed to sync brand.');
+      }
     });
   }
 
   close() {
     this.dialogRef.close();
-  }
-
-  private cloneEndpoints(endpoints: ApiEndpointConfig[]): ApiEndpointConfig[] {
-    return endpoints.map((endpoint) => ({ ...endpoint }));
   }
 }

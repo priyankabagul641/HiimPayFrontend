@@ -84,46 +84,8 @@ export class SupSurveylistComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
-
-      const payload: any = {
-        couponCode: result.code || null,
-        externalProductId: `EXT-${Date.now()}`,
-        providerName: 'GYFTR',
-        couponName: result.title || result.code || 'Voucher',
-        brand: {
-          id: result.companyId || 0,
-          brandName: this.getCompanyNameById(result.companyId)
-        },
-        category: {
-          categoryName: result.category || 'Lifestyle'
-        },
-        description: result.title ? `${result.title} voucher` : 'Voucher description',
-        imageUrl: typeof result.poster === 'string' ? result.poster : (result.poster ? result.poster.name : ''),
-        discountType: result.discountType || 'Percentage',
-        discountValue: Number(result.discountValue || 0),
-        minOrderValue: Number(result.minPurchase || 0),
-        validFrom: result.startDate || null,
-        validTo: result.expiryDate || null,
-        isActive: true
-      };
-
-      this.adminService.createCoupoun(payload).subscribe({
-        next: (res: any) => {
-          const created = (res && res.data) ? res.data : res;
-          const obj = Array.isArray(created) ? created[0] : created;
-          if (obj) {
-            this.surveyList = [this.enrichCouponSku(obj), ...(this.surveyList || [])];
-            this.applyFilters();
-            this.toastr.success('Coupon created successfully');
-          } else {
-            this.toastr.success('Coupon created');
-            this.loadCoupons();
-          }
-        },
-        error: () => {
-          this.toastr.error('Failed to create coupon');
-        }
-      });
+      // Dialog handles its own API call and closes with true on success
+      this.loadCoupons();
     });
   }
 
@@ -161,47 +123,8 @@ export class SupSurveylistComponent implements OnInit {
 
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
-
-      const id = result.id || coupon.id;
-      const payload: any = {
-        couponCode: result.code || coupon.couponCode || coupon.coupon_sku,
-        externalProductId: coupon.externalProductId || coupon.external_product_id || `EXT-${Date.now()}`,
-        providerName: coupon.providerName || coupon.provider_name || 'GYFTR',
-        couponName: result.title || coupon.couponName || coupon.product_name,
-        brand: {
-          id: result.companyId || coupon.brand?.id || 0,
-          brandName: this.getCompanyNameById(result.companyId || coupon.brand?.id)
-        },
-        category: { categoryName: result.category || coupon.category?.categoryName || coupon.category },
-        description: result.title || coupon.description || '',
-        imageUrl: typeof result.poster === 'string' ? result.poster : (result.poster ? result.poster.name : coupon.imageUrl || ''),
-        discountType: result.discountType || coupon.discountType,
-        discountValue: Number(result.discountValue || coupon.discountValue || coupon.discount_percent || 0),
-        minOrderValue: Number(result.minPurchase || coupon.minOrderValue || 0),
-        validFrom: result.startDate || coupon.validFrom || null,
-        validTo: result.expiryDate || coupon.validTo || coupon.expiry_date || null,
-        isActive: coupon.is_active !== undefined ? coupon.is_active : (coupon.isActive !== undefined ? coupon.isActive : true)
-      };
-
-      this.adminService.updateCoupoun(id, payload).subscribe({
-        next: (res: any) => {
-          const updated = (res && res.data) ? res.data : res;
-          const obj = Array.isArray(updated) ? updated[0] : updated;
-          if (obj) {
-            const idx = this.surveyList.findIndex((c) => c.id === id || c.id === obj.id);
-            if (idx >= 0) this.surveyList[idx] = this.enrichCouponSku({ ...this.surveyList[idx], ...obj });
-            else this.surveyList = [this.enrichCouponSku(obj), ...(this.surveyList || [])];
-            this.applyFilters();
-            this.toastr.success('Coupon updated successfully');
-          } else {
-            this.toastr.success('Coupon updated');
-            this.loadCoupons();
-          }
-        },
-        error: () => {
-          this.toastr.error('Failed to update coupon');
-        }
-      });
+      // Dialog handles its own API call and closes with true on success
+      this.loadCoupons();
     });
   }
 
@@ -261,13 +184,42 @@ export class SupSurveylistComponent implements OnInit {
   }
 
   private enrichCouponSku(coupon: any) {
-    const brandSku = this.generateBrandSku(coupon.brand_name || '');
-    const categoryNo = this.getCategoryNumber(coupon.category || '');
-    const productCode = this.getProductCode(coupon.external_product_id || '');
+    // Normalize API camelCase fields → snake_case used by the template
+    const provider_name       = coupon.provider_name       ?? coupon.providerName       ?? '-';
+    const product_name        = coupon.product_name        ?? coupon.couponName         ?? coupon.productName ?? '-';
+    const brand_name          = coupon.brand_name          ?? coupon.brand?.brandName   ?? '-';
+    const categoryRaw         = coupon.category;
+    const category            = typeof categoryRaw === 'string'
+                                  ? categoryRaw
+                                  : (categoryRaw?.categoryName ?? coupon.category_name ?? '-');
+    const external_product_id = coupon.external_product_id ?? coupon.externalProductId ?? '';
+    const min_value           = coupon.min_value           ?? coupon.minValue           ?? null;
+    const max_value           = coupon.max_value           ?? coupon.maxValue           ?? null;
+    const discount_percent    = coupon.discount_percent    ?? coupon.discountPercent    ?? null;
+    const expiry_date         = coupon.expiry_date
+                                  ?? (coupon.expiryDate ? coupon.expiryDate.split('T')[0] : null);
+    const is_active           = coupon.is_active !== undefined
+                                  ? coupon.is_active
+                                  : (coupon.active !== undefined ? coupon.active : true);
+
+    const brandSku    = this.generateBrandSku(brand_name);
+    const categoryNo  = this.getCategoryNumber(category);
+    const productCode = this.getProductCode(external_product_id);
+
     return {
       ...coupon,
-      brand_sku: brandSku,
-      coupon_sku: `${brandSku}-${categoryNo}-${productCode}`
+      provider_name,
+      product_name,
+      brand_name,
+      category,
+      external_product_id,
+      min_value,
+      max_value,
+      discount_percent,
+      expiry_date,
+      is_active,
+      brand_sku:  brandSku,
+      coupon_sku: coupon.coupon_sku ?? `${brandSku}-${categoryNo}-${productCode}`
     };
   }
 
