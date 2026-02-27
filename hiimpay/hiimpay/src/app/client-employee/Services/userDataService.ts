@@ -226,6 +226,18 @@ export class EmployeeService {
  
    submitPurchase (data:any):Observable<any>{
     return this.http.post<any>(this.baseUrl+`user-wallets/purchase`, data);
-  }
+// object is like this 
+// {
+//   "userId": 0,
+//   "voucherId": 0,
+//   "amount": 0,
+//   "referenceNo": "string",
+//   "notes": "string",
+//   "allocationSource": "string",
+//   "status": "string",
+//   "redemptionChannel": "string"
+// }
+
+   }
 
 }
