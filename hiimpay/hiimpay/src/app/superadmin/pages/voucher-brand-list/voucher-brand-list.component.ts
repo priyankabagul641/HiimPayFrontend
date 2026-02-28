@@ -112,14 +112,12 @@ export class VoucherBrandListComponent implements OnInit {
     this.adminService.getClientBrandById(idToFetch).subscribe({
       next: (res: any) => {
         this.loading = false;
-        const client = res?.data || null;
+        const brand = res?.data || null;
         this.dialog.open(ClientInfoDialogComponent, {
           width: '700px',
           maxHeight: '90vh',
           disableClose: false,
-          data: {
-            client
-          }
+          data: { brand }
         });
       },
       error: (err: any) => {
@@ -129,24 +127,7 @@ export class VoucherBrandListComponent implements OnInit {
           width: '700px',
           maxHeight: '90vh',
           disableClose: false,
-          data: {
-            client: {
-              id: idToFetch,
-              companyName: '-',
-              industry: '-',
-              contactName: '-',
-              contactEmail: '-',
-              contactEmail2: '-',
-              contactMobile: '-',
-              contactMobile2: '-',
-              status: '-',
-              consultingPhase: '-',
-              isSharedJourneyMap: false,
-              isSharedFeedback: false,
-              createdAt: null,
-              updatedAt: null
-            }
-          }
+          data: { brand: { id: idToFetch } }
         });
       }
     });

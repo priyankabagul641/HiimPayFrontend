@@ -339,8 +339,36 @@ export class AdminDataService {
   }
 
   getClientBrandById(id: string | number): Observable<any> {
-    return this.http.get<any>(this.baseUrl + `clients/${id}`);
-    // expected response shape: { data: { id:5, brandName: 'Amazon', ... }, message:'', success:true }
+    return this.http.get<any>(this.baseUrl + `brands/${id}`);
+    // expected response shape:
+    //  {
+//     "data": {
+//         "id": 10,
+//         "brandName": "Zara Spain",
+//         "brandProductCode": "ZARA-ES-2026-009",
+//         "brandSku": "ZARA-ES-SKU-09",
+//         "sku": "ZARA-ES-009",
+//         "brandType": "FASHION",
+//         "onboardingType": "MANUAL",
+//         "redemptionType": "ONLINE",
+//         "onlineRedemptionUrl": "https://www.zara.com/es/en/help-center/GiftCard",
+//         "brandImage": "https://example.com/images/brands/zara-spain.png",
+//         "epayMinValue": 25.0,
+//         "epayMaxValue": 1000.0,
+//         "epayDiscount": 7.0,
+//         "serviceType": "GIFT_CARD",
+//         "stockAvailable": true,
+//         "description": "Zara Spain digital gift cards usable across Zara stores and online platform in Spain.",
+//         "tnc": "Valid for 24 months from activation date. Cannot be redeemed for cash. Partial redemption allowed.",
+//         "importantInstruction": "Apply the gift card code during checkout or scan the barcode at physical Zara stores.",
+//         "createdAt": "2026-02-28T10:15:00",
+//         "updatedAt": "2026-02-28T14:18:46.251",
+//         "isDeleted": false,
+//         "deletedAt": null
+//     },
+//     "message": "Brand fetched successfully",
+//     "success": true
+// }
   }
 
     getapi(): Observable<any> {

@@ -63,7 +63,7 @@
           <button class="icon-action" type="button" (click)="toggleSidebar()">☰</button>
           <button class="icon-action" type="button" *ngIf="activeScreen !== 'home'" (click)="goBack()">← Back</button>
         </div>
-        <h2 *ngIf="activeScreen === 'home'">Hello, Shital</h2>
+        <h2 *ngIf="activeScreen === 'home'">Hello, {{ loggedInUserName }}</h2>
         <h2 *ngIf="activeScreen === 'browse'">Browse Coupons</h2>
         <h2 *ngIf="activeScreen === 'categories'">Categories</h2>
         <h2 *ngIf="activeScreen === 'details'">Coupon Details</h2>
@@ -150,23 +150,23 @@
           <div class="carousel-title">Featured Offers</div>
           <div class="featured-strip">
             <article class="featured-card" *ngFor="let offer of featuredOffers">
-              <span class="badge">{{ offer.discountBadge }}</span>
+              <span class="badge">{{ offer.discountPercent > 0 ? offer.discountPercent + '% OFF' : 'Offer' }}</span>
               <img [src]="offer.image" alt="{{ offer.brand }}" class="offer-img" />
               <div class="featured-head">
                 <span class="featured-logo" [style.background]="offer.brandColor">{{ offer.brandLogo }}</span>
                 <h4>{{ offer.brand }}</h4>
               </div>
               <p>{{ offer.title }}</p>
-              <small>Valid till {{ offer.validTill | date: 'd MMM yyyy' }}</small>
+              <small>Expires {{ offer.expiryDate | date: 'd MMM yyyy' }}</small>
               <button class="text-btn" (click)="showDetails(offer.id)">View</button>
             </article>
           </div>
         </ng-container>
 
         <ng-container *ngIf="activeScreen === 'browse'">
-          <div class="search-bar-wrap">
+          <!-- <div class="search-bar-wr ap">
             <input type="text" [(ngModel)]="searchTerm" placeholder="Search by brand or offer" />
-          </div>
+          </div> -->
              <div class="category-tab-strip">
             <button
               class="category-tab"
@@ -179,19 +179,10 @@
             </button>
           </div>
           <div class="chips-wrap">
-            <select [(ngModel)]="selectedCategory">
-              <option value="All">Category</option>
-              <option value="Food & Dining">Food & Dining</option>
-              <option value="Shopping">Shopping</option>
-              <option value="Travel">Travel</option>
-              <option value="Electronics">Electronics</option>
-            </select>
+            
             <select [(ngModel)]="selectedBrand">
               <option value="All">Brand</option>
-              <option value="Swiggy">Swiggy</option>
-              <option value="Myntra">Myntra</option>
-              <option value="MakeMyTrip">MakeMyTrip</option>
-              <option value="Croma">Croma</option>
+              <option *ngFor="let brand of uniqueBrands" [value]="brand">{{ brand }}</option>
             </select>
             <select [(ngModel)]="selectedDiscountType">
               <option value="All">Discount Type</option>
@@ -201,25 +192,27 @@
             </select>
           </div>
 
-          <article class="coupon-card" *ngFor="let offer of filteredOffers">
-            <div class="coupon-top">
-              <div class="brand-logo" [style.background]="offer.brandColor">{{ offer.brandLogo }}</div>
-              <div>
-                <h4>{{ offer.brand }}</h4>
-                <p>{{ offer.title }}</p>
+          <div class="coupon-grid">
+            <article class="coupon-card" *ngFor="let offer of filteredOffers">
+              <div class="coupon-top">
+                <div class="brand-logo" [style.background]="offer.brandColor">{{ offer.brandLogo }}</div>
+                <div>
+                  <h4>{{ offer.brand }}</h4>
+                  <p>{{ offer.title }}</p>
+                </div>
+                <span class="discount-pill">{{ offer.discountPercent > 0 ? offer.discountPercent + '% OFF' : 'Offer' }}</span>
               </div>
-              <span class="discount-pill">{{ offer.discountBadge }}</span>
-            </div>
-            <img [src]="offer.image" alt="{{ offer.brand }}" class="offer-img wide" />
-            <div class="coupon-bottom">
-              <small>Valid till {{ offer.validTill | date: 'd MMM yyyy' }}</small>
-              <span class="expiry-chip">{{ getDaysLeft(offer.validTill) }}d left</span>
-              <div class="coupon-actions">
-                <button class="text-btn" (click)="showDetails(offer.id)">Details</button>
-                <button class="primary-btn" (click)="grabCoupon(offer.id)">Grab Coupon</button>
+              <img [src]="offer.image" alt="{{ offer.brand }}" class="offer-img wide" />
+              <div class="coupon-bottom">
+                <small>Expires {{ offer.expiryDate | date: 'd MMM yyyy' }}</small>
+                <span class="expiry-chip">{{ getDaysLeft(offer.expiryDate) }}d left</span>
+                <div class="coupon-actions">
+                  <button class="text-btn" (click)="showDetails(offer.id)">Details</button>
+                  <button class="primary-btn" (click)="grabCoupon(offer.id)">Grab Coupon</button>
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          </div>
         </ng-container>
 
         <ng-container *ngIf="activeScreen === 'categories'">
@@ -235,12 +228,12 @@
                 <h4>{{ offer.brand }}</h4>
                 <p>{{ offer.title }}</p>
               </div>
-              <span class="discount-pill">{{ offer.discountBadge }}</span>
+              <span class="discount-pill">{{ offer.discountPercent > 0 ? offer.discountPercent + '% OFF' : 'Offer' }}</span>
             </div>
             <img [src]="offer.image" alt="{{ offer.brand }}" class="offer-img wide" />
             <div class="coupon-bottom">
-              <small>Valid till {{ offer.validTill | date: 'd MMM yyyy' }}</small>
-              <span class="expiry-chip">{{ getDaysLeft(offer.validTill) }}d left</span>
+              <small>Expires {{ offer.expiryDate | date: 'd MMM yyyy' }}</small>
+              <span class="expiry-chip">{{ getDaysLeft(offer.expiryDate) }}d left</span>
               <div class="coupon-actions">
                 <button class="text-btn" (click)="showDetails(offer.id)">Details</button>
                 <button class="primary-btn" (click)="grabCoupon(offer.id)">Grab Coupon</button>
@@ -253,12 +246,12 @@
           <article class="detail-card">
             <div class="detail-banner">
               <h3>{{ selectedOffer.brand }}</h3>
-              <span>{{ selectedOffer.discountBadge }}</span>
+              <span>{{ selectedOffer.discountPercent > 0 ? selectedOffer.discountPercent + '% OFF' : 'Offer' }}</span>
             </div>
             <img [src]="selectedOffer.image" alt="{{ selectedOffer.brand }}" class="offer-img detail" />
             <h4>{{ selectedOffer.title }}</h4>
             <p>{{ selectedOffer.description }}</p>
-            <p><strong>Expiry:</strong> {{ selectedOffer.validTill | date: 'd MMM yyyy' }}</p>
+            <p><strong>Expiry:</strong> {{ selectedOffer.expiryDate | date: 'd MMM yyyy' }}</p>
             <div class="detail-block">
               <h5>Terms & Conditions</h5>
               <p>{{ selectedOffer.terms }}</p>
@@ -414,12 +407,12 @@
       </div>
 
       <div class="grab-offer-meta">
-        <span class="grab-badge">{{ grabDialogOffer?.discountBadge }}</span>
+        <span class="grab-badge">{{ (grabDialogOffer?.discountPercent ?? 0) > 0 ? grabDialogOffer?.discountPercent + '% OFF' : 'Offer' }}</span>
         <span class="grab-range" *ngIf="grabDialogOffer?.minValue">
           ₹{{ grabDialogOffer?.minValue }} – ₹{{ grabDialogOffer?.maxValue }}
         </span>
         <span class="grab-expiry">
-          <mat-icon>schedule</mat-icon> Valid till {{ grabDialogOffer?.validTill | date:'d MMM yyyy' }}
+          <mat-icon>schedule</mat-icon> Expires {{ grabDialogOffer?.expiryDate | date:'d MMM yyyy' }}
         </span>
       </div>
 
@@ -432,9 +425,14 @@
           [min]="grabDialogOffer?.minValue || 1"
           [max]="grabDialogOffer?.maxValue"
           placeholder="Enter amount"
+          (ngModelChange)="validateGrabAmount()"
         />
-        <small class="grab-hint" *ngIf="grabDialogOffer?.minValue">
+        <small class="grab-hint" *ngIf="grabDialogOffer?.minValue && !grabAmountError">
           Min ₹{{ grabDialogOffer?.minValue }} &nbsp;·&nbsp; Max ₹{{ grabDialogOffer?.maxValue }}
+        </small>
+        <small class="grab-amount-error" *ngIf="grabAmountError">
+          <mat-icon style="font-size:14px;vertical-align:middle;">error_outline</mat-icon>
+          {{ grabAmountError }}
         </small>
 
         <label class="grab-label mt">Notes <span class="muted">(optional)</span></label>
@@ -456,7 +454,7 @@
         <button
           class="grab-confirm-btn"
           type="button"
-          [disabled]="!grabAmount || isProcessingGrab"
+          [disabled]="!grabAmount || isProcessingGrab || !!grabAmountError"
           (click)="confirmPurchase()"
         >
           <span *ngIf="!isProcessingGrab">Confirm Purchase</span>

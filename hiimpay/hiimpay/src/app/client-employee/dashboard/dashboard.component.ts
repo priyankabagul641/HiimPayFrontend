@@ -45,14 +45,15 @@ export class DashboardComponent implements OnInit {
   showNotificationPanel = false;
   showFaqPanel = false;
   faqOpenIndex = -1;
-  selectedCategoryView = 'Food & Dining';
+  selectedCategoryView = 'All';
   categorySearchTerm = '';
-  walletView: 'coupon' | 'amount' = 'coupon';
+  walletView: 'coupon' | 'amount' = 'amount';
 
   walletBalance = 0;
   totalSavings = 0;
   userId: number = 0;
   companyId: number = 0;
+  loggedInUserName = '';
   browseCoupons: any[] = [];
   browseCouponsLoading = false;
 
@@ -64,6 +65,7 @@ export class DashboardComponent implements OnInit {
   grabNotes = '';
   isProcessingGrab = false;
   grabResult: any = null;
+  grabAmountError = '';
 
   searchTerm = '';
   selectedBrand = 'All';
@@ -158,6 +160,9 @@ export class DashboardComponent implements OnInit {
     const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
     this.userId = userData?.id || 0;
     this.companyId = userData?.companyId || userData?.clientId || 0;
+    this.loggedInUserName = userData?.fullName || userData?.name ||
+      ((userData?.firstName || '') + (userData?.lastName ? ' ' + userData.lastName : '')) ||
+      'User';
     if (this.userId) {
       this.loadWalletBalance();
       this.loadWalletTransactions();
@@ -182,49 +187,72 @@ export class DashboardComponent implements OnInit {
   }
 
   private normalizeBrand(b: any, idx: number): any {
-    const name: string = b.brandName || 'Brand';
+    const brand = b.brand || {};
+    const name: string = brand.brandName || b.productName || 'Brand';
     const logo = name.substring(0, 2).toUpperCase();
     const colorMap: Record<string, string> = {
       'E-COMMERCE': '#ff9900', 'GIFT_CARD': '#6c5ce7', 'RETAIL': '#2ecc71',
       'E-VOUCHER': '#00b894', 'FASHION': '#fd79a8'
     };
-    const brandColor = colorMap[(b.brandType || '').toUpperCase()] || '#2980b9';
-    const discount = b.epayDiscount || 0;
-    const discountBadge = discount > 0 ? `${discount}% OFF` : 'Offer';
-    const discountType = discount > 0 ? 'Percentage' : 'Flat';
-    const category = this.brandTypeToCategory(b.brandType);
-    const validTill = new Date();
-    validTill.setFullYear(validTill.getFullYear() + 1);
+    const brandType = (brand.brandType || brand.serviceType || '').toUpperCase();
+    const brandColor = colorMap[brandType] || '#2980b9';
+    // Prefer top-level coupon discountPercent, fall back to brand.epayDiscount
+    const discountPercent = b.discountPercent ?? brand.epayDiscount ?? 0;
+    const discountBadge = discountPercent > 0 ? `${discountPercent}% OFF` : 'Offer';
+    const discountType = discountPercent > 0 ? 'Percentage' : 'Flat';
+    const categoryName = b.category?.categoryName || 'UNCATEGORIZED';
+    const category = this.categoryNameToLabel(categoryName);
+    // Use expiryDate directly from the coupon response
+    const expiryDate = b.expiryDate || (() => {
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + 1);
+      return d.toISOString().split('T')[0];
+    })();
     return {
-      id:           b.id ?? idx + 1,
-      brand:        name,
-      title:        b.description || `${name} gift voucher`,
-      validTill:    validTill.toISOString().split('T')[0],
+      id:             b.id ?? idx + 1,
+      brand:          name,
+      title:          b.description || brand.description || `${name} gift voucher`,
+      validTill:      expiryDate,   // mapped from API expiryDate
+      expiryDate,                   // raw API field
+      discountPercent,              // raw API field
       discountBadge,
       discountType,
       category,
-      brandLogo:    logo,
+      categoryName,
+      brandLogo:     logo,
       brandColor,
-      image:        b.brandImage || 'assets/images/servey1.jfif',
-      description:  b.description || '',
-      terms:        b.tnc || 'Terms and conditions apply.',
-      redeemSteps:  b.importantInstruction
-                      ? [b.importantInstruction]
-                      : ['Grab the coupon', 'Copy the code', 'Apply at checkout'],
-      isTrending:   b.stockAvailable !== false,
-      minValue:     b.epayMinValue,
-      maxValue:     b.epayMaxValue,
-      redemptionUrl:b.onlineRedemptionUrl || ''
+      image:         b.imageUrl || brand.brandImage || 'assets/images/servey1.jfif',
+      description:   b.description || brand.description || '',
+      terms:         brand.tnc || 'Terms and conditions apply.',
+      redeemSteps:   brand.importantInstruction
+                       ? [brand.importantInstruction]
+                       : ['Grab the coupon', 'Copy the code', 'Apply at checkout'],
+      isTrending:    brand.stockAvailable !== false,
+      minValue:      b.minValue ?? brand.epayMinValue,
+      maxValue:      b.maxValue ?? brand.epayMaxValue,
+      redemptionUrl: brand.onlineRedemptionUrl || ''
     };
   }
 
-  private brandTypeToCategory(brandType: string): string {
+  private categoryNameToLabel(categoryName: string): string {
     const map: Record<string, string> = {
-      'E-COMMERCE': 'Shopping', 'GIFT_CARD': 'Shopping', 'RETAIL': 'Shopping',
-      'FOOD': 'Food & Dining', 'TRAVEL': 'Travel', 'ELECTRONICS': 'Electronics',
-      'FASHION': 'Shopping', 'E-VOUCHER': 'Shopping'
+      'FOOD': 'Food & Dining',
+      'FOOD_AND_DINING': 'Food & Dining',
+      'TRAVEL': 'Travel',
+      'ELECTRONICS': 'Electronics',
+      'FASHION': 'Shopping',
+      'SHOPPING': 'Shopping',
+      'E-COMMERCE': 'Shopping',
+      'GIFT_CARD': 'Shopping',
+      'RETAIL': 'Shopping',
+      'E-VOUCHER': 'Shopping',
+      'ENTERTAINMENT': 'Entertainment',
+      'HEALTH': 'Health & Wellness',
+      'HEALTH_AND_WELLNESS': 'Health & Wellness',
+      'WELLNESS': 'Health & Wellness',
+      'UNCATEGORIZED': 'Other'
     };
-    return map[(brandType || '').toUpperCase()] || 'Shopping';
+    return map[(categoryName || '').toUpperCase()] || categoryName || 'Other';
   }
 
   loadWalletBalance() {
@@ -260,6 +288,13 @@ export class DashboardComponent implements OnInit {
 
   get featuredOffers() {
     return this.activeOffers.filter((offer) => offer.isTrending);
+  }
+
+  get uniqueBrands(): string[] {
+    const seen = new Set<string>();
+    return this.activeOffers
+      .map((o) => o.brand as string)
+      .filter((b) => b && !seen.has(b) && seen.add(b) !== undefined);
   }
 
   get redeemedCount() {
@@ -318,10 +353,13 @@ export class DashboardComponent implements OnInit {
         offer.brand.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         offer.title.toLowerCase().includes(this.searchTerm.toLowerCase());
       const brandMatch = this.selectedBrand === 'All' || offer.brand === this.selectedBrand;
-      const categoryMatch = this.selectedCategory === 'All' || offer.category === this.selectedCategory;
+      const categoryTabMatch =
+        !this.selectedCategoryView ||
+        this.selectedCategoryView === 'All' ||
+        offer.category === this.selectedCategoryView;
       const discountTypeMatch =
         this.selectedDiscountType === 'All' || offer.discountType === this.selectedDiscountType;
-      return searchMatch && brandMatch && categoryMatch && discountTypeMatch;
+      return searchMatch && brandMatch && categoryTabMatch && discountTypeMatch;
     });
   }
 
@@ -334,11 +372,34 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredCategories() {
-    const query = this.categorySearchTerm.trim().toLowerCase();
-    if (!query) {
-      return this.categories;
+    const iconMap: Record<string, string> = {
+      'Food & Dining': 'lunch_dining',
+      'Shopping': 'shopping_bag',
+      'Travel': 'flight_takeoff',
+      'Electronics': 'devices',
+      'Entertainment': 'movie',
+      'Health & Wellness': 'self_improvement',
+      'Other': 'category'
+    };
+    const accentMap: Record<string, string> = {
+      'Food & Dining': 'food', 'Shopping': 'shopping', 'Travel': 'travel',
+      'Electronics': 'electronics', 'Entertainment': 'entertainment',
+      'Health & Wellness': 'wellness', 'Other': 'other'
+    };
+    const seen = new Set<string>();
+    const dynamic: { icon: string; label: string; accent: string }[] = [];
+    // Always show 'All' tab first
+    dynamic.push({ icon: 'apps', label: 'All', accent: 'all' });
+    seen.add('All');
+    for (const coupon of this.browseCoupons) {
+      const label = coupon.category || 'Other';
+      if (!seen.has(label)) {
+        seen.add(label);
+        dynamic.push({ icon: iconMap[label] ?? 'category', label, accent: accentMap[label] ?? 'other' });
+      }
     }
-    return this.categories.filter((category) => category.label.toLowerCase().includes(query));
+    const query = this.categorySearchTerm.trim().toLowerCase();
+    return query ? dynamic.filter(c => c.label.toLowerCase().includes(query)) : dynamic;
   }
 
   get remainingAmount() {
@@ -503,12 +564,29 @@ export class DashboardComponent implements OnInit {
     this.grabAmount = offer.minValue || null;
     this.grabNotes = '';
     this.grabResult = null;
+    this.grabAmountError = '';
     this.grabDialogStep = 'confirm';
     this.showGrabDialog = true;
   }
 
+  validateGrabAmount() {
+    this.grabAmountError = '';
+    const amount = this.grabAmount;
+    const min = this.grabDialogOffer?.minValue;
+    const max = this.grabDialogOffer?.maxValue;
+    if (amount === null || amount === undefined || isNaN(Number(amount))) {
+      this.grabAmountError = 'Please enter a valid amount.';
+    } else if (min !== undefined && min !== null && amount < min) {
+      this.grabAmountError = `Amount is below the minimum voucher value of ₹${min}.`;
+    } else if (max !== undefined && max !== null && amount > max) {
+      this.grabAmountError = `Amount exceeds the maximum voucher value of ₹${max}.`;
+    }
+  }
+
   confirmPurchase() {
     if (!this.grabDialogOffer || !this.grabAmount) return;
+    this.validateGrabAmount();
+    if (this.grabAmountError) return;
     this.isProcessingGrab = true;
     const refNo = `REF-${Date.now()}`;
     const payload = {

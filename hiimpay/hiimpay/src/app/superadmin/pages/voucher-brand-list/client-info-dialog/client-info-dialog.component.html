@@ -1,23 +1,47 @@
 <div class="client-dialog">
   <div class="head">
-    <h3>Client Details</h3>
+    <div class="head-left">
+      <img *ngIf="data?.brand?.brandImage" [src]="data.brand.brandImage" alt="brand" class="brand-thumb" />
+      <div class="brand-thumb-placeholder" *ngIf="!data?.brand?.brandImage">
+        {{ (data?.brand?.brandName || 'B').substring(0,2).toUpperCase() }}
+      </div>
+      <h3>{{ data?.brand?.brandName || 'Brand Details' }}</h3>
+    </div>
     <button type="button" class="close-btn" (click)="close()">&times;</button>
   </div>
 
   <div class="grid">
-    <div><span>ID</span><p>{{ data?.client?.id || '-' }}</p></div>
-    <div><span>Company Name</span><p>{{ data?.client?.companyName || '-' }}</p></div>
-    <div><span>Industry</span><p>{{ data?.client?.industry || '-' }}</p></div>
-    <div><span>Contact Name</span><p>{{ data?.client?.contactName || '-' }}</p></div>
-    <div><span>Contact Email</span><p>{{ data?.client?.contactEmail || '-' }}</p></div>
-    <div><span>Second Email</span><p>{{ data?.client?.contactEmail2 || '-' }}</p></div>
-    <div><span>Contact Mobile</span><p>{{ data?.client?.contactMobile || '-' }}</p></div>
-    <div><span>Second Mobile</span><p>{{ data?.client?.contactMobile2 || '-' }}</p></div>
-    <div><span>Status</span><p>{{ data?.client?.status || '-' }}</p></div>
-    <div><span>Consulting Phase</span><p>{{ data?.client?.consultingPhase || '-' }}</p></div>
-    <div><span>Shared Journey Map</span><p>{{ data?.client?.isSharedJourneyMap ? 'Yes' : 'No' }}</p></div>
-    <div><span>Shared Feedback</span><p>{{ data?.client?.isSharedFeedback ? 'Yes' : 'No' }}</p></div>
-    <div><span>Created At</span><p>{{ data?.client?.createdAt ? (data.client.createdAt | date:'medium') : '-' }}</p></div>
-    <div><span>Updated At</span><p>{{ data?.client?.updatedAt ? (data.client.updatedAt | date:'medium') : '-' }}</p></div>
+    <div><span>ID</span><p>{{ data?.brand?.id ?? '-' }}</p></div>
+    <div><span>Brand Name</span><p>{{ data?.brand?.brandName || '-' }}</p></div>
+    <div><span>Brand SKU</span><p>{{ data?.brand?.brandSku || '-' }}</p></div>
+    <div><span>SKU</span><p>{{ data?.brand?.sku || '-' }}</p></div>
+    <div><span>Product Code</span><p>{{ data?.brand?.brandProductCode || '-' }}</p></div>
+    <div><span>Brand Type</span><p>{{ data?.brand?.brandType || '-' }}</p></div>
+    <div><span>Service Type</span><p>{{ data?.brand?.serviceType || '-' }}</p></div>
+    <div><span>Onboarding Type</span><p>{{ data?.brand?.onboardingType || '-' }}</p></div>
+    <div><span>Redemption Type</span><p>{{ data?.brand?.redemptionType || '-' }}</p></div>
+    <div>
+      <span>Redemption URL</span>
+      <p>
+        <a *ngIf="data?.brand?.onlineRedemptionUrl" [href]="data.brand.onlineRedemptionUrl" target="_blank" rel="noopener">{{ data.brand.onlineRedemptionUrl }}</a>
+        <span *ngIf="!data?.brand?.onlineRedemptionUrl">-</span>
+      </p>
+    </div>
+    <div><span>Min Value (ePay)</span><p>{{ data?.brand?.epayMinValue != null ? ('₹' + data.brand.epayMinValue) : '-' }}</p></div>
+    <div><span>Max Value (ePay)</span><p>{{ data?.brand?.epayMaxValue != null ? ('₹' + data.brand.epayMaxValue) : '-' }}</p></div>
+    <div><span>Discount (%)</span><p>{{ data?.brand?.epayDiscount != null ? (data.brand.epayDiscount + '%') : '-' }}</p></div>
+    <div>
+      <span>Stock Available</span>
+      <p>
+        <span class="stock-badge" [class.in-stock]="data?.brand?.stockAvailable" [class.out-stock]="!data?.brand?.stockAvailable">
+          {{ data?.brand?.stockAvailable ? 'In Stock' : 'Out of Stock' }}
+        </span>
+      </p>
+    </div>
+    <div class="full"><span>Description</span><p>{{ data?.brand?.description || '-' }}</p></div>
+    <div class="full"><span>Terms & Conditions</span><p>{{ data?.brand?.tnc || '-' }}</p></div>
+    <div class="full"><span>Important Instruction</span><p>{{ data?.brand?.importantInstruction || '-' }}</p></div>
+    <div><span>Created At</span><p>{{ data?.brand?.createdAt ? (data.brand.createdAt | date:'d MMM yyyy, h:mm a') : '-' }}</p></div>
+    <div><span>Updated At</span><p>{{ data?.brand?.updatedAt ? (data.brand.updatedAt | date:'d MMM yyyy, h:mm a') : '-' }}</p></div>
   </div>
 </div>
