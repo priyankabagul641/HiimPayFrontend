@@ -311,16 +311,22 @@
               </span>
             </div>
             <img
-              [src]="coupon.brand === 'Swiggy' ? 'assets/images/servey1.jfif' : coupon.brand === 'Myntra' ? 'assets/images/servey2.png' : 'assets/images/servey5.png'"
+              [src]="coupon.imageUrl || (coupon.brand === 'Swiggy' ? 'assets/images/servey1.jfif' : coupon.brand === 'Myntra' ? 'assets/images/servey2.png' : 'assets/images/servey5.png')"
               alt="{{ coupon.brand }}"
               class="offer-img mini"
             />
             <div class="code-row">
               <code [class.copy-pulse]="copiedCouponCode === coupon.code">{{ coupon.code }}</code>
-              <button class="secondary-btn" (click)="copyCode(coupon.code)">Copy</button>
+              <button class="secondary-btn" (click)="copyCode(coupon.code)" *ngIf="coupon.status === 'active'">Copy</button>
             </div>
             <p>{{ coupon.redeemInstruction }}</p>
           </article>
+          <div *ngIf="userWalletCouponsLoading" style="text-align: center; padding: 20px;">
+            <p>Loading your coupons...</p>
+          </div>
+          <div *ngIf="!userWalletCouponsLoading && filteredOwnedCoupons.length === 0" style="text-align: center; padding: 20px;">
+            <p>No {{ activeCouponTab }} coupons found.</p>
+          </div>
         </ng-container>
         <ng-container *ngIf="activeScreen === 'wallet'">
           <div class="wallet-toggle">

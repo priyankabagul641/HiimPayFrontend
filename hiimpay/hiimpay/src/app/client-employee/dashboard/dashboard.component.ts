@@ -56,6 +56,14 @@ export class DashboardComponent implements OnInit {
   loggedInUserName = '';
   browseCoupons: any[] = [];
   browseCouponsLoading = false;
+  userWalletCoupons: any[] = [];
+  userWalletCouponsLoading = false;
+  couponCounts: any = {
+    purchasedCount: 0,
+    assignedCount: 0,
+    expiredCount: 0,
+    totalCount: 0
+  };
 
   // Grab-coupon dialog
   showGrabDialog = false;
@@ -166,6 +174,8 @@ export class DashboardComponent implements OnInit {
     if (this.userId) {
       this.loadWalletBalance();
       this.loadWalletTransactions();
+      this.loadUserWalletCoupons();
+      this.loadCouponCounts();
     }
     if (this.companyId) {
       this.loadBrowseCoupons();
@@ -278,6 +288,76 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  loadUserWalletCoupons() {
+    this.userWalletCouponsLoading = true;
+    this.employeeService.getUserWalletsStatusById(this.userId).subscribe({
+      next: (res: any) => {
+        this.userWalletCouponsLoading = false;
+        const walletData = res?.data || [];
+        this.userWalletCoupons = walletData.map((item: any) => {
+          const wallet = item.wallet || {};
+          const brand = wallet.brand || {};
+          const status = wallet.status || 'PENDING';
+          const isExpired = wallet.isExpired || false;
+          const isRedeemed = wallet.isRedeemed || false;
+
+          // Determine status: 'active', 'used', or 'expired'
+          let couponStatus = 'active';
+          if (isRedeemed || status === 'REDEEMED') {
+            couponStatus = 'used';
+          } else if (isExpired || status === 'EXPIRED') {
+            couponStatus = 'expired';
+          }
+
+          // Format expiry date
+          const expiresAt = wallet.expiresAt || '';
+          const expiresOn = expiresAt ? new Date(expiresAt).toISOString().split('T')[0] : '';
+
+          return {
+            id: wallet.id,
+            brand: brand.brandName || 'Unknown Brand',
+            title: brand.description || `${brand.brandName} Gift Card`,
+            code: `COUPON-${wallet.id}`, // Generate a code based on wallet ID
+            status: couponStatus,
+            expiresOn: expiresOn,
+            redeemInstruction: isRedeemed 
+              ? `Redeemed on ${wallet.redeemedAt ? new Date(wallet.redeemedAt).toLocaleDateString() : 'N/A'}`
+              : isExpired 
+              ? 'Offer validity ended'
+              : brand.importantInstruction || 'Apply on cart page before payment',
+            imageUrl: brand.brandImage || 'assets/images/servey1.jfif',
+            redemptionUrl: brand.onlineRedemptionUrl || '',
+            voucherId: wallet.voucherId,
+            allocatedAt: wallet.allocatedAt,
+            allocationSource: wallet.allocationSource
+          };
+        });
+      },
+      error: (err: any) => {
+        this.userWalletCouponsLoading = false;
+        console.error('loadUserWalletCoupons error:', err);
+      }
+    });
+  }
+
+  loadCouponCounts() {
+    this.employeeService.totalCoupousCount(this.userId).subscribe({
+      next: (res: any) => {
+        if (res?.success && res?.data) {
+          this.couponCounts = {
+            purchasedCount: res.data.purchasedCount || 0,
+            assignedCount: res.data.assignedCount || 0,
+            expiredCount: res.data.expiredCount || 0,
+            totalCount: res.data.totalCount || 0
+          };
+        }
+      },
+      error: (err: any) => {
+        console.error('loadCouponCounts error:', err);
+      }
+    });
+  }
+
   get activeOffers(): any[] {
     return this.browseCoupons;
   }
@@ -298,7 +378,8 @@ export class DashboardComponent implements OnInit {
   }
 
   get redeemedCount() {
-    return this.ownedCoupons.filter((coupon) => coupon.status === 'used').length;
+    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    return coupons.filter((coupon) => coupon.status === 'used').length;
   }
 
   get unreadCount() {
@@ -306,14 +387,29 @@ export class DashboardComponent implements OnInit {
   }
 
   get purchasedCount() {
+    // Use API count data if available
+    if (this.couponCounts.totalCount > 0) {
+      return this.couponCounts.purchasedCount;
+    }
+    // Otherwise use the static monthly stats
     return this.monthlyCouponStats.reduce((sum, item) => sum + item.purchased, 0);
   }
 
   get assignedCount() {
+    // Use API count data if available
+    if (this.couponCounts.totalCount > 0) {
+      return this.couponCounts.assignedCount;
+    }
+    // Otherwise use the static monthly stats
     return this.monthlyCouponStats.reduce((sum, item) => sum + item.assigned, 0);
   }
 
   get expiredCount() {
+    // Use API count data if available
+    if (this.couponCounts.totalCount > 0) {
+      return this.couponCounts.expiredCount;
+    }
+    // Otherwise use the static monthly stats
     return this.monthlyCouponStats.reduce((sum, item) => sum + item.expired, 0);
   }
 
@@ -330,11 +426,13 @@ export class DashboardComponent implements OnInit {
   }
 
   get activeCouponCount() {
-    return this.ownedCoupons.filter((coupon) => coupon.status === 'active').length;
+    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    return coupons.filter((coupon) => coupon.status === 'active').length;
   }
 
   get expiringSoonCouponCount() {
-    return this.ownedCoupons.filter(
+    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    return coupons.filter(
       (coupon) => coupon.status === 'active' && this.getDaysLeft(coupon.expiresOn) <= 7
     ).length;
   }
@@ -364,7 +462,9 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredOwnedCoupons() {
-    return this.ownedCoupons.filter((coupon) => coupon.status === this.activeCouponTab);
+    // Use dynamic API data if available, otherwise fall back to static data
+    const couponsToFilter = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    return couponsToFilter.filter((coupon) => coupon.status === this.activeCouponTab);
   }
 
   get categoryOffers() {
@@ -595,7 +695,7 @@ export class DashboardComponent implements OnInit {
       amount:           this.grabAmount,
       referenceNo:      refNo,
       notes:            this.grabNotes || this.grabDialogOffer.title,
-      allocationSource: 'WALLET',
+      allocationSource: 'PURCHASE',
       status:           'PENDING',
       redemptionChannel: this.grabDialogOffer.redemptionType || 'ONLINE'
     };

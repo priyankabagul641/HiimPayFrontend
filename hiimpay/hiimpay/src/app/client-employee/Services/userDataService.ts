@@ -15,6 +15,7 @@ export class EmployeeService {
   // baseUrl2 = environment.baseUrl2;
   constructor(private http: HttpClient) {}
 
+
   getUserCoupounById(id: any): Observable<any> {
     return this.http.get<any>(this.baseUrl+`companies/${id}/coupons`);
 // {
@@ -81,6 +82,60 @@ export class EmployeeService {
 //             "active": true
 //         },
   // ]
+// }
+  }
+
+ getUserWalletsStatusById(id: any): Observable<any> {
+    return this.http.get<any>(this.baseUrl+`user-wallets/user/${id}/status?status=Active`);
+// {
+//   "data": [
+//     {
+//       "wallet": {
+//         "id": 3,
+//         "userId": 30,
+//         "voucherId": 17,
+//         "brand": {
+//           "id": 5,
+//           "brandName": "Amazon",
+//           "brandProductCode": "AMZ1001",
+//           "brandSku": "AMA004",
+//           "sku": null,
+//           "brandType": "GIFT_CARD",
+//           "onboardingType": "API",
+//           "redemptionType": "ONLINE",
+//           "onlineRedemptionUrl": "https://amazon.in/redeem",
+//           "brandImage": "https://example.com/amazon.png",
+//           "epayMinValue": 100,
+//           "epayMaxValue": 10000,
+//           "epayDiscount": 5,
+//           "serviceType": "E-VOUCHER",
+//           "stockAvailable": true,
+//           "description": "Amazon Gift Voucher usable for shopping.",
+//           "tnc": "Valid for 12 months from issue date.",
+//           "importantInstruction": "Do not share voucher code with anyone.",
+//           "createdAt": "2026-02-25T14:46:24.71",
+//           "updatedAt": "2026-02-25T14:46:24.71",
+//           "isDeleted": null,
+//           "deletedAt": null
+//         },
+//         "allocationSource": "WALLET",
+//         "allocatedAt": "2026-03-02T14:51:25.381",
+//         "expiresAt": "2027-02-27T23:59:59",
+//         "status": "PENDING",
+//         "redeemedAt": null,
+//         "isExpired": false,
+//         "isRedeemed": false,
+//         "isDeleted": false,
+//         "deletedAt": null
+//       },
+//       "usageStatus": "ACTIVE",
+//       "isUsed": false,
+//       "isExpired": false,
+//       "isActive": true
+//     }
+//   ],
+//   "message": "User wallet fetched successfully",
+//   "success": true
 // }
   }
 
@@ -225,6 +280,20 @@ export class EmployeeService {
 //   "redemptionChannel": "string"
 // }
 
+   }
+
+   totalCoupousCount(userId:any):Observable<any>{
+    return this.http.get<any>(this.baseUrl+`user-wallets/user/${userId}/counts`);
+//     {
+//   "data": {
+//     "purchasedCount": 0,
+//     "assignedCount": 2,
+//     "expiredCount": 0,
+//     "totalCount": 2
+//   },
+//   "message": "User coupon counts fetched successfully",
+//   "success": true
+// }
    }
 
 }

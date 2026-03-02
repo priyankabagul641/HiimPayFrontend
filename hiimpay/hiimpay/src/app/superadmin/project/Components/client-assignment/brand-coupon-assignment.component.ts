@@ -36,9 +36,12 @@ export class BrandCouponAssignmentComponent implements OnInit {
   constructor(private toastr: ToastrService, private service: ProjectService) {}
 
   ngOnInit(): void {
-    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
-    this.companyId = userData?.companyId;
-    this.currentUserId = userData?.id;
+    const userData = JSON.parse(sessionStorage.getItem('ClientId')!);
+    console.log('Loaded userData from sessionStorage:', userData);
+    this.companyId = userData;
+    
+    const currentUser = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+    this.currentUserId = currentUser?.id || 0;
 
     this.brands = [
       { id: 'B1', name: 'Amazon' },
