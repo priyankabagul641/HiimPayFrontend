@@ -180,7 +180,13 @@ mat-sidenav-content {
 
 .active-link {
   background-color: #103a7f;
-  color: white;
+  color: white !important;
+}
+
+.active-link mat-icon,
+.active-link span,
+.active-link * {
+  color: white !important;
 }
 
 
