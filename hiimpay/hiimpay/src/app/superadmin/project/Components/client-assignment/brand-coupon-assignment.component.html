@@ -77,6 +77,7 @@
       <div class="sub-tabs">
         <button class="tab" [class.active]="amountEntryMode==='manual'" (click)="amountEntryMode='manual'">Manual</button>
         <button class="tab" [class.active]="amountEntryMode==='excel'" (click)="amountEntryMode='excel'">Excel Upload</button>
+          
       </div>
 
       <div class="panel" *ngIf="amountEntryMode==='manual'">
@@ -91,8 +92,8 @@
         </div>
 
         <div class="row-block">
-          <label>Step 2: Enter Amount</label>
-          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter amount">
+          <label>Step 2: Enter Rewarded Points</label>
+          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
         </div>
 
         <div class="row-block">
@@ -102,6 +103,12 @@
       </div>
 
       <div class="panel" *ngIf="amountEntryMode==='excel'">
+         <div class="row-block">
+         <button class="btn assign-btn" style="margin-left: 0.75rem;" (click)="downloadAmountTemplate()" [disabled]="isDownloadingTemplate">
+          <span *ngIf="isDownloadingTemplate" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isDownloadingTemplate" class="fa fa-download me-1"></i>
+          Download Template
+        </button> </div>
         <div class="row-block">
           <label>Step 1: Upload Excel</label>
           <div class="upload-wrap">
@@ -114,18 +121,20 @@
           <small class="hint" *ngIf="amountExcelFileName">Selected: {{ amountExcelFileName }}</small>
         </div>
            <div class="row-block">
-          <label>Step 2: Enter Amount</label>
-          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter amount">
+          <label>Step 2: Enter Rewarded Points</label>
+          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter Rewarded Points">
         </div>
 
         <div class="row-block">
           <label>Notes (Optional)</label>
           <textarea rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions"></textarea>
         </div>
+      
       </div>
 
       <div class="actions">
         <button class="btn assign-btn" (click)="assignAmountNow()">Assign Amount</button>
+      
       </div>
     </ng-container>
   </div>

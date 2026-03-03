@@ -546,6 +546,18 @@ export class AdminDataService {
 // }
   }
 
+       updateAdmin(obj: any,id:any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `/users/updateAdmin/${id}`, obj);
+    //obj should be like this
+//     {
+//   "fullName": "System Administrator",
+//   "email": "admin@admin.com",
+//   "passwordHash": "$2a$10$AdminHashedPasswordExample123456",
+//   "userType": "ADMIN",
+//   "status": "ACTIVE"
+// }
+  }
+
 
 
 

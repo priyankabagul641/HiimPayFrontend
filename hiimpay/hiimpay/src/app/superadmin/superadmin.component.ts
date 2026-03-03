@@ -112,6 +112,9 @@ export class SuperadminComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The popup was closed');
+      if (result === true) {
+        this.service.triggerCompanyListRefresh();
+      }
     });
   }
 

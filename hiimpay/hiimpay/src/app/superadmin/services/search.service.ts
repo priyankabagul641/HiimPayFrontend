@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../../environment/enviorment.prod';
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,12 @@ export class SearchService {
   baseurl = environment.baseUrl;
   searchResults = new BehaviorSubject<any[]>([]);
   searchKeyword = new BehaviorSubject<any[]>([]);
+
+  private _refreshCompanyList = new Subject<void>();
+  refreshCompanyList$ = this._refreshCompanyList.asObservable();
+  triggerCompanyListRefresh(): void {
+    this._refreshCompanyList.next();
+  }
   getResult(value: any) {
     this.searchResults.next(value);
   }

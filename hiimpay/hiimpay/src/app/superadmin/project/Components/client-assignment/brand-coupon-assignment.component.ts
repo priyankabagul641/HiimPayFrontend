@@ -32,6 +32,7 @@ export class BrandCouponAssignmentComponent implements OnInit {
   companyId: number = 0;
   currentUserId: number = 0;
   isAssigningAmount = false;
+  isDownloadingTemplate = false;
 
   constructor(private toastr: ToastrService, private service: ProjectService) {}
 
@@ -116,6 +117,30 @@ export class BrandCouponAssignmentComponent implements OnInit {
     this.selectedCoupons = [];
     this.selectedEmployees = [];
     this.notes = '';
+  }
+
+  downloadAmountTemplate() {
+    this.isDownloadingTemplate = true;
+    this.service.getDownloadFileUrl().subscribe({
+      next: (res: any) => {
+        this.isDownloadingTemplate = false;
+        const url = res?.data;
+        if (url) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'reward-amount-assign-template.xlsx';
+          a.target = '_blank';
+          a.click();
+        } else {
+          this.toastr.error('Template URL not available.');
+        }
+      },
+      error: (err: any) => {
+        this.isDownloadingTemplate = false;
+        this.toastr.error('Failed to download template.');
+        console.error('downloadAmountTemplate error:', err);
+      }
+    });
   }
 
   onAmountExcelSelect(event: Event) {

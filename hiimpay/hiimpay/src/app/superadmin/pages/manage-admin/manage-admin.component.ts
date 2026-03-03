@@ -50,7 +50,9 @@ export class ManageAdminComponent implements OnInit {
 
   showCreatePopup = false;
   showAccessPopup = false;
+  showEditPopup = false;
   selectedAdmin!: Admin;
+  editingAdmin: { id?: number; name: string; email: string; password: string; contact: string; address: string; active: boolean } = this.getEmptyEditAdmin();
 
   newAdmin: NewAdmin = this.getEmptyAdmin();
 
@@ -144,6 +146,53 @@ export class ManageAdminComponent implements OnInit {
   openAccessPopup(admin: Admin) {
     this.selectedAdmin = admin;
     this.showAccessPopup = true;
+  }
+
+  getEmptyEditAdmin() {
+    return { id: undefined as number | undefined, name: '', email: '', password: '', contact: '', address: '', active: true };
+  }
+
+  openEditAdmin(admin: Admin) {
+    this.editingAdmin = {
+      id:      admin.id,
+      name:    admin.name,
+      email:   admin.email,
+      password: '',
+      contact: admin.contact,
+      address: admin.address,
+      active:  admin.active
+    };
+    this.showEditPopup = true;
+  }
+
+  saveEditAdmin() {
+    if (!this.editingAdmin.name || !this.editingAdmin.email) {
+      this.toastr.error('Name and email are required.');
+      return;
+    }
+    const payload: any = {
+      fullName:  this.editingAdmin.name,
+      email:     this.editingAdmin.email,
+      userType:  'ADMIN',
+      status:    this.editingAdmin.active ? 'ACTIVE' : 'INACTIVE'
+    };
+    if (this.editingAdmin.password) {
+      payload['passwordHash'] = this.editingAdmin.password;
+    }
+    this.adminService.updateAdmin(payload, this.editingAdmin.id).subscribe({
+      next: (res: any) => {
+        if (res?.success !== false) {
+          this.toastr.success(res?.message || 'Admin updated successfully.');
+          this.showEditPopup = false;
+          this.loadAdmins();
+        } else {
+          this.toastr.error(res?.message || 'Failed to update admin.');
+        }
+      },
+      error: (err: any) => {
+        this.toastr.error(err?.error?.message || 'Failed to update admin.');
+      }
+    });
   }
 
   onFiltersChanged() {

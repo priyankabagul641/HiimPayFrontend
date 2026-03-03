@@ -51,7 +51,10 @@ export class OpenComponent {
   }
 
   ngOnInit(): void {
-  
+    this.service.refreshCompanyList$.subscribe(() => {
+      this.openClients();
+    });
+
     this.service.sendResults().subscribe({
       next: (res: any) => {
         const isArrayPayload = Array.isArray(res);
@@ -173,7 +176,9 @@ deleteClient(client: any) {
   }
 
   applyClientData(rows: any[]) {
-    this.data = Array.isArray(rows) ? rows : [];
+    this.data = Array.isArray(rows)
+      ? [...rows].sort((a, b) => (b.id ?? 0) - (a.id ?? 0))
+      : [];
     this.onFiltersChanged();
   }
 

@@ -4,10 +4,10 @@
       <h2>Client Brand Listing</h2>
       <p>Manage brands for this client</p>
     </div>
-    <button type="button" class="secondary-btn" (click)="openUpdateBrand()">
+    <!-- <button type="button" class="secondary-btn" (click)="openUpdateBrand()">
       <mat-icon>edit</mat-icon>
       <span>Update Brand</span>
-    </button>
+    </button> -->
   </div>
 
   <div class="toolbar-card">
@@ -33,7 +33,7 @@
             <th class="col-brand text-left">Brand Name</th>
             <th class="col-category text-left">Category</th>
             <th class="col-value text-center">Value Range</th>
-            <th class="col-status text-center">Status</th>
+            <!-- <th class="col-status text-center">Status</th> -->
             <th class="col-action text-center">Action</th>
           </tr>
         </thead>
@@ -42,11 +42,11 @@
             <td class="text-left brand-name">{{ brand.name }}</td>
             <td class="text-left truncate-cell" [title]="brand.categories.join(', ') || '-'">{{ brand.categories.join(', ') || '-' }}</td>
             <td class="text-center nowrap">Rs {{ brand.epayMinValue }} - Rs {{ brand.epayMaxValue }}</td>
-            <td class="text-center">
+            <!-- <td class="text-center">
               <span class="status-badge" [class.badge-active]="brand.stockAvailable" [class.badge-inactive]="!brand.stockAvailable">
                 {{ brand.stockAvailable ? 'In Stock' : 'Out of Stock' }}
               </span>
-            </td>
+            </td> -->
             <td class="text-center">
               <button type="button" class="icon-btn" title="View" (click)="openBrandCategoryCoupons(brand, $event)">
                 <mat-icon>visibility</mat-icon>

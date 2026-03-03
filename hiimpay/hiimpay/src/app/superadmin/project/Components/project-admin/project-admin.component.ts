@@ -186,6 +186,38 @@ export class ProjectAdminComponent implements OnInit {
     if (this.file) {
       this.validateFile();
       inputElement.value = '';
+      if (this.isSelectedFileValid) {
+        this.checkuploadExcelSpinner = true;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          const obj = { file: base64 };
+          this.service.addEmployeeWithExcel(obj, this.companyId).subscribe({
+            next: (res: any) => {
+              this.checkuploadExcelSpinner = false;
+              if (res?.success) {
+                this.toaster.success(res.message || 'Users imported successfully.', 'Success');
+                if (res?.errors?.length) {
+                  this.generateErrorPdf(res.errors);
+                }
+                this.getAllUsers();
+              } else {
+                this.toaster.error(res?.message || 'Failed to import users.', 'Error');
+                if (res?.errors?.length) {
+                  this.generateErrorPdf(res.errors);
+                }
+              }
+            },
+            error: (err: any) => {
+              this.checkuploadExcelSpinner = false;
+              this.toaster.error(err?.error?.message || 'Failed to import users.', 'Error');
+            }
+          });
+        };
+        reader.readAsDataURL(this.file);
+      } else {
+        this.toaster.error('Please select a valid Excel file (.xls or .xlsx)', 'Invalid File');
+      }
     }
   }
 
@@ -193,9 +225,9 @@ export class ProjectAdminComponent implements OnInit {
   downloadExcelFormat() {
     this.checkDownloadExcelSpinner = true;
 
-    this.service.getExcelFileUrl().subscribe((response: any) => {
-      if (response?.url) {
-        this.service.downloadExcelFile(response.url).subscribe((blob: any) => {
+    this.service.downloadOnboardUsertemplate().subscribe((response: any) => {
+      if (response?.data) {
+        this.service.downloadExcelFile(response.data).subscribe((blob: any) => {
           const a = document.createElement('a');
           const objectUrl = URL.createObjectURL(blob);
           a.href = objectUrl;

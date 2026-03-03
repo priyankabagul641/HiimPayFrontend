@@ -50,7 +50,7 @@ export class ClientBrandListComponent implements OnInit {
 
   loadBrands() {
     this.isLoading = true;
-    this.service.brandsByCompanyID(this.companyId).subscribe({
+    this.service.brandsByCompanyID(this.clientId).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         this.brands = (res.data || []).map((b: any) => ({

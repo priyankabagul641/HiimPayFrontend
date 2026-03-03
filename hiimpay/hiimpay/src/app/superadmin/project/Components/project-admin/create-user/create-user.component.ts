@@ -32,7 +32,7 @@ export class CreateUserComponent implements OnInit {
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$')]],
       mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      passwordHash: ['', Validators.required],
+      passwordHash: ['',],
       userType: ['', Validators.required],
       status: ['ACTIVE', Validators.required]
     });
@@ -57,7 +57,7 @@ export class CreateUserComponent implements OnInit {
       fullName: form.fullName,
       email: form.email.toLowerCase(),
       mobile: form.mobile,
-      passwordHash: form.passwordHash,
+      passwordHash: 'test@1234',
       userType: form.userType,
       status: form.status,
       companyId: this.companyId,

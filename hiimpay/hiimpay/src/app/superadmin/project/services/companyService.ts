@@ -77,6 +77,28 @@ export class ProjectService {
 // }
   }
 
+  downloadOnboardUsertemplate(): Observable<any> {
+    return this.http.get(this.baseUrl + 'users/employee-template' );
+//     getting responce like this
+// {
+//   "data": "https://tkd-images.s3.ap-south-1.amazonaws.com/1772088325032-employee_upload_template.xlsx",
+//   "message": "Employee template fetched successfully",
+//   "success": true
+// }
+  }
+
+    addEmployeeWithExcel(obj: any, companyId: any) {
+    return this.http.post<any>(this.baseUrl + `users/upload?companyId=${companyId}`, obj);
+//     expecting obj format like this
+// {
+//   "file": "string"
+// }
+  }
+
+    getDownloadFileUrl(): Observable<{ message: string, url: string }> {
+    return this.http.get<{ message: string, url: string }>(this.baseUrl + 'user-reward-wallets/assign/template');
+  }
+
   updateUser(id: any, obj: any) {
     return this.http.put<any>(this.baseUrl + `users/${id}`, obj);
   }
@@ -85,7 +107,7 @@ export class ProjectService {
     return this.http.get<any>(this.baseUrl + `users/${id}`);
   }
 
-    deleteUserByID(id: number): Observable<any> {
+  deleteUserByID(id: number): Observable<any> {
     return this.http.put<any>(this.baseUrl + `users/${id}/soft-delete`, {});
   }
 
