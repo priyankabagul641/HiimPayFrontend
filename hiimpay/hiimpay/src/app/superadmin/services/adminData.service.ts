@@ -454,6 +454,10 @@ export class AdminDataService {
     return this.http.post<any>(this.baseUrl + `vouchers/sync/gyftr`, {});
   }
 
+   createsiripay(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `vouchers/pull/SiriPay`, {});
+  }
+
   getAllBrand(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `brands`);
 //     getting Response:
@@ -547,7 +551,7 @@ export class AdminDataService {
   }
 
        updateAdmin(obj: any,id:any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `/users/updateAdmin/${id}`, obj);
+    return this.http.post<any>(this.baseUrl + `users/admin/${id}`, obj);
     //obj should be like this
 //     {
 //   "fullName": "System Administrator",

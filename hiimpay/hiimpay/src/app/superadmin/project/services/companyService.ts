@@ -87,12 +87,9 @@ export class ProjectService {
 // }
   }
 
-    addEmployeeWithExcel(obj: any, companyId: any) {
-    return this.http.post<any>(this.baseUrl + `users/upload?companyId=${companyId}`, obj);
-//     expecting obj format like this
-// {
-//   "file": "string"
-// }
+    addEmployeeWithExcel(formData: FormData, companyId: any) {
+    return this.http.post<any>(this.baseUrl + `users/upload?companyId=${companyId}`, formData);
+
   }
 
     getDownloadFileUrl(): Observable<{ message: string, url: string }> {

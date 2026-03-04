@@ -155,6 +155,10 @@ export class CreateCouponComponent implements OnInit {
         }
         this.providerEndpointsMap = map;
         this.providerNames = Array.from(map.keys());
+        // Add siripay as static provider
+        if (!this.providerNames.includes('siripay')) {
+          this.providerNames.push('siripay');
+        }
         if (this.providerNames.length) {
           this.onProviderChange(this.providerNames[0]);
         }
@@ -208,6 +212,8 @@ export class CreateCouponComponent implements OnInit {
       call$ = this.adminService.createmyhumble({});
     } else if (provider.includes('gyftr')) {
       call$ = this.adminService.creategyftr({});
+    } else if (provider.includes('siripay')) {
+      call$ = this.adminService.createsiripay({});
     } else {
       call$ = this.adminService.createxoxoday({});
     }
