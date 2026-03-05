@@ -115,11 +115,56 @@ export class ManageAdminComponent implements OnInit {
     this.showCreatePopup = true;
   }
 
+  // Validation helper methods
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  isValidPhoneNumber(phone: string): boolean {
+    const phoneRegex = /^[0-9]{10,}$/;
+    return phoneRegex.test(phone.replace(/\D/g, ''));
+  }
+
+  isValidPassword(password: string): boolean {
+    // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  }
+
+  getPasswordStrength(password: string): string {
+    if (!password) return '';
+    if (password.length < 8) return 'weak';
+    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) return 'strong';
+    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) return 'medium';
+    return 'weak';
+  }
+
   createAdmin() {
+    // Validate required fields
     if (!this.newAdmin.name || !this.newAdmin.email || !this.newAdmin.password) {
       this.toastr.error('Name, email and password are required.');
       return;
     }
+
+    // Validate email format
+    if (!this.isValidEmail(this.newAdmin.email)) {
+      this.toastr.error('Please enter a valid email address.');
+      return;
+    }
+
+    // Validate phone number if provided
+    if (this.newAdmin.contact && !this.isValidPhoneNumber(this.newAdmin.contact)) {
+      this.toastr.error('Phone number must be at least 10 digits.');
+      return;
+    }
+
+    // Validate password strength
+    if (!this.isValidPassword(this.newAdmin.password)) {
+      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, number, and special character (@$!%*?&).');
+      return;
+    }
+
     const payload = {
       fullName:     this.newAdmin.name,
       email:        this.newAdmin.email,
@@ -145,7 +190,54 @@ export class ManageAdminComponent implements OnInit {
 
   openAccessPopup(admin: Admin) {
     this.selectedAdmin = admin;
+    
+    // Load permissions from API
+    if (admin.id) {
+      this.adminService.getManageAdminAcess(admin.id).subscribe({
+        next: (res: any) => {
+          const permissionKeys = res?.data || [];
+          // Map permission keys to the permissions object
+          this.selectedAdmin.permissions = {
+            dashboard: permissionKeys.includes('dashboard'),
+            brands: permissionKeys.includes('brands'),
+            coupons: permissionKeys.includes('coupons'),
+            clients: permissionKeys.includes('clients'),
+            employees: permissionKeys.includes('employees'),
+            reports: permissionKeys.includes('reports')
+          };
+        },
+        error: (err: any) => {
+          console.error('Failed to load permissions:', err);
+        }
+      });
+    }
+    
     this.showAccessPopup = true;
+  }
+
+  saveAccessPermissions() {
+    if (!this.selectedAdmin || !this.selectedAdmin.id) {
+      this.toastr.error('Admin not selected.');
+      return;
+    }
+    const permissionKeys = Object.keys(this.selectedAdmin.permissions).filter(
+      (key) => this.selectedAdmin.permissions[key as keyof Admin['permissions']]
+    );
+    const payload = { permissionKeys };
+    this.adminService.updateManageAdminAcess(this.selectedAdmin.id, payload).subscribe({
+      next: (res: any) => {
+        if (res?.success !== false) {
+          this.toastr.success(res?.message || 'Permissions updated successfully.');
+          this.showAccessPopup = false;
+          this.loadAdmins();
+        } else {
+          this.toastr.error(res?.message || 'Failed to update permissions.');
+        }
+      },
+      error: (err: any) => {
+        this.toastr.error(err?.error?.message || 'Failed to update permissions.');
+      }
+    });
   }
 
   getEmptyEditAdmin() {
@@ -162,6 +254,29 @@ export class ManageAdminComponent implements OnInit {
       address: admin.address,
       active:  admin.active
     };
+    this.selectedAdmin = admin;
+
+    // Load permissions from API
+    if (admin.id) {
+      this.adminService.getManageAdminAcess(admin.id).subscribe({
+        next: (res: any) => {
+          const permissionKeys = res?.data || [];
+          // Map permission keys to the permissions object
+          this.selectedAdmin.permissions = {
+            dashboard: permissionKeys.includes('dashboard'),
+            brands: permissionKeys.includes('brands'),
+            coupons: permissionKeys.includes('coupons'),
+            clients: permissionKeys.includes('clients'),
+            employees: permissionKeys.includes('employees'),
+            reports: permissionKeys.includes('reports')
+          };
+        },
+        error: (err: any) => {
+          console.error('Failed to load permissions:', err);
+        }
+      });
+    }
+
     this.showEditPopup = true;
   }
 

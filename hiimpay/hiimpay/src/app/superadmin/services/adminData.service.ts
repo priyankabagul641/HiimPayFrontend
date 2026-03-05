@@ -205,6 +205,30 @@ export class AdminDataService {
     return this.http.put<any>(this.baseUrl + `coupons/${id}`, obj);
   }
 
+  updateManageAdminAcess(id: number, obj: any): Observable<any> {
+    return this.http.put<any>(this.baseUrl + `admin-access/${id}`, obj);
+    // obj should like this
+//     {
+//   "permissionKeys": [
+//     "string"
+//   ]
+// }
+  }
+
+  getManageAdminAcess(id: number): Observable<any> {
+    return this.http.get<any>(this.baseUrl + `admin-access/${id}`);
+// Response body
+// {
+//   "data": [
+//     "dashboard",
+//     "brands",
+//     "coupons"
+//   ],
+//   "message": "Admin access fetched successfully",
+//   "success": true
+// }
+  }
+
  createCoupoun(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `coupons`, obj);
     // obj is like this

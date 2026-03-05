@@ -387,6 +387,45 @@
   color: #fff;
 }
 
+.primary-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error-text {
+  display: block;
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.hint-text {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.hint-text span {
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.hint-text span.strong {
+  color: #16a34a;
+}
+
+.hint-text span.medium {
+  color: #ea580c;
+}
+
+.hint-text span.weak {
+  color: #dc2626;
+}
+
 @media (max-width: 980px) {
   .admin-shell {
     width: calc(100% - 16px);

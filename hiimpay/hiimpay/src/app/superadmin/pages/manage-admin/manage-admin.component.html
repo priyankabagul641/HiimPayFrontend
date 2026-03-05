@@ -104,9 +104,34 @@
     <h4>Create Admin</h4>
 
     <input class="modal-input" placeholder="Name" [(ngModel)]="newAdmin.name">
-    <input class="modal-input" placeholder="Email" [(ngModel)]="newAdmin.email">
-    <input class="modal-input" type="password" placeholder="Password" [(ngModel)]="newAdmin.password">
-    <input class="modal-input" placeholder="Contact Number" [(ngModel)]="newAdmin.contact">
+
+    <div>
+      <input class="modal-input" placeholder="Email" [(ngModel)]="newAdmin.email">
+      <small class="error-text" *ngIf="newAdmin.email && !isValidEmail(newAdmin.email)">
+        Please enter a valid email address (e.g., admin&#64;example.com)
+      </small>
+    </div>
+
+    <div>
+      <input class="modal-input" type="password" placeholder="Password" [(ngModel)]="newAdmin.password">
+      <small class="hint-text" *ngIf="newAdmin.password">
+        Password strength: 
+        <span [ngClass]="getPasswordStrength(newAdmin.password) === 'strong' ? 'strong' : getPasswordStrength(newAdmin.password) === 'medium' ? 'medium' : 'weak'">
+          {{ getPasswordStrength(newAdmin.password) | uppercase }}
+        </span>
+      </small>
+      <small class="error-text" *ngIf="newAdmin.password && !isValidPassword(newAdmin.password)">
+        Password must be at least 8 characters with uppercase, lowercase, number, and special character (&#64;$!%*?&)
+      </small>
+    </div>
+
+    <div>
+      <input class="modal-input" placeholder="Contact Number (10+ digits)" [(ngModel)]="newAdmin.contact">
+      <small class="error-text" *ngIf="newAdmin.contact && !isValidPhoneNumber(newAdmin.contact)">
+        Phone number must be at least 10 digits
+      </small>
+    </div>
+
     <textarea class="modal-input modal-textarea" placeholder="Address" [(ngModel)]="newAdmin.address"></textarea>
 
     <label class="checkbox-row">
@@ -116,7 +141,9 @@
 
     <div class="modal-actions">
       <button type="button" class="secondary-btn" (click)="showCreatePopup=false">Cancel</button>
-      <button type="button" class="primary-btn" (click)="createAdmin()">Save</button>
+      <button type="button" class="primary-btn" 
+              [disabled]="!newAdmin.name || !isValidEmail(newAdmin.email) || !isValidPassword(newAdmin.password) || (newAdmin.contact && !isValidPhoneNumber(newAdmin.contact))"
+              (click)="createAdmin()">Save</button>
     </div>
   </div>
 </div>
@@ -157,7 +184,8 @@
     </div>
 
     <div class="modal-actions">
-      <button type="button" class="primary-btn" (click)="showAccessPopup=false">Done</button>
+      <button type="button" class="secondary-btn" (click)="showAccessPopup=false">Cancel</button>
+      <button type="button" class="primary-btn" (click)="saveAccessPermissions()">Save</button>
     </div>
   </div>
 </div>
