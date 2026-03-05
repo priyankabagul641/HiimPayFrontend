@@ -188,8 +188,15 @@ export class UserloginComponent implements OnInit {
       return;
     }
 
-    if (this.captch_input !== this.resultCode) {
-      this.toastr.error('Invalid captcha code');
+    // Trim and convert both to uppercase for comparison
+    const enteredCaptcha = (this.captch_input || '').toString().trim().toUpperCase();
+    const expectedCaptcha = (this.resultCode || '').toString().trim().toUpperCase();
+    
+    console.log('Entered Captcha:', enteredCaptcha);
+    console.log('Expected Captcha:', expectedCaptcha);
+    
+    if (enteredCaptcha !== expectedCaptcha) {
+      this.toastr.error('Invalid captcha code. Please try again.');
       this.reloadCaptcha();
       return;
     }

@@ -5,7 +5,6 @@ import { AdminloginComponent } from './components/adminlogin/adminlogin.componen
 import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
 import { UserloginComponent } from './components/userlogin/userlogin.component';
 import { HelpandSupportComponent } from './components/helpand-support/helpand-support.component';
-import { LoginComponent } from '../client-employee/login/login.component';
 
 
 
@@ -15,7 +14,7 @@ children:[
   { path: '', component: AdminloginComponent ,pathMatch:'full'},
   { path: 'auth', component: AdminloginComponent },
   { path: 'forgotpassword', component: ForgotpasswordComponent },
-  { path: 'userlogin', component: LoginComponent },
+  { path: 'userlogin', component: UserloginComponent },
   { path: 'help', component: HelpandSupportComponent},
 ]
 }
