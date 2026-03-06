@@ -17,10 +17,11 @@ export class BrandCategoryCouponsDialogComponent {
       this.data = { brand: { name: '', brandSku: '', categories: [] }, categoryCoupons: [] };
     }
 
-    const b = this.data.brand || {};
+    const details = this.data.brandDetails || {};
+    const b = { ...(this.data.brand || {}), ...(details || {}) };
     // normalize field names from API
     b.name = b.name || b.brandName || b.BrandName || '';
-    b.brandSku = b.brandSku || b.brandProductCode || b.brandSku || '';
+    b.brandSku = b.brandSku || b.brandProductCode || '';
     if (!b.categories) {
       if (Array.isArray(b.categoryList)) b.categories = b.categoryList;
       else if (typeof b.Category === 'string' && b.Category.trim()) b.categories = b.Category.split(',').map((c: string) => c.trim());

@@ -276,8 +276,9 @@ export class AdminDataService {
   }
 
    //Client BRANDS
-  getAllClientBrands(): Observable<any> {
-    return this.http.get<any>(this.baseUrl + `clients/pagention?orderBy=asc&page=0&size=10&sortBy=id`);
+  getAllClientBrands(page: number = 0, size: number = 10, orderBy: string = 'asc', sortBy: string = 'id'): Observable<any> {
+    const params = `orderBy=${orderBy}&page=${page}&size=${size}&sortBy=${sortBy}`;
+    return this.http.get<any>(this.baseUrl + `clients/pagention?` + params);
     // response :
 // {
 //   "data": {

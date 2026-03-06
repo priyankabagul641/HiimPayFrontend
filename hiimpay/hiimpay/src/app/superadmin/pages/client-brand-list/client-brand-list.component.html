@@ -28,10 +28,10 @@
     </div>
   </div>
 
-  <div class="table-card">
+  <div class="table-card" *ngIf="filtered.length > 0; else emptyState">
     <div class="desktop-table">
       <table class="client-table">
-        <thead>
+        <thead style="  background: var(--header-bg);">
           <tr>
             <th class="col-client text-left">Client Name</th>
             <th class="col-brand text-left">Brand Name</th>
@@ -40,8 +40,9 @@
             <th class="col-action text-center">Action</th>
           </tr>
         </thead>
+          <!-- (click)="openCoupons(item)" -->
         <tbody>
-          <tr *ngFor="let item of filtered; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row" (click)="openCoupons(item)">
+          <tr *ngFor="let item of filtered | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row" >
             <td class="text-left name-cell">{{ item.clientName }}</td>
             <td class="text-left" [title]="item.brandName">{{ item.brandName }}</td>
             <td class="text-center nowrap">Rs {{ item.epayMinValue }} - Rs {{ item.epayMaxValue }}</td>
@@ -56,15 +57,12 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="filtered.length === 0">
-            <td colspan="5" class="empty">No brands found</td>
-          </tr>
         </tbody>
       </table>
     </div>
 
     <div class="mobile-cards">
-      <article class="client-card" *ngFor="let item of filtered">
+      <article class="client-card" *ngFor="let item of filtered | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }">
         <h4>{{ item.clientName }}</h4>
         <p><strong>Brand:</strong> {{ item.brandName }}</p>
         <p><strong>Value Range:</strong> Rs {{ item.epayMinValue }} - Rs {{ item.epayMaxValue }}</p>
@@ -78,7 +76,21 @@
           <mat-icon>visibility</mat-icon>
         </button>
       </article>
-      <div class="empty" *ngIf="filtered.length === 0">No brands found</div>
+    </div>
+    <div class="pager-wrap" *ngIf="totalItems > 0">
+      <!-- <span class="pager-info">
+        Showing {{ (page - 1) * itemPerPage + 1 }}-{{ getPageUpperBound() }} of {{ totalItems }}
+      </span> -->
+      <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5" [autoHide]="true"></pagination-controls>
     </div>
   </div>
+
+  <ng-template #emptyState>
+    <div class="table-card empty-state-card">
+      <div class="empty-state-wrap">
+        <h4>No brands found</h4>
+        <p>Try changing search text or filters to see results.</p>
+      </div>
+    </div>
+  </ng-template>
 </section>

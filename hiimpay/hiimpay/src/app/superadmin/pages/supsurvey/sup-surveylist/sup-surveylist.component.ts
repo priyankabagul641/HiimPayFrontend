@@ -102,8 +102,8 @@ export class SupSurveylistComponent implements OnInit {
 
       this.adminService.deleteCoupoun(coupon.id).subscribe({
         next: () => {
-          this.surveyList = (this.surveyList || []).filter((x: any) => x.id !== coupon.id);
-          this.applyFilters();
+          // reload list from server to reflect soft-delete changes
+          this.loadCoupons();
           this.toastr.success('Coupon deactivated successfully.');
         },
         error: () => {
@@ -204,7 +204,7 @@ export class SupSurveylistComponent implements OnInit {
     const categoryRaw         = coupon.category;
     const category            = typeof categoryRaw === 'string'
                                   ? categoryRaw
-                                  : (categoryRaw?.categoryName ?? coupon.categoryName ?? '-');
+                                  : (categoryRaw?.categoryName ??  '-');
     
     // Parse denominations: convert string to array if needed
     let denominations = coupon.denominations ?? [];

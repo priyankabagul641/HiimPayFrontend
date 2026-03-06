@@ -73,7 +73,7 @@
             <div class="col">Email</div>
             <div class="col">Status</div>
             <div class="col">Contact</div>
-            <!-- <div class="col">Record owner</div> -->
+            <div class="col">Role</div>
             <div class="col">Action</div>
           </div>
           <div class="tableCointainer" style="height: 100%; padding-bottom: 5%;" *ngIf="(details?.length ?? 0) > 0">
@@ -100,11 +100,11 @@
               <div class="col">
                 <p class="text-muted mb-0">{{data.mobile}}</p>
               </div>
-              <!-- <div class="col">
+              <div class="col">
                 <p>
-                  {{data?.loggedUserName || '-'}}
+                  {{data?.userType || '-'}}
                 </p>
-              </div> -->
+              </div>
               <div class="col">
                 <div class="col">
                   <button class="border-0 m-2" style="font-size: 20px" (click)="editUser(data.id)">

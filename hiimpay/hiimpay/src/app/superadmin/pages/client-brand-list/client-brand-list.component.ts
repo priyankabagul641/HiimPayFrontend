@@ -29,6 +29,10 @@ export class ClientBrandListPageComponent implements OnInit {
   q = '';
   selectedClient = 'ALL';
   inStockOnly = false;
+  // pagination
+  page: number = 1;
+  itemPerPage: number = 10;
+  totalItems: number = 0;
 
   constructor(
     private router: Router,
@@ -42,22 +46,36 @@ export class ClientBrandListPageComponent implements OnInit {
 
   loadClientBrands() {
     this.loading = true;
-    this.adminService.getAllClientBrands().subscribe({
+    this.adminService.getAllClientBrands(this.page - 1, this.itemPerPage).subscribe({
       next: (res: any) => {
         this.loading = false;
         // normalize response to an array: support res array, res.data array, res.data.content, res.data.items, or single object
         let data: any[] = [];
-        if (!res) data = [];
-        else if (Array.isArray(res)) data = res;
-        else if (res.data) {
-          if (Array.isArray(res.data)) data = res.data;
-          else if (Array.isArray(res.data.content)) data = res.data.content;
-          else if (Array.isArray(res.data.items)) data = res.data.items;
-          else if (typeof res.data === 'object') data = [res.data];
+        let total = 0;
+        if (!res) {
+          data = [];
+        } else if (Array.isArray(res)) {
+          data = res;
+          total = data.length;
+        } else if (res.data) {
+          if (Array.isArray(res.data)) {
+            data = res.data;
+            total = data.length;
+          } else if (Array.isArray(res.data.content)) {
+            data = res.data.content;
+            total = (res.data.totalElements ?? res.data.total) || data.length;
+          } else if (Array.isArray(res.data.items)) {
+            data = res.data.items;
+            total = (res.data.totalElements ?? res.data.total) || data.length;
+          } else if (typeof res.data === 'object') {
+            data = [res.data];
+            total = 1;
+          }
         } else {
           data = [];
         }
         console.log('loadClientBrands - normalized data length:', data.length, 'raw response:', res);
+        this.totalItems = total;
         this.rows = (data || []).map((r: any) => ({
           clientId: (r.clientId || r.client_id || r.client?.id || r.id || '').toString(),
           clientName: r.clientName || r.companyName || r.client?.name || r.client_name || r.client?.companyName || 'Unknown',
@@ -104,36 +122,48 @@ export class ClientBrandListPageComponent implements OnInit {
     });
   }
 
+  pageChangeEvent(event: number) {
+    this.page = event;
+    this.loadClientBrands();
+  }
+
+  getPageUpperBound(): number {
+    const upper = (this.page || 1) * (this.itemPerPage || 10);
+    return Math.min(upper, this.totalItems || 0);
+  }
+
   openCoupons(item: ClientBrand) {
     this.router.navigate(['superadmin', 'project', item.clientId, 'client-coupons', item.brandId]);
   }
 
   openBrandCategoryCoupons(clientId: string, item: ClientBrand, event: MouseEvent) {
     event.stopPropagation();
-    const requestId = clientId || item.clientId;
+    const requestId = item.brandId || clientId || item.clientId;
 
     this.loading = true;
     this.adminService.getClientBrandById(requestId).subscribe({
       next: (res: any) => {
         this.loading = false;
-        const client = (res && res.data) ? res.data : res;
-        this.openBrandDialog(item, client);
+        const brandDetails = (res && res.data) ? res.data : res;
+        this.openBrandDialog(item, brandDetails);
       },
       error: (err: any) => {
         this.loading = false;
         console.error('getClientBrandById error', err);
         this.openBrandDialog(item, {
           id: requestId || '-',
-          companyName: item.clientName,
-          contactEmail: '-',
-          contactMobile: '-',
-          status: item.stockAvailable ? 'active' : 'inactive'
+          brandName: item.brandName,
+          brandProductCode: item.brandProductCode,
+          brandSku: item.brandSku,
+          epayMinValue: item.epayMinValue,
+          epayMaxValue: item.epayMaxValue,
+          stockAvailable: item.stockAvailable
         });
       }
     });
   }
 
-  private openBrandDialog(item: ClientBrand, client: any) {
+  private openBrandDialog(item: ClientBrand, brandDetails: any) {
     this.dialog.open(BrandCategoryCouponsDialogComponent, {
       width: '980px',
       maxHeight: '90vh',
@@ -145,7 +175,7 @@ export class ClientBrandListPageComponent implements OnInit {
           categories: item.categories
         },
         categoryCoupons: this.buildCategoryCoupons(item),
-        client
+        brandDetails
       }
     });
   }

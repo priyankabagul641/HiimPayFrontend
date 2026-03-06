@@ -13,13 +13,13 @@ export class AssignedBrandListComponent implements OnInit {
   couponRows: any[] = [];
   amountRows: any[] = [];
   companyId: number = 0;
-
+ClientId:any;
   constructor(private router: Router, private service: ProjectService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData')!);
     this.companyId = userData?.companyId;
-
+this.ClientId=sessionStorage.getItem('ClientId');
     const couponAssignmentsRaw = sessionStorage.getItem('clientBrandCouponAssignments');
     const couponAssignments = couponAssignmentsRaw ? JSON.parse(couponAssignmentsRaw) : [];
 
@@ -39,7 +39,7 @@ export class AssignedBrandListComponent implements OnInit {
   }
 
   loadAmountRows() {
-    this.service.assignRewardsByCompanyID(this.companyId).subscribe({
+    this.service.assignRewardsByCompanyID(this.ClientId).subscribe({
       next: (res: any) => {
         this.amountRows = (res.data || []).map((item: any) => {
           const a = item.assignment || item;

@@ -12,18 +12,26 @@
   </div>
 
   <div class="client-card">
-    <h4>Client Details</h4>
+    <h4>Brand Details</h4>
     <div class="client-grid">
-      <div><span>Client ID</span><p>{{ data?.client?.id || '-' }}</p></div>
-      <div><span>Company Name</span><p>{{ data?.client?.companyName || '-' }}</p></div>
-      <div><span>Industry</span><p>{{ data?.client?.industry || '-' }}</p></div>
-      <div><span>Contact Name</span><p>{{ data?.client?.contactName || '-' }}</p></div>
-      <div><span>Primary Email</span><p>{{ data?.client?.contactEmail || '-' }}</p></div>
-      <div><span>Second Email</span><p>{{ data?.client?.contactEmail2 || '-' }}</p></div>
-      <div><span>Primary Mobile</span><p>{{ data?.client?.contactMobile || '-' }}</p></div>
-      <div><span>Second Mobile</span><p>{{ data?.client?.contactMobile2 || '-' }}</p></div>
-      <div><span>Status</span><p>{{ data?.client?.status || '-' }}</p></div>
-      <div><span>Updated At</span><p>{{ (data?.client?.updatedAt || data?.client?.updated_at) ? ((data?.client?.updatedAt || data?.client?.updated_at) | date:'medium') : '-' }}</p></div>
+      <div><span>Brand ID</span><p>{{ data?.brand?.id || '-' }}</p></div>
+      <div><span>Brand Name</span><p>{{ data?.brand?.brandName || data?.brand?.name || '-' }}</p></div>
+      <div><span>Brand Product Code</span><p>{{ data?.brand?.brandProductCode || '-' }}</p></div>
+      <div><span>Brand SKU</span><p>{{ data?.brand?.brandSku || '-' }}</p></div>
+      <div><span>SKU</span><p>{{ data?.brand?.sku || '-' }}</p></div>
+      <div><span>Brand Type</span><p>{{ data?.brand?.brandType || '-' }}</p></div>
+      <div><span>Onboarding Type</span><p>{{ data?.brand?.onboardingType || '-' }}</p></div>
+      <div><span>Redemption Type</span><p>{{ data?.brand?.redemptionType || '-' }}</p></div>
+      <div><span>Service Type</span><p>{{ data?.brand?.serviceType || '-' }}</p></div>
+      <div><span>Online URL</span><p>{{ data?.brand?.onlineRedemptionUrl || '-' }}</p></div>
+      <div><span>Min Value</span><p>{{ data?.brand?.epayMinValue ?? '-' }}</p></div>
+      <div><span>Max Value</span><p>{{ data?.brand?.epayMaxValue ?? '-' }}</p></div>
+      <div><span>Discount</span><p>{{ data?.brand?.epayDiscount ?? '-' }}</p></div>
+      <div><span>Stock Available</span><p>{{ data?.brand?.stockAvailable ? 'Yes' : 'No' }}</p></div>
+      <div><span>Description</span><p>{{ data?.brand?.description || '-' }}</p></div>
+      <div><span>T&C</span><p>{{ data?.brand?.tnc || '-' }}</p></div>
+      <div><span>Important Instruction</span><p>{{ data?.brand?.importantInstruction || '-' }}</p></div>
+      <div><span>Updated At</span><p>{{ data?.brand?.updatedAt ? (data?.brand?.updatedAt | date:'medium') : '-' }}</p></div>
     </div>
   </div>
 </div>

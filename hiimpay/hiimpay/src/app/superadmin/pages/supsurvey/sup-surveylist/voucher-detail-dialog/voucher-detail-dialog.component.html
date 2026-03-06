@@ -11,7 +11,7 @@
       <div class="kv-card"><div class="label">Brand Type</div><div class="value">{{ data?.brand_type || '-' }}</div></div>
       <div class="kv-card"><div class="label">Redemption Type</div><div class="value">{{ data?.redemption_type || '-' }}</div></div>
       <div class="kv-card"><div class="label">Denomination</div><div class="value">{{ asArray(data?.denominations).length > 1 ? 'Variable' : 'Fixed' }}</div></div>
-      <div class="kv-card"><div class="label">Available Denomination</div><div class="value">{{ asArray(data?.denominations).join(', ') || '-' }}</div></div>
+      <!-- <div class="kv-card"><div class="label">Available Denomination</div><div class="value">{{ asArray(data?.denominations).join(', ') || '-' }}</div></div> -->
       <div class="kv-card"><div class="label">Stock</div><div class="value">{{ data?.is_active ? 'In Stock' : 'Out of Stock' }}</div></div>
     </div>
 
