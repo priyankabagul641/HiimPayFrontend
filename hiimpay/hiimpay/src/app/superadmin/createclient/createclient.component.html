@@ -48,8 +48,8 @@
                         </select> -->
 
 
-                        <label for="" class="label-control mt-4">Location</label>
-                        <input type="text" class="form-control" formControlName="location" placeholder="Enter location">
+                        <!-- <label for="" class="label-control mt-4">Location</label>
+                        <input type="text" class="form-control" formControlName="location" placeholder="Enter location"> -->
 
                         <div *ngIf="buttonName === 'Update'">
                           <label for="" class="label-control mt-4">Status</label>
@@ -106,14 +106,14 @@
                             </p>
                         </small>
 
-                        <label for="" class="label-control mt-4">Landline number</label>
+                        <!-- <label for="" class="label-control mt-4">Landline number</label>
                         <input type="text" class="form-control" formControlName="landline_Number"
                             (keypress)="isNumber($event)" placeholder="Enter landline number">
                         <small class="p-0">
                             <p *ngIf="createForm.get('landline_Number')?.hasError('pattern')" class="text-danger">
                                 Invalid landline number
                             </p>
-                        </small>
+                        </small> -->
 
                         <!-- <label for="" class="label-control mt-4">Industry</label>
                         <input type="text" class="form-control" formControlName="industry" placeholder="Enter industry"> -->

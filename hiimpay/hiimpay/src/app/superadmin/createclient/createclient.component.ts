@@ -46,8 +46,8 @@ export class CreateclientComponent {
       second_Contact_Email: ['', [Validators.pattern(new RegExp('^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$', 'i'))]],
       mobile_Number1: ['', [Validators.required, Validators.pattern('^[6-9]\\d{9}$')]],
       mobile_Number2: ['', [Validators.pattern('^$|^[6-9]\\d{9}$')]],
-      landline_Number: ['', [Validators.pattern('^$|^\\d{6,15}$')]],
-      location: [''],
+      // landline_Number: ['', [Validators.pattern('^$|^\\d{6,15}$')]],
+      // location: [''],
       status: [''],
     });
     if (this.clientId > 0) {
@@ -74,9 +74,9 @@ export class CreateclientComponent {
             contactMobile: form.mobile_Number1,
             contactMobile2: form.mobile_Number2 || '',
             status: form.status || 'ACTIVE',
-            consultingPhase: form.location || '',
-            isSharedJourneyMap: true,
-            isSharedFeedback: true
+            // consultingPhase: form.location || '',
+            // isSharedJourneyMap: true,
+            // isSharedFeedback: true
           };
 
         this.touchService.createCompany(obj).subscribe({

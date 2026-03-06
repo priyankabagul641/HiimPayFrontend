@@ -53,12 +53,12 @@
             <tr
               *ngFor="let item of filteredSurveyList | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }; let i = index"
               [class.alt-row]="i % 2 === 1">
-              <td class="text-left truncate-cell" [title]="item?.coupon_sku || '-'">{{ item?.coupon_sku || '-' }}</td>
+              <td class="text-left truncate-cell" [title]="item?.sku || '-'">{{ item?.sku|| '-' }}</td>
               <td class="text-left truncate-cell" [title]="item?.provider_name || '-'">{{ item?.provider_name || '-' }}</td>
               <td class="text-left truncate-cell" [title]="item?.product_name || '-'">{{ item?.product_name || '-' }}</td>
               <td class="text-left truncate-cell" [title]="item?.brand_name || '-'">{{ item?.brand_name || '-' }}</td>
               <td class="text-left truncate-cell" [title]="item?.category || '-'">{{ item?.category || '-' }}</td>
-              <td class="text-center nowrap">{{ (item?.min_value != null ? item.min_value : '-') + ' / ' + (item?.max_value != null ? item.max_value : '-') }}</td>
+              <div class="text-center nowrap">{{ (item?.min_value != null ? item.min_value : '-') + ' ' + (item?.max_value != null ? '/ ' + item.max_value : '') }}</div>
               <td class="text-center nowrap">{{ item?.discount_percent != null ? item.discount_percent : '-' }}</td>
               <td class="text-center nowrap">{{ item?.expiry_date || '-' }}</td>
               <td class="text-center">
@@ -86,10 +86,10 @@
           class="coupon-card"
           *ngFor="let item of filteredSurveyList | paginate: { itemsPerPage: itemPerPage, currentPage: page, totalItems: totalItems }">
           <h4 [title]="item?.product_name || '-'">{{ item?.product_name || '-' }}</h4>
-          <p><strong>SKU:</strong> <span [title]="item?.coupon_sku || '-'">{{ item?.coupon_sku || '-' }}</span></p>
+          <p><strong>SKU:</strong> <span [title]="item?.sku || '-'">{{ item?.sku || '-' }}</span></p>
           <p><strong>Brand:</strong> {{ item?.brand_name || '-' }}</p>
           <p><strong>Provider:</strong> {{ item?.provider_name || '-' }}</p>
-          <p><strong>Value:</strong> {{ (item?.min_value != null ? item.min_value : '-') + ' / ' + (item?.max_value != null ? item.max_value : '-') }}</p>
+          <p><strong>Value:</strong> {{ (item?.min_value != null ? item.min_value : '-') + ' ' + (item?.max_value != null ? '/ ' + item.max_value : '') }}</p>
           <p><strong>Expiry:</strong> {{ item?.expiry_date || '-' }}</p>
           <p>
             <strong>Status:</strong>

@@ -17,7 +17,7 @@ export class OpenComponent {
   data:any[]=[];
   filteredData: any[] = [];
   searchTerm = '';
-  filterType: 'company' | 'pincode' = 'company';
+  filterType: 'company' | 'industry' = 'company';
   expandedRowIds: Record<string, boolean> = {};
   pinClients: any;
   newCount: any;
@@ -27,7 +27,7 @@ export class OpenComponent {
   size:any = 10;
   sortBy:any = 'id';
   p: number = 1;
-  itemPerPage: number = 9;
+  itemPerPage: number = 10;
   totalItems: number = 10;
 
   constructor(private api:ApiService, private router:Router,private tosatr:ToastrService,private dialog:MatDialog,private service:SearchService, private touchService: AdminDataService){}
@@ -184,13 +184,13 @@ deleteClient(client: any) {
 
   onFiltersChanged() {
     const term = (this.searchTerm || '').trim().toLowerCase();
-    const byPincode = this.filterType === 'pincode';
+    const byIndustry = this.filterType === 'industry';
 
     this.filteredData = this.data.filter((item: any) => {
       if (!term) return true;
       const company = (item.companyName || item.clientName || '').toString().toLowerCase();
-      const pincode = (item.pincode || '').toString().toLowerCase();
-      return byPincode ? pincode.includes(term) : company.includes(term);
+      const industry = (item.industry || '').toString().toLowerCase();
+      return byIndustry ? industry.includes(term) : company.includes(term);
     });
 
     this.totalItems = this.filteredData.length;

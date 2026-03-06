@@ -8,7 +8,7 @@
       <input
         type="text"
         class="search-input"
-        placeholder="Search company or pincode..."
+        placeholder="Search company or Industry..."
         [(ngModel)]="searchTerm"
         (ngModelChange)="onFiltersChanged()">
 
@@ -17,7 +17,7 @@
         [(ngModel)]="filterType"
         (ngModelChange)="onFiltersChanged()">
         <option value="company">Filter: Company Name</option>
-        <option value="pincode">Filter: Pincode</option>
+        <option value="industry">Filter: Industry</option>
       </select>
     </div>
   </div>
@@ -29,7 +29,7 @@
           <tr>
             <th class="col-logo text-left">Logo</th>
             <th class="col-company text-left">Company Name</th>
-            <th class="col-pin text-center">Pincode</th>
+            <th class="col-industry text-center">Industry</th>
             <th class="col-mobile text-center">Primary Mobile</th>
             <th class="col-email text-left">Company Email</th>
             <th class="col-status text-center">Status</th>
@@ -48,7 +48,7 @@
                   {{ item.companyName || item.clientName }}
                 </button>
               </td>
-              <td class="text-center align-middle nowrap">{{ item.pincode || '-' }}</td>
+              <td class="text-center align-middle nowrap">{{ item.industry || '-' }}</td>
               <td class="text-center align-middle nowrap">{{ item.mobileNumber1 || item.mobile_Number1 || item.contactMobile || '-' }}</td>
               <td class="text-left align-middle truncate-cell" [title]="item.contactEmail || '-'">
                 {{ item.contactEmail || '-' }}
@@ -74,17 +74,17 @@
             <tr class="details-row" *ngIf="isExpanded(item.id)">
               <td colspan="7">
                 <div class="details-grid">
-                  <div>
-                    <p>Registered Address</p>
-                    <span [title]="item.registeredAddress || '-'">{{ item.registeredAddress || '-' }}</span>
-                  </div>
+                  <!-- <div>
+                    <p>Industry</p>
+                    <span [title]="item.industry || '-'">{{ item.industry || '-' }}</span>
+                  </div> -->
                   <div>
                     <p>Mobile Number 2</p>
-                    <span>{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</span>
+                    <span>{{ item.contactMobile2 || item.contactMobile2 || '-' }}</span>
                   </div>
                   <div>
-                    <p>Landline</p>
-                    <span>{{ item.landlineNumber || item.landline_Number || '-' }}</span>
+                    <p>Contact Name</p>
+                    <span>{{ item.contactName || item.contact_Name || '-' }}</span>
                   </div>
                   <div>
                     <p>Second Email</p>
@@ -129,7 +129,7 @@
         <div class="mobile-details" *ngIf="isExpanded(item.id)">
           <div class="mobile-row"><strong>Registered Address:</strong> <span [title]="item.registeredAddress || '-'">{{ item.registeredAddress || '-' }}</span></div>
           <div class="mobile-row"><strong>Mobile 2:</strong> <span>{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</span></div>
-          <div class="mobile-row"><strong>Landline:</strong> <span>{{ item.landlineNumber || item.landline_Number || '-' }}</span></div>
+          <div class="mobile-row"><strong>Industry:</strong> <span>{{ item.industry || '-' }}</span></div>
           <div class="mobile-row truncate-cell">
             <strong>Second Email:</strong>
             <span [title]="item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-'">

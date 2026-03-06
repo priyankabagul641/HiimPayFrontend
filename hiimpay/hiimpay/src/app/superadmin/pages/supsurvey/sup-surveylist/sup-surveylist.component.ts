@@ -92,7 +92,7 @@ export class SupSurveylistComponent implements OnInit {
   deleteSurvey(coupon: any) {
     const dialogRef = this.dialog.open(DeleteComponent, {
       data: {
-        message: `Do you really want to deactivate the records for ${coupon.product_name || coupon.external_product_id} ?`,
+        message: `Do you really want to deactivate the records for ${coupon.product_name || coupon.external_product_id || coupon.sku} ?`,
       },
       disableClose: true
     });
@@ -157,7 +157,7 @@ export class SupSurveylistComponent implements OnInit {
 
       const haystack = [
         item?.external_product_id,
-        item?.coupon_sku,
+        item?.sku,
         item?.provider_name,
         item?.product_name,
         item?.brand_name,
@@ -173,80 +173,75 @@ export class SupSurveylistComponent implements OnInit {
     this.totalItems = this.filteredSurveyList.length;
   }
 
-  private getCompanyNameById(companyId: number): string {
-    const companies = [
-      { id: 1, name: 'Amazon' },
-      { id: 2, name: 'Flipkart' },
-      { id: 3, name: 'Bata' }
-    ];
-
-    return companies.find((company) => company.id === Number(companyId))?.name || 'Unknown';
-  }
-
   private enrichCouponSku(coupon: any) {
-    // Normalize API camelCase fields → snake_case used by the template
-    const provider_name       = coupon.provider_name       ?? coupon.providerName       ?? '-';
-    const product_name        = coupon.product_name        ?? coupon.couponName         ?? coupon.productName ?? '-';
-    const brand_name          = coupon.brand_name          ?? coupon.brand?.brandName   ?? '-';
+    // Map all fields from API response to normalized names for templates
+    
+    // Core product info
+    const sku                 = coupon.sku ?? '';
+    const provider_name       = coupon.providerName ?? '-';
+    const product_name        = coupon.productName ?? '-';
+    const brand_name          = coupon.brandName ?? coupon.brand?.brandName ?? '-';
+    
+    // Brand details
+    const brand_type          = coupon.brand?.brandType ?? '-';
+    const service_type        = coupon.serviceType ?? coupon.brand?.serviceType ?? '-';
+    
+    // Pricing & values
+    const min_value           = coupon.minValue ?? coupon.brand?.epayMinValue ?? null;
+    const max_value           = coupon.maxValue ?? coupon.brand?.epayMaxValue ?? null;
+    const discount_percent    = coupon.discountPercent ?? coupon.brand?.epayDiscount ?? null;
+    
+    // Redemption & expiry
+    const redemption_type     = coupon.redemptionType ?? coupon.brand?.redemptionType ?? '-';
+    const expiry_date         = coupon.expiryDate ? coupon.expiryDate.split('T')[0] : null;
+    const is_active           = coupon.active !== undefined ? coupon.active : true;
+    
+    // Product identifiers
+    const external_product_id = coupon.externalProductId ?? '';
+    const product_code        = coupon.productCode ?? '';
+    
+    // Category
     const categoryRaw         = coupon.category;
     const category            = typeof categoryRaw === 'string'
                                   ? categoryRaw
-                                  : (categoryRaw?.categoryName ?? coupon.category_name ?? '-');
-    const external_product_id = coupon.external_product_id ?? coupon.externalProductId ?? '';
-    const min_value           = coupon.min_value           ?? coupon.minValue           ?? null;
-    const max_value           = coupon.max_value           ?? coupon.maxValue           ?? null;
-    const discount_percent    = coupon.discount_percent    ?? coupon.discountPercent    ?? null;
-    const expiry_date         = coupon.expiry_date
-                                  ?? (coupon.expiryDate ? coupon.expiryDate.split('T')[0] : null);
-    const is_active           = coupon.is_active !== undefined
-                                  ? coupon.is_active
-                                  : (coupon.active !== undefined ? coupon.active : true);
+                                  : (categoryRaw?.categoryName ?? coupon.categoryName ?? '-');
+    
+    // Parse denominations: convert string to array if needed
+    let denominations = coupon.denominations ?? [];
+    if (typeof denominations === 'string') {
+      denominations = denominations.split(',').map((d: string) => d.trim());
+    }
 
-    const brandSku    = this.generateBrandSku(brand_name);
-    const categoryNo  = this.getCategoryNumber(category);
-    const productCode = this.getProductCode(external_product_id);
+    // Parse terms & conditions from tnc field
+    const terms_conditions = coupon.tnc ? [coupon.tnc] : coupon.brand?.tnc ? [coupon.brand.tnc] : [];
+    
+    // Extract redemption steps from importantInstruction
+    const redeem_steps = coupon.importantInstruction ? [coupon.importantInstruction] : (coupon.brand?.importantInstruction ? [coupon.brand.importantInstruction] : []);
+
+    const description = coupon.description ?? coupon.brand?.description ?? '-';
 
     return {
       ...coupon,
+      sku,
       provider_name,
       product_name,
       brand_name,
+      brand_type,
+      service_type,
       category,
       external_product_id,
+      product_code,
       min_value,
       max_value,
       discount_percent,
+      redemption_type,
       expiry_date,
       is_active,
-      brand_sku:  brandSku,
-      coupon_sku: coupon.coupon_sku ?? `${brandSku}-${categoryNo}-${productCode}`
+      denominations,
+      terms_conditions,
+      redeem_steps,
+      description,
+      coupon_sku: sku
     };
-  }
-
-  private generateBrandSku(name: string): string {
-    const cleaned = (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const prefix = (cleaned.slice(0, 3) || 'brn').padEnd(3, 'x');
-    const hash = Array.from(cleaned || 'brand').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-    const num = ((hash % 900) + 100).toString();
-    return `${prefix}${num}`;
-  }
-
-  private getCategoryNumber(category: string): string {
-    const map: { [key: string]: number } = {
-      clothing: 1,
-      footwear: 2,
-      electronics: 3,
-      lifestyle: 4,
-      'food&beverages': 5,
-      ecommerce: 6
-    };
-    const key = (category || '').toLowerCase().replace(/[^a-z]/g, '');
-    const value = map[key] || 9999;
-    return value.toString().padStart(4, '0');
-  }
-
-  private getProductCode(externalId: string): string {
-    const cleaned = (externalId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    return (cleaned.slice(-4) || 'xxxx').padStart(4, '0');
   }
 }

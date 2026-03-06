@@ -8,7 +8,7 @@
     <p class="desc">{{ data?.description || '-' }}</p>
 
     <div class="summary-grid">
-      <div class="kv-card"><div class="label">Brand Type</div><div class="value">VOUCHER</div></div>
+      <div class="kv-card"><div class="label">Brand Type</div><div class="value">{{ data?.brand_type || '-' }}</div></div>
       <div class="kv-card"><div class="label">Redemption Type</div><div class="value">{{ data?.redemption_type || '-' }}</div></div>
       <div class="kv-card"><div class="label">Denomination</div><div class="value">{{ asArray(data?.denominations).length > 1 ? 'Variable' : 'Fixed' }}</div></div>
       <div class="kv-card"><div class="label">Available Denomination</div><div class="value">{{ asArray(data?.denominations).join(', ') || '-' }}</div></div>
@@ -19,7 +19,7 @@
     <div class="summary-grid epay">
       <div class="kv-card"><div class="label">Min Value</div><div class="value">{{ data?.min_value ?? '-' }}</div></div>
       <div class="kv-card"><div class="label">Max Value</div><div class="value">{{ data?.max_value ?? '-' }}</div></div>
-      <div class="kv-card"><div class="label">Service Type</div><div class="value">{{ data?.provider_name || '-' }}</div></div>
+      <div class="kv-card"><div class="label">Service Type</div><div class="value">{{ data?.service_type || '-' }}</div></div>
       <div class="kv-card"><div class="label">Discount</div><div class="value">{{ (data?.discount_percent ?? '-') + '%' }}</div></div>
     </div>
 
@@ -33,7 +33,7 @@
 
     <details class="accordion">
       <summary>Important Instructions</summary>
-      <p>{{ data?.external_product_id || '-' }} | {{ data?.coupon_sku || '-' }} | {{ data?.expiry_date || '-' }}</p>
+      <p>{{ data?.product_code || '-' }} | {{ data?.sku || '-' }} | {{ data?.expiry_date || '-' }}</p>
     </details>
 
     <details class="accordion">
