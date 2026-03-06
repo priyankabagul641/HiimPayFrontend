@@ -91,70 +91,18 @@ export class DashboardComponent implements OnInit {
 
   offers: any[] = [];
 
-  ownedCoupons = [
-    {
-      brand: 'Swiggy',
-      title: 'Flat Rs 500 Off',
-      code: 'SWIGGY500',
-      status: 'active',
-      expiresOn: '2026-03-08',
-      redeemInstruction: 'Apply on cart page before payment'
-    },
-    {
-      brand: 'Myntra',
-      title: 'Extra 25% Off',
-      code: 'MYNTRA25',
-      status: 'used',
-      expiresOn: '2026-02-10',
-      redeemInstruction: 'Redeemed on 10 Feb 2026'
-    },
-    {
-      brand: 'BookMyShow',
-      title: 'Buy 1 Get 1',
-      code: 'BMSB1G1',
-      status: 'expired',
-      expiresOn: '2026-02-02',
-      redeemInstruction: 'Offer validity ended'
-    }
-  ];
+  ownedCoupons: any[] = [];
 
-  monthlyCouponStats = [
-    { month: 'Jan', purchased: 24, assigned: 18, expired: 4 },
-    { month: 'Feb', purchased: 30, assigned: 22, expired: 5 },
-    { month: 'Mar', purchased: 28, assigned: 24, expired: 6 },
-    { month: 'Apr', purchased: 36, assigned: 29, expired: 8 },
-    { month: 'May', purchased: 40, assigned: 34, expired: 7 },
-    { month: 'Jun', purchased: 34, assigned: 27, expired: 6 }
-  ];
+  monthlyCouponStats: Array<{ month: string; purchased: number; assigned: number; expired: number }> = [];
   walletTransactions: Array<{ date: string; description: string; type: string; amount: number }> = [];
-  notifications: Array<{ message: string; time: string; unread: boolean }> = [
-    { message: 'Welcome to Employee Coupon Portal', time: 'Just now', unread: true }
-  ];
-  faqs: Array<{ question: string; answer: string }> = [
-    {
-      question: 'How do I claim a coupon?',
-      answer: 'Go to Browse Coupons, open an offer and click Grab Coupon.'
-    },
-    {
-      question: 'Where can I find my coupon code?',
-      answer: 'Open My Coupons tab and click Copy beside your active coupon.'
-    },
-    {
-      question: 'Why did my coupon expire?',
-      answer: 'Coupons are time-bound. Check the expiry date shown in each card.'
-    }
-  ];
+  notifications: Array<{ message: string; time: string; unread: boolean }> = [];
+  faqs: Array<{ question: string; answer: string }> = [];
   quickActions: Array<{
     title: string;
     description: string;
     action: 'browse' | 'categories' | 'my-coupons' | 'wallet';
     icon: string;
-  }> = [
-    { title: 'Claim Best Deal', description: 'Open trending coupons', action: 'browse', icon: 'local_offer' },
-    { title: 'Expiring Soon', description: 'Review active coupon deadlines', action: 'my-coupons', icon: 'timer' },
-  
-    { title: 'Explore Categories', description: 'Find offers by use case', action: 'categories', icon: 'grid_view' }
-  ];
+  }> = [];
 
   constructor(private router: Router, private api: ApiService, private jwtAuthService: JwtAuthService, private toastr: ToastrService, private employeeService: EmployeeService) {
     this.generateCaptcha();
@@ -170,11 +118,11 @@ export class DashboardComponent implements OnInit {
     this.companyId = userData?.companyId || userData?.clientId || 0;
     this.loggedInUserName = userData?.fullName || userData?.name ||
       ((userData?.firstName || '') + (userData?.lastName ? ' ' + userData.lastName : '')) ||
-      'User';
+      '-';
     if (this.userId) {
       this.loadWalletBalance();
       this.loadWalletTransactions();
-      this.loadUserWalletCoupons();
+      this.loadUserWalletCouponsByTab(this.activeCouponTab);
       this.loadCouponCounts();
     }
     if (this.companyId) {
@@ -198,7 +146,7 @@ export class DashboardComponent implements OnInit {
 
   private normalizeBrand(b: any, idx: number): any {
     const brand = b.brand || {};
-    const name: string = brand.brandName || b.productName || 'Brand';
+    const name: string = brand.brandName || b.productName || '-';
     const logo = name.substring(0, 2).toUpperCase();
     const colorMap: Record<string, string> = {
       'E-COMMERCE': '#ff9900', 'GIFT_CARD': '#6c5ce7', 'RETAIL': '#2ecc71',
@@ -208,20 +156,16 @@ export class DashboardComponent implements OnInit {
     const brandColor = colorMap[brandType] || '#2980b9';
     // Prefer top-level coupon discountPercent, fall back to brand.epayDiscount
     const discountPercent = b.discountPercent ?? brand.epayDiscount ?? 0;
-    const discountBadge = discountPercent > 0 ? `${discountPercent}% OFF` : 'Offer';
+    const discountBadge = discountPercent > 0 ? `${discountPercent}% OFF` : '-';
     const discountType = discountPercent > 0 ? 'Percentage' : 'Flat';
-    const categoryName = b.category?.categoryName || 'UNCATEGORIZED';
+    const categoryName = b.category?.categoryName || '-';
     const category = this.categoryNameToLabel(categoryName);
     // Use expiryDate directly from the coupon response
-    const expiryDate = b.expiryDate || (() => {
-      const d = new Date();
-      d.setFullYear(d.getFullYear() + 1);
-      return d.toISOString().split('T')[0];
-    })();
+    const expiryDate = b.expiryDate || '-';
     return {
       id:             b.id ?? idx + 1,
       brand:          name,
-      title:          b.description || brand.description || `${name} gift voucher`,
+      title:          b.description || brand.description || '-',
       validTill:      expiryDate,   // mapped from API expiryDate
       expiryDate,                   // raw API field
       discountPercent,              // raw API field
@@ -231,12 +175,12 @@ export class DashboardComponent implements OnInit {
       categoryName,
       brandLogo:     logo,
       brandColor,
-      image:         b.imageUrl || brand.brandImage || 'assets/images/servey1.jfif',
-      description:   b.description || brand.description || '',
-      terms:         brand.tnc || 'Terms and conditions apply.',
+      image:         b.imageUrl || brand.brandImage || '',
+      description:   b.description || brand.description || '-',
+      terms:         brand.tnc || '-',
       redeemSteps:   brand.importantInstruction
                        ? [brand.importantInstruction]
-                       : ['Grab the coupon', 'Copy the code', 'Apply at checkout'],
+               : ['-'],
       isTrending:    brand.stockAvailable !== false,
       minValue:      b.minValue ?? brand.epayMinValue,
       maxValue:      b.maxValue ?? brand.epayMaxValue,
@@ -279,7 +223,7 @@ export class DashboardComponent implements OnInit {
       next: (res: any) => {
         this.walletTransactions = (res?.data || []).map((tx: any) => ({
           date: tx.createdAt,
-          description: tx.notes || tx.referenceNo || 'Transaction',
+          description: tx.notes || tx.referenceNo || '-',
           type: (tx.transactionType || 'CREDIT').toLowerCase(),
           amount: tx.amount
         }));
@@ -288,25 +232,35 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadUserWalletCoupons() {
+  loadUserWalletCouponsByTab(tab: 'active' | 'used' | 'expired') {
     this.userWalletCouponsLoading = true;
-    this.employeeService.getUserWalletsStatusById(this.userId).subscribe({
+    const request$ =
+      tab === 'used'
+        ? this.employeeService.getUserWalletsStatusUsedById(this.userId)
+        : tab === 'expired'
+        ? this.employeeService.getUserWalletsStatusExpiredById(this.userId)
+        : this.employeeService.getUserWalletsStatusById(this.userId);
+
+    request$.subscribe({
       next: (res: any) => {
         this.userWalletCouponsLoading = false;
         const walletData = res?.data || [];
         this.userWalletCoupons = walletData.map((item: any) => {
           const wallet = item.wallet || {};
           const brand = wallet.brand || {};
-          const status = wallet.status || 'PENDING';
-          const isExpired = wallet.isExpired || false;
-          const isRedeemed = wallet.isRedeemed || false;
+          const usageStatus = (item.usageStatus || '').toUpperCase();
+          const status = (wallet.status || '').toUpperCase();
+          const isExpired = item.isExpired || wallet.isExpired || false;
+          const isRedeemed = item.isUsed || wallet.isRedeemed || false;
 
           // Determine status: 'active', 'used', or 'expired'
-          let couponStatus = 'active';
-          if (isRedeemed || status === 'REDEEMED') {
+          let couponStatus: 'active' | 'used' | 'expired' | '-' = '-';
+          if (isRedeemed || usageStatus === 'USED' || status === 'REDEEMED') {
             couponStatus = 'used';
-          } else if (isExpired || status === 'EXPIRED') {
+          } else if (isExpired || usageStatus === 'EXPIRED' || status === 'EXPIRED') {
             couponStatus = 'expired';
+          } else if (usageStatus === 'ACTIVE' || status === 'ACTIVE' || status === 'ALLOCATED' || status === 'PENDING') {
+            couponStatus = 'active';
           }
 
           // Format expiry date
@@ -315,18 +269,18 @@ export class DashboardComponent implements OnInit {
 
           return {
             id: wallet.id,
-            brand: brand.brandName || 'Unknown Brand',
-            title: brand.description || `${brand.brandName} Gift Card`,
-            code: `COUPON-${wallet.id}`, // Generate a code based on wallet ID
+            brand: brand.brandName || '-',
+            title: brand.description || '-',
+            code: wallet.voucherId || wallet.referenceNo || '-',
             status: couponStatus,
             expiresOn: expiresOn,
             redeemInstruction: isRedeemed 
               ? `Redeemed on ${wallet.redeemedAt ? new Date(wallet.redeemedAt).toLocaleDateString() : 'N/A'}`
               : isExpired 
               ? 'Offer validity ended'
-              : brand.importantInstruction || 'Apply on cart page before payment',
-            imageUrl: brand.brandImage || 'assets/images/servey1.jfif',
-            redemptionUrl: brand.onlineRedemptionUrl || '',
+              : brand.importantInstruction || '-',
+            imageUrl: brand.brandImage || '',
+            redemptionUrl: brand.onlineRedemptionUrl || '-',
             voucherId: wallet.voucherId,
             allocatedAt: wallet.allocatedAt,
             allocationSource: wallet.allocationSource
@@ -335,7 +289,8 @@ export class DashboardComponent implements OnInit {
       },
       error: (err: any) => {
         this.userWalletCouponsLoading = false;
-        console.error('loadUserWalletCoupons error:', err);
+        console.error('loadUserWalletCouponsByTab error:', err);
+        this.userWalletCoupons = [];
       }
     });
   }
@@ -367,7 +322,10 @@ export class DashboardComponent implements OnInit {
   }
 
   get featuredOffers() {
-    return this.activeOffers.filter((offer) => offer.isTrending);
+    return this.activeOffers
+      .filter((offer) => offer.isTrending)
+      .sort((a, b) => Number(b?.id || 0) - Number(a?.id || 0))
+      .slice(0, 2);
   }
 
   get uniqueBrands(): string[] {
@@ -378,7 +336,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get redeemedCount() {
-    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    const coupons = this.userWalletCoupons;
     return coupons.filter((coupon) => coupon.status === 'used').length;
   }
 
@@ -387,30 +345,15 @@ export class DashboardComponent implements OnInit {
   }
 
   get purchasedCount() {
-    // Use API count data if available
-    if (this.couponCounts.totalCount > 0) {
-      return this.couponCounts.purchasedCount;
-    }
-    // Otherwise use the static monthly stats
-    return this.monthlyCouponStats.reduce((sum, item) => sum + item.purchased, 0);
+    return this.couponCounts.purchasedCount || 0;
   }
 
   get assignedCount() {
-    // Use API count data if available
-    if (this.couponCounts.totalCount > 0) {
-      return this.couponCounts.assignedCount;
-    }
-    // Otherwise use the static monthly stats
-    return this.monthlyCouponStats.reduce((sum, item) => sum + item.assigned, 0);
+    return this.couponCounts.assignedCount || 0;
   }
 
   get expiredCount() {
-    // Use API count data if available
-    if (this.couponCounts.totalCount > 0) {
-      return this.couponCounts.expiredCount;
-    }
-    // Otherwise use the static monthly stats
-    return this.monthlyCouponStats.reduce((sum, item) => sum + item.expired, 0);
+    return this.couponCounts.expiredCount || 0;
   }
 
   get thisMonthPurchasedCount() {
@@ -426,12 +369,12 @@ export class DashboardComponent implements OnInit {
   }
 
   get activeCouponCount() {
-    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    const coupons = this.userWalletCoupons;
     return coupons.filter((coupon) => coupon.status === 'active').length;
   }
 
   get expiringSoonCouponCount() {
-    const coupons = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
+    const coupons = this.userWalletCoupons;
     return coupons.filter(
       (coupon) => coupon.status === 'active' && this.getDaysLeft(coupon.expiresOn) <= 7
     ).length;
@@ -462,9 +405,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredOwnedCoupons() {
-    // Use dynamic API data if available, otherwise fall back to static data
-    const couponsToFilter = this.userWalletCoupons.length > 0 ? this.userWalletCoupons : this.ownedCoupons;
-    return couponsToFilter.filter((coupon) => coupon.status === this.activeCouponTab);
+    return this.userWalletCoupons.filter((coupon) => coupon.status === this.activeCouponTab);
   }
 
   get categoryOffers() {
@@ -709,14 +650,7 @@ export class DashboardComponent implements OnInit {
         };
         this.grabDialogStep = 'checkout';
         // Add to owned coupons
-        this.ownedCoupons.unshift({
-          brand:             this.grabDialogOffer.brand,
-          title:             this.grabDialogOffer.title,
-          code:              this.grabResult.refNo,
-          status:            'active',
-          expiresOn:         this.grabDialogOffer.validTill,
-          redeemInstruction: 'Copy the reference and apply at checkout'
-        });
+        this.loadUserWalletCouponsByTab(this.activeCouponTab);
         this.loadWalletBalance();
         this.pushNotification(`${this.grabDialogOffer.brand} voucher claimed`);
       },
@@ -750,12 +684,16 @@ export class DashboardComponent implements OnInit {
   getDaysLeft(dateValue: string) {
     const now = new Date();
     const expiry = new Date(dateValue);
+    if (isNaN(expiry.getTime())) return 0;
     const diff = expiry.getTime() - now.getTime();
     return Math.max(Math.ceil(diff / (1000 * 60 * 60 * 24)), 0);
   }
 
   selectCouponTab(tab: 'active' | 'used' | 'expired') {
     this.activeCouponTab = tab;
+    if (this.userId) {
+      this.loadUserWalletCouponsByTab(tab);
+    }
   }
 
   goBack() {

@@ -1,8 +1,8 @@
 <div class="coupon-portal">
   <div class="ambient-bg"></div>
 
-  <section class="screen app-screen">
-    <aside class="left-nav" [class.collapsed]="!showSidebar">
+  <section class="screen app-screen" [class.sidebar-hidden]="!showSidebar">
+    <aside class="left-nav" [class.hidden]="!showSidebar">
       <div class="nav-brand">
         <img src="assets/images/navexwise.jpeg" alt="HiimPay" />
         <div *ngIf="showSidebar">

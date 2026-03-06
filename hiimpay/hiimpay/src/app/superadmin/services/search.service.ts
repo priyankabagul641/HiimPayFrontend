@@ -35,7 +35,7 @@ export class SearchService {
   constructor(private http: HttpClient) {}
  
   getNotifications(id:any):Observable<any>{
-    return this.http.get<any>(this.baseurl+`notifications/getNotifications/ByuserId/${id}`)
+    return this.http.get<any>(this.baseurl+`notifications?userId=${id}`)
   }
   readNotifications(id:any):Observable<any>{
     return this.http.put<any>(this.baseurl+`notifications/Notifications/${id}`,'')

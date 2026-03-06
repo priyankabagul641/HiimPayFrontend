@@ -265,6 +265,10 @@ textarea {
   gap: 18px;
 }
 
+.app-screen.sidebar-hidden {
+  grid-template-columns: 1fr;
+}
+
 .left-nav {
   background: #f8fbff;
   border-radius: 20px;
@@ -274,6 +278,10 @@ textarea {
   gap: 8px;
   border: 1px solid #dbe6f4;
   box-shadow: 0 8px 16px rgba(14, 44, 94, 0.08);
+}
+
+.left-nav.hidden {
+  display: none;
 }
 
 .left-nav.collapsed {

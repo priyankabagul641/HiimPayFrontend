@@ -20,7 +20,7 @@ export class EmployeeService {
   }
 
   getNotifications(id:any):Observable<any>{
-    return this.http.get<any>(this.baseUrl+`notifications/getNotifications/ByuserId/${id}`)
+    return this.http.get<any>(this.baseUrl+`notifications?userId=${id}`)
   }
 
   getAllAssignedSurveyByClientEmpId(
