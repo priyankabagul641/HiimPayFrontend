@@ -41,7 +41,8 @@
           <ng-container *ngFor="let item of filteredData | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }; let i = index">
             <tr [class.alt-row]="i % 2 === 1">
               <td class="text-left align-middle">
-                <img class="company-logo" [src]="item.companyLogo" alt="logo">
+                <img class="api-logo" [src]="item.companyLogo" alt="logo">    
+                    
               </td>
               <td class="text-left align-middle">
                 <button class="company-link" (click)="setClientId($event, item.id)" [title]="item.companyName || item.clientName">
@@ -155,3 +156,6 @@
     </div>
   </ng-template>
 </section>
+
+
+

@@ -28,6 +28,11 @@ export class VoucherBrandListComponent implements OnInit {
   filtered: Brand[] = [];
   loading = false;
 
+  // Pagination
+  itemsPerPage = 10;
+  page = 1;
+  totalItems = 0;
+
   q = '';
   inStockOnly = false;
   selectedCategory = 'ALL';
@@ -84,6 +89,10 @@ export class VoucherBrandListComponent implements OnInit {
         b.categories.join(' ').toLowerCase().includes(q)
       );
     });
+    
+    // Reset to page 1 and update total items
+    this.page = 1;
+    this.totalItems = this.filtered.length;
   }
 
   onSearchChange() {
@@ -93,6 +102,10 @@ export class VoucherBrandListComponent implements OnInit {
   setInStock(v: boolean) {
     this.inStockOnly = v;
     this.applyFilters();
+  }
+
+  pageChangeEvent(newPage: number) {
+    this.page = newPage;
   }
 
   setCategory(category: string) {

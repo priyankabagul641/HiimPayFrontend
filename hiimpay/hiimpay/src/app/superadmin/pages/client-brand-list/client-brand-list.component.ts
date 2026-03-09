@@ -46,7 +46,7 @@ export class ClientBrandListPageComponent implements OnInit {
 
   loadClientBrands() {
     this.loading = true;
-    this.adminService.getAllClientBrands(this.page - 1, this.itemPerPage).subscribe({
+    this.adminService.getAllClientBrands(0, 1000).subscribe({
       next: (res: any) => {
         this.loading = false;
         // normalize response to an array: support res array, res.data array, res.data.content, res.data.items, or single object
@@ -120,11 +120,12 @@ export class ClientBrandListPageComponent implements OnInit {
         item.brandProductCode.toLowerCase().includes(query)
       );
     });
+    this.page = 1;
+    this.totalItems = this.filtered.length;
   }
 
   pageChangeEvent(event: number) {
     this.page = event;
-    this.loadClientBrands();
   }
 
   getPageUpperBound(): number {

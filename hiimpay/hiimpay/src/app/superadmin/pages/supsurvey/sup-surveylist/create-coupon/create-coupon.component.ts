@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -25,6 +25,8 @@ interface ApiEndpointConfig {
 })
 export class CreateCouponComponent implements OnInit {
 
+  @ViewChild('brandDropdownRef') brandDropdownRef!: ElementRef;
+
   activeTab: TabType = 'manual';
   couponForm: FormGroup;
   manualCode = false;
@@ -33,6 +35,12 @@ export class CreateCouponComponent implements OnInit {
 
   // Real data from APIs
   brands: any[] = [];
+  filteredBrands: any[] = [];
+  brandSearchTerm = '';
+  dropdownSearchTerm = '';
+  showBrandDropdown = false;
+  highlightedIndex = -1;
+  selectedBrandId: any = null;
   categoriesList: any[] = [];
   filteredCategories: any[] = [];
 
@@ -78,6 +86,11 @@ export class CreateCouponComponent implements OnInit {
     // If dialog was opened with coupon data (for edit), patch form
     if (this.data && this.data.mode === 'update' && this.data.coupon) {
       const c = this.data.coupon;
+      const selectedBrand = this.brands.find((b: any) => b.id === c.brand?.id);
+      if (selectedBrand) {
+        this.brandSearchTerm = selectedBrand.brandName;
+        this.selectedBrandId = selectedBrand.id;
+      }
       this.couponForm.patchValue({
         brandId:        c.brand?.id || null,
         categoryId:     c.category?.id || null,
@@ -100,9 +113,130 @@ export class CreateCouponComponent implements OnInit {
 
   loadBrands() {
     this.adminService.getAllBrand().subscribe({
-      next: (res: any) => { this.brands = res?.data || []; },
+      next: (res: any) => {
+        this.brands = res?.data || [];
+        this.filteredBrands = [...this.brands];
+      },
       error: (err: any) => console.error('loadBrands error:', err)
     });
+  }
+
+  filterBrands(searchTerm: string) {
+    this.brandSearchTerm = searchTerm;
+    if (!searchTerm.trim()) {
+      this.filteredBrands = this.brands;
+    } else {
+      const query = searchTerm.toLowerCase();
+      this.filteredBrands = this.brands.filter((brand: any) =>
+        brand.brandName?.toLowerCase().includes(query) ||
+        brand.brandProductCode?.toLowerCase().includes(query)
+      );
+    }
+  }
+
+  selectBrand(brand: any) {
+    this.couponForm.patchValue({ brandId: brand.id });
+    this.brandSearchTerm = brand.brandName;
+    this.selectedBrandId = brand.id;
+    this.showBrandDropdown = false;
+    this.dropdownSearchTerm = '';
+    this.highlightedIndex = -1;
+    this.onBrandChange();
+  }
+
+  toggleBrandDropdown() {
+    this.showBrandDropdown = !this.showBrandDropdown;
+    if (this.showBrandDropdown) {
+      // Ensure brands are loaded and display all of them
+      this.filteredBrands = [...this.brands];
+      this.dropdownSearchTerm = '';
+      this.highlightedIndex = -1;
+      // Set highlighted to first item if any
+      if (this.filteredBrands.length > 0) {
+        this.highlightedIndex = 0;
+      }
+    }
+  }
+
+  filterBrandsInDropdown(searchTerm: string) {
+    this.dropdownSearchTerm = searchTerm;
+    if (!searchTerm || !searchTerm.trim()) {
+      this.filteredBrands = [...this.brands];
+    } else {
+      const query = searchTerm.toLowerCase();
+      this.filteredBrands = this.brands.filter((brand: any) => {
+        const brandName = brand.brandName ? brand.brandName.toLowerCase() : '';
+        const productCode = brand.brandProductCode ? brand.brandProductCode.toLowerCase() : '';
+        return brandName.includes(query) || productCode.includes(query);
+      });
+    }
+    this.highlightedIndex = this.filteredBrands.length > 0 ? 0 : -1;
+  }
+
+  onDropdownKeydown(event: KeyboardEvent) {
+    if (!this.showBrandDropdown) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (this.highlightedIndex < this.filteredBrands.length - 1) {
+          this.highlightedIndex++;
+        }
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (this.highlightedIndex > 0) {
+          this.highlightedIndex--;
+        }
+        break;
+
+      case 'Enter':
+        event.preventDefault();
+        if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredBrands.length) {
+          this.selectBrand(this.filteredBrands[this.highlightedIndex]);
+        }
+        break;
+
+      case 'Escape':
+        event.preventDefault();
+        this.showBrandDropdown = false;
+        break;
+    }
+  }
+
+  isItemHighlighted(index: number): boolean {
+    return index === this.highlightedIndex;
+  }
+
+  isItemSelected(brandId: any): boolean {
+    return brandId === this.selectedBrandId || brandId === this.couponForm.get('brandId')?.value;
+  }
+
+  onBrandSearchFocus() {
+    this.showBrandDropdown = true;
+    // Initialize dropdown with all brands
+    this.filteredBrands = [...this.brands];
+    this.dropdownSearchTerm = '';
+    this.highlightedIndex = this.filteredBrands.length > 0 ? 0 : -1;
+  }
+
+  onDropdownSearchFocus() {
+    this.showBrandDropdown = true;
+  }
+
+  onDropdownClick(event: MouseEvent) {
+    event.stopPropagation();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.brandDropdownRef) {
+      const isClickInsideDropdown = this.brandDropdownRef.nativeElement.contains(event.target);
+      if (!isClickInsideDropdown && this.showBrandDropdown) {
+        this.showBrandDropdown = false;
+      }
+    }
   }
 
   loadCategories() {

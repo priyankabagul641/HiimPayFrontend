@@ -48,6 +48,10 @@ export class ManageAdminComponent implements OnInit {
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
   isLoading = false;
 
+  itemsPerPage = 10;
+  page = 1;
+  totalItems = 0;
+
   showCreatePopup = false;
   showAccessPopup = false;
   showEditPopup = false;
@@ -354,5 +358,11 @@ export class ManageAdminComponent implements OnInit {
       const haystack = `${admin.name} ${admin.email} ${admin.contact} ${admin.address}`.toLowerCase();
       return haystack.includes(keyword);
     });
+    this.page = 1;
+    this.totalItems = this.filteredAdmins.length;
+  }
+
+  pageChangeEvent(newPage: number) {
+    this.page = newPage;
   }
 }

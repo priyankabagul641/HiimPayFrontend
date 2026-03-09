@@ -32,13 +32,54 @@
       <div class="row">
         <div class="col">
           <label>Brand <span class="text-danger">*</span></label>
-          <select formControlName="brandId" class="form-control"
-                  [class.is-invalid]="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched"
-                  (change)="onBrandChange()">
-            <option [ngValue]="null" disabled>Select brand</option>
-            <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.brandName }}</option>
-          </select>
-          <div class="invalid-feedback">Brand is required.</div>
+          <div class="search-dropdown" #brandDropdownRef>
+            <div class="search-input-wrapper">
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Search and select brand..."
+                [(ngModel)]="brandSearchTerm"
+                [ngModelOptions]="{standalone: true}"
+                (focus)="onBrandSearchFocus()"
+                [class.is-invalid]="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched"
+                readonly>
+              <button type="button" class="dropdown-toggle-btn" (click)="toggleBrandDropdown()" tabindex="-1">
+                <mat-icon>expand_more</mat-icon>
+              </button>
+            </div>
+            <div class="dropdown-menu" *ngIf="showBrandDropdown">
+              <div class="dropdown-search-wrapper">
+                <input
+                  type="text"
+                  class="dropdown-search-input"
+                  placeholder="Search brands..."
+                  [(ngModel)]="dropdownSearchTerm"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="filterBrandsInDropdown($event)"
+                  (keydown)="onDropdownKeydown($event)"
+                  (focus)="onDropdownSearchFocus()">
+                <mat-icon class="search-icon">search</mat-icon>
+              </div>
+              <div class="dropdown-list" *ngIf="filteredBrands.length > 0">
+                <div
+                  *ngFor="let brand of filteredBrands; let i = index"
+                  class="dropdown-item"
+                  [class.highlighted]="isItemHighlighted(i)"
+                  [class.selected]="isItemSelected(brand.id)"
+                  (click)="selectBrand(brand)"
+                  (mouseenter)="highlightedIndex = i">
+                  <strong>{{ brand.brandName }}</strong>
+                  <small *ngIf="brand.brandProductCode">{{ brand.brandProductCode }}</small>
+                </div>
+              </div>
+              <div class="dropdown-empty" *ngIf="filteredBrands.length === 0">
+                <small>No results found</small>
+              </div>
+            </div>
+          </div>
+          <div class="invalid-feedback" *ngIf="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched">
+            Brand is required.
+          </div>
         </div>
 
         <div class="col">

@@ -279,6 +279,26 @@ select:focus {
   font-size: 14px;
 }
 
+.pager-wrap {
+  width: 100%;
+  padding: 12px 14px;
+  border-top: 1px solid #e7eef6;
+  display: flex;
+  justify-content: flex-end;
+  box-sizing: border-box;
+}
+
+.pager-info {
+  color: var(--muted);
+  font-size: 13px;
+  margin-right: 16px;
+}
+
+::ng-deep .pager-wrap pagination-controls {
+  display: flex;
+  width: auto;
+}
+
 @media (max-width: 980px) {
   .client-shell {
     width: calc(100% - 16px);
@@ -299,5 +319,9 @@ select:focus {
   .mobile-cards {
     display: block;
     padding: 10px;
+  }
+
+  .pager-wrap {
+    padding: 12px 10px;
   }
 }

@@ -58,7 +58,7 @@
             <td colspan="7" class="empty">Loading...</td>
           </tr>
 
-          <tr *ngFor="let b of filtered; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row">
+          <tr *ngFor="let b of filtered | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row">
             <td class="text-left">
               <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
               <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
@@ -92,7 +92,7 @@
     </div>
 
     <div class="mobile-cards">
-      <article class="brand-card" *ngFor="let b of filtered">
+      <article class="brand-card" *ngFor="let b of filtered | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }">
         <div class="card-head">
           <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
           <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
@@ -112,6 +112,11 @@
         </p>
       </article>
       <div class="empty" *ngIf="!loading && filtered.length === 0">No brands found</div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" *ngIf="filtered.length > 0">
+      <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
     </div>
   </div>
 </section>

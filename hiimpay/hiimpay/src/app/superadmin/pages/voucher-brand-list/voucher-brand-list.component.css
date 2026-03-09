@@ -354,4 +354,23 @@ select:focus {
     display: block;
     padding: 10px;
   }
+
+  .pagination-container {
+    padding: 12px 10px;
+  }
 }
+
+.pagination-container {
+  width: 100%;
+  padding: 12px 14px;
+  border-top: 1px solid #e7eef6;
+  display: flex;
+  justify-content: flex-end;
+  box-sizing: border-box;
+}
+
+::ng-deep .pagination-container pagination-controls {
+  display: flex;
+  width: auto;
+}
+

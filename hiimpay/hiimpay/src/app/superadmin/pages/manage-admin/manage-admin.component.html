@@ -42,7 +42,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let admin of filteredAdmins; let i = index" [class.alt-row]="i % 2 === 1">
+          <tr *ngFor="let admin of filteredAdmins | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }; let i = index" [class.alt-row]="i % 2 === 1">
             <td class="text-left admin-name">{{ admin.name }}</td>
             <td class="text-left truncate-cell" [title]="admin.email">{{ admin.email }}</td>
             <!-- <td class="text-center nowrap">{{ admin.contact }}</td>
@@ -67,7 +67,7 @@
     </div>
 
     <div class="mobile-cards">
-      <article class="admin-card" *ngFor="let admin of filteredAdmins">
+      <article class="admin-card" *ngFor="let admin of filteredAdmins | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }">
         <h4>{{ admin.name }}</h4>
         <p class="truncate-cell" [title]="admin.email"><strong>Email:</strong> {{ admin.email }}</p>
         <p><strong>Contact:</strong> {{ admin.contact }}</p>
@@ -88,6 +88,10 @@
           </button>
         </div>
       </article>
+    </div>
+
+    <div class="pagination-container">
+      <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
     </div>
   </div>
 
