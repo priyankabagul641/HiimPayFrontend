@@ -122,7 +122,7 @@ export class ManageAdminComponent implements OnInit {
   }
 
   isValidPhoneNumber(phone: string): boolean {
-    const phoneRegex = /^[0-9]{10,}$/;
+    const phoneRegex = /^[0-9]{10}$/;
     return phoneRegex.test(phone.replace(/\D/g, ''));
   }
 
@@ -281,19 +281,44 @@ export class ManageAdminComponent implements OnInit {
   }
 
   saveEditAdmin() {
+    // Validate required fields
     if (!this.editingAdmin.name || !this.editingAdmin.email) {
       this.toastr.error('Name and email are required.');
       return;
     }
+
+    // Validate email format
+    if (!this.isValidEmail(this.editingAdmin.email)) {
+      this.toastr.error('Please enter a valid email address.');
+      return;
+    }
+
+    // Validate password if provided
+    if (this.editingAdmin.password && !this.isValidPassword(this.editingAdmin.password)) {
+      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, number, and special character (&#64;$!%*?&).');
+      return;
+    }
+
+    // Validate phone number if provided
+    if (this.editingAdmin.contact && !this.isValidPhoneNumber(this.editingAdmin.contact)) {
+      this.toastr.error('Phone number must be at least 10 digits.');
+      return;
+    }
+
     const payload: any = {
+      id:        this.editingAdmin.id,
       fullName:  this.editingAdmin.name,
       email:     this.editingAdmin.email,
       userType:  'ADMIN',
-      status:    this.editingAdmin.active ? 'ACTIVE' : 'INACTIVE'
+      status:    this.editingAdmin.active ? 'ACTIVE' : 'INACTIVE',
+      mobile:    this.editingAdmin.contact,
+      address:   this.editingAdmin.address
     };
+
     if (this.editingAdmin.password) {
       payload['passwordHash'] = this.editingAdmin.password;
     }
+
     this.adminService.updateAdmin(payload, this.editingAdmin.id).subscribe({
       next: (res: any) => {
         if (res?.success !== false) {

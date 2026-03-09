@@ -21,17 +21,17 @@
         </option>
       </select>
 
-      <label class="check-wrap">
+      <!-- <label class="check-wrap">
         <input type="checkbox" [(ngModel)]="inStockOnly" (change)="applyFilters()">
         <span>In Stock Only</span>
-      </label>
+      </label> -->
     </div>
   </div>
 
   <div class="table-card" *ngIf="filtered.length > 0; else emptyState">
     <div class="desktop-table">
       <table class="client-table">
-        <thead style="  background: var(--header-bg);">
+        <thead>
           <tr>
             <th class="col-client text-left">Client Name</th>
             <th class="col-brand text-left">Brand Name</th>

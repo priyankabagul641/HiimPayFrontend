@@ -34,6 +34,7 @@ export class CreateCouponComponent implements OnInit {
   // Real data from APIs
   brands: any[] = [];
   categoriesList: any[] = [];
+  filteredCategories: any[] = [];
 
   // Provider dropdown (loaded from getapi())
   providerNames: string[] = [];
@@ -55,13 +56,11 @@ export class CreateCouponComponent implements OnInit {
       categoryId:     [null, Validators.required],
       productName:    ['', Validators.required],
       couponCode:     ['', Validators.required],
-      serialNo:       [null],
       description:    [''],
-      providerName:   [''],
       discountPercent:[null, [Validators.required, Validators.min(0), Validators.max(100)]],
-      minValue:       [null],
-      maxValue:       [null],
-      denominations:  [''],
+      minValue:       [null, [Validators.min(0)]],
+      maxValue:       [null, [Validators.min(0)]],
+      denominations:  ['', [this.noNegativeNumbersValidator.bind(this)]],
       currencyCode:   ['INR'],
       countryCode:    ['IN'],
       redemptionType: ['ONLINE', Validators.required],
@@ -82,10 +81,9 @@ export class CreateCouponComponent implements OnInit {
       this.couponForm.patchValue({
         brandId:        c.brand?.id || null,
         categoryId:     c.category?.id || null,
-        productName:    c.couponName || c.productName || '',
-        couponCode:     c.couponCode || '',
+        productName:    c.productName || '',
+        couponCode:     c.productCode || '',
         description:    c.description || '',
-        providerName:   c.providerName || '',
         discountPercent:c.discountPercent || null,
         minValue:       c.minValue || null,
         maxValue:       c.maxValue || null,
@@ -128,6 +126,81 @@ export class CreateCouponComponent implements OnInit {
   generateCode() {
     const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
     this.couponForm.patchValue({ couponCode: `CPN-${rand}` });
+  }
+
+  // Custom validator to prevent negative numbers in denominations string
+  noNegativeNumbersValidator(control: any) {
+    if (!control.value) return null;
+    const denominations = control.value.toString().split(',').map((d: string) => d.trim());
+    const hasNegative = denominations.some((d: string) => {
+      const num = parseFloat(d);
+      return isNaN(num) || num < 0;
+    });
+    return hasNegative ? { negativeNumbers: true } : null;
+  }
+
+  // Helper method to check if min value is negative
+  isMinValueNegative(): boolean {
+    const minValue = this.couponForm.get('minValue')?.value;
+    return minValue !== null && minValue !== undefined && minValue < 0;
+  }
+
+  // Helper method to check if max value is negative
+  isMaxValueNegative(): boolean {
+    const maxValue = this.couponForm.get('maxValue')?.value;
+    return maxValue !== null && maxValue !== undefined && maxValue < 0;
+  }
+
+  // Helper method to check if discount is negative
+  isDiscountNegative(): boolean {
+    const discount = this.couponForm.get('discountPercent')?.value;
+    return discount !== null && discount !== undefined && discount < 0;
+  }
+
+  onBrandChange() {
+    const selectedBrandId = this.couponForm.get('brandId')?.value;
+    if (selectedBrandId) {
+      // Call API to get categories for the selected brand
+      this.adminService.getCategoryByCoupounId(selectedBrandId).subscribe({
+        next: (res: any) => {
+          const categoryData = res?.data || {};
+          const categoryNames = Object.keys(categoryData);
+          
+          if (categoryNames.length > 0) {
+            // Create category objects from the response keys and extract categoryId from items
+            this.filteredCategories = categoryNames.map((name: string) => {
+              const items = categoryData[name] || [];
+              // Extract the actual categoryId from the first item in the category array
+              const categoryId = items.length > 0 ? items[0].categoryId : null;
+              return {
+                id: categoryId, // Use actual categoryId (numeric ID)
+                categoryName: name // Display name
+              };
+            });
+            // Auto-select first category
+            this.couponForm.patchValue({ categoryId: this.filteredCategories[0].id });
+          } else {
+            // If no categories, show Uncategorized
+            this.filteredCategories = [
+              { id: null, categoryName: 'Uncategorized' }
+            ];
+            this.couponForm.patchValue({ categoryId: null });
+          }
+        },
+        error: (err: any) => {
+          console.error('getCategoryByCoupounId error:', err);
+          // Fallback to Uncategorized on error
+          this.filteredCategories = [
+            { id: null, categoryName: 'Uncategorized' }
+          ];
+          this.couponForm.patchValue({ categoryId: null });
+          this.toastr.warning('Could not fetch categories, showing Uncategorized');
+        }
+      });
+    } else {
+      this.filteredCategories = [];
+      this.couponForm.patchValue({ categoryId: null });
+    }
   }
 
   onPosterChange(event: any) {
@@ -248,22 +321,53 @@ export class CreateCouponComponent implements OnInit {
       return;
     }
 
+    // Validate no negative values for discount
+    if (form.discountPercent < 0) {
+      this.toastr.error('Discount % cannot be negative.');
+      return;
+    }
+
+    // Validate no negative values for min value
+    if (form.minValue && form.minValue < 0) {
+      this.toastr.error('Min Value cannot be negative.');
+      return;
+    }
+
+    // Validate no negative values for max value
+    if (form.maxValue && form.maxValue < 0) {
+      this.toastr.error('Max Value cannot be negative.');
+      return;
+    }
+
+    // Validate no negative values in denominations
+    if (form.denominations) {
+      const denominations = form.denominations.toString().split(',').map((d: string) => d.trim());
+      const hasNegative = denominations.some((d: string) => {
+        const num = parseFloat(d);
+        return isNaN(num) || num < 0;
+      });
+      if (hasNegative) {
+        this.toastr.error('Denominations cannot contain negative values.');
+        return;
+      }
+    }
+
     const payload: any = {
       productCode:        form.couponCode,
       sku:                form.couponCode,
-      serialNo:           form.serialNo || null,
+      serialNo:           0,
       externalProductId:  `EXT-${form.couponCode}`,
-      providerName:       form.providerName || '',
+      providerName:       "",
       productName:        form.productName,
       brand:              { id: form.brandId },
       category:           { id: form.categoryId },
       description:        form.description || '',
       imageUrl:           form.imageUrl || '',
-      discountPercent:    form.discountPercent,
-      minValue:           form.minValue || 0,
-      maxValue:           form.maxValue || 0,
       redemptionType:     form.redemptionType,
       denominations:      form.denominations || '',
+      minValue:           form.minValue || 0,
+      maxValue:           form.maxValue || 0,
+      discountPercent:    form.discountPercent,
       currencyCode:       form.currencyCode || 'INR',
       countryCode:        form.countryCode || 'IN',
       expiryDate:         form.expiryDate ? new Date(form.expiryDate).toISOString() : '',

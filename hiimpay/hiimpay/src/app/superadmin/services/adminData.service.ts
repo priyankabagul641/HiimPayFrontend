@@ -201,6 +201,59 @@ export class AdminDataService {
     return this.http.get<any>(this.baseUrl + `coupons/${Id}`);
   }
 
+   getCategoryByCoupounId(Id: number) {
+    return this.http.get<any>(this.baseUrl + `brands/${Id}/vouchers-by-category`);
+//     getting responce like this
+//     {
+//   "data": {
+//     "Fashion": [
+//       {
+//         "id": 35,
+//         "sku": "ZARA-ES-GC-100",
+//         "productName": "Zara Spain Gift Card €100",
+//         "providerName": "MANUAL_UPLOAD",
+//         "minValue": 25,
+//         "maxValue": 1000,
+//         "discountPercent": 7,
+//         "status": "Active",
+//         "categoryId": 2,
+//         "categoryName": "Fashion"
+//       }
+//     ],
+//     "Uncategorized": [
+//       {
+//         "id": 36,
+//         "sku": "ZARA-ES-GC-101",
+//         "productName": "Zara Spain Gift Card €100",
+//         "providerName": "MANUAL_UPLOAD",
+//         "minValue": 25,
+//         "maxValue": 1000,
+//         "discountPercent": 7,
+//         "status": "Active",
+//         "categoryId": 2,
+//         "categoryName": null
+//       }
+//     ],
+//     "Groceries": [
+//       {
+//         "id": 37,
+//         "sku": "ZARA-ES-GC-1004",
+//         "productName": "Zara Spain Gift Card €100",
+//         "providerName": "MANUAL_UPLOAD",
+//         "minValue": 25,
+//         "maxValue": 1000,
+//         "discountPercent": 7,
+//         "status": "Active",
+//         "categoryId": 5,
+//         "categoryName": "Groceries"
+//       }
+//     ]
+//   },
+//   "message": "Brand vouchers grouped by category fetched successfully",
+//   "success": true
+// }
+  }
+
  updateCoupoun(id: number, obj: any): Observable<any> {
     return this.http.put<any>(this.baseUrl + `coupons/${id}`, obj);
   }
@@ -576,7 +629,7 @@ export class AdminDataService {
   }
 
        updateAdmin(obj: any,id:any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `users/admin/${id}`, obj);
+    return this.http.post<any>(this.baseUrl + `users/admin`, obj);
     //obj should be like this
 //     {
 //   "fullName": "System Administrator",

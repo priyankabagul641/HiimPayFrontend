@@ -103,6 +103,12 @@
             <span *ngIf="!isCollapsed">New company</span>
           </span>
         </a>
+            <a mat-list-item routerLink="voucher/brands" routerLinkActive="active-link">
+                <span class="entry">
+                  <mat-icon>storefront</mat-icon>
+                  <span *ngIf="!isCollapsed">Brands</span>
+                </span>
+              </a>
         <a mat-list-item routerLink="./sup-survey" routerLinkActive="active-link">
           <span class="entry">
             <mat-icon>local_offer</mat-icon>
@@ -129,12 +135,7 @@
             <span *ngIf="!isCollapsed">Voucher Dashboard</span>
           </span>
         </a> -->
-              <a mat-list-item routerLink="voucher/brands" routerLinkActive="active-link">
-                <span class="entry">
-                  <mat-icon>storefront</mat-icon>
-                  <span *ngIf="!isCollapsed">Brands</span>
-                </span>
-              </a>
+          
               <a mat-list-item routerLink="voucher/client-brands" routerLinkActive="active-link">
                 <span class="entry">
                   <mat-icon>view_list</mat-icon>

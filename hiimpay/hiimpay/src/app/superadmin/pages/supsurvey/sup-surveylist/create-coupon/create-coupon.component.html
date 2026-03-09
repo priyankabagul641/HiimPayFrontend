@@ -1,7 +1,12 @@
 <div class="create-coupon-dialog">
 
-  <h2 class="title">Create Coupon</h2>
-  <p class="subtitle">Choose your preferred method to add coupons</p>
+  <div class="dialog-header">
+    <div>
+      <h2 class="title">Create Coupon</h2>
+      <p class="subtitle">Choose your preferred method to add coupons</p>
+    </div>
+    <button type="button" class="close-btn" (click)="cancel()">&times;</button>
+  </div>
 
   <!-- Tabs -->
   <div class="tabs">
@@ -28,7 +33,8 @@
         <div class="col">
           <label>Brand <span class="text-danger">*</span></label>
           <select formControlName="brandId" class="form-control"
-                  [class.is-invalid]="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched">
+                  [class.is-invalid]="couponForm.get('brandId')?.invalid && couponForm.get('brandId')?.touched"
+                  (change)="onBrandChange()">
             <option [ngValue]="null" disabled>Select brand</option>
             <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.brandName }}</option>
           </select>
@@ -40,7 +46,7 @@
           <select formControlName="categoryId" class="form-control"
                   [class.is-invalid]="couponForm.get('categoryId')?.invalid && couponForm.get('categoryId')?.touched">
             <option [ngValue]="null" disabled>Select category</option>
-            <option *ngFor="let cat of categoriesList" [ngValue]="cat.id">{{ cat.categoryName }}</option>
+            <option *ngFor="let cat of filteredCategories" [ngValue]="cat.id">{{ cat.categoryName }}</option>
           </select>
           <div class="invalid-feedback">Category is required.</div>
         </div>
@@ -52,13 +58,15 @@
 
       <div class="row">
         <div class="col">
-          <label>Product Name <span class="text-danger">*</span></label>
+          <label>Coupon Name <span class="text-danger">*</span></label>
           <input formControlName="productName" class="form-control"
                  placeholder="e.g. Amazon 50% Discount"
                  [class.is-invalid]="couponForm.get('productName')?.invalid && couponForm.get('productName')?.touched">
-          <div class="invalid-feedback">Product name is required.</div>
+          <div class="invalid-feedback">Coupon name is required.</div>
         </div>
+      </div>
 
+      <div class="row mt-2">
         <div class="col">
           <label>Coupon Code <span class="text-danger">*</span></label>
           <div class="d-flex">
@@ -74,18 +82,6 @@
                *ngIf="couponForm.get('couponCode')?.invalid && couponForm.get('couponCode')?.touched">
             Coupon code is required.
           </div>
-        </div>
-      </div>
-
-      <div class="row mt-2">
-        <div class="col">
-          <label>Provider Name</label>
-          <input formControlName="providerName" class="form-control" placeholder="e.g. Amazon API">
-        </div>
-
-        <div class="col">
-          <label>Serial No</label>
-          <input type="number" formControlName="serialNo" class="form-control" placeholder="e.g. 20001">
         </div>
       </div>
 
@@ -109,19 +105,31 @@
 
         <div class="col">
           <label>Min Value</label>
-          <input type="number" formControlName="minValue" class="form-control" min="0" placeholder="0">
+          <input type="number" formControlName="minValue" class="form-control" min="0" placeholder="0"
+                 [class.is-invalid]="couponForm.get('minValue')?.hasError('min') && couponForm.get('minValue')?.touched">
+          <div class="invalid-feedback" *ngIf="couponForm.get('minValue')?.hasError('min') && couponForm.get('minValue')?.touched">
+            ✗ Min Value cannot be negative
+          </div>
         </div>
 
         <div class="col">
           <label>Max Value</label>
-          <input type="number" formControlName="maxValue" class="form-control" min="0" placeholder="0">
+          <input type="number" formControlName="maxValue" class="form-control" min="0" placeholder="0"
+                 [class.is-invalid]="couponForm.get('maxValue')?.hasError('min') && couponForm.get('maxValue')?.touched">
+          <div class="invalid-feedback" *ngIf="couponForm.get('maxValue')?.hasError('min') && couponForm.get('maxValue')?.touched">
+            ✗ Max Value cannot be negative
+          </div>
         </div>
       </div>
 
       <div class="row mt-2">
         <div class="col">
           <label>Denominations</label>
-          <input formControlName="denominations" class="form-control" placeholder="e.g. 100,500,1000">
+          <input formControlName="denominations" class="form-control" placeholder="e.g. 100,500,1000"
+                 [class.is-invalid]="couponForm.get('denominations')?.hasError('negativeNumbers') && couponForm.get('denominations')?.touched">
+          <div class="invalid-feedback" *ngIf="couponForm.get('denominations')?.hasError('negativeNumbers') && couponForm.get('denominations')?.touched">
+            ✗ Denominations cannot contain negative values
+          </div>
         </div>
 
         <div class="col">
@@ -192,8 +200,8 @@
     </div>
 
     <div class="actions">
-      <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
-      <button class="btn btn-primary">Upload Excel</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="button" class="btn btn-primary">Upload Excel</button>
     </div>
 
   </div>
@@ -259,8 +267,8 @@
     <small class="hint" *ngIf="pullMessage">{{ pullMessage }}</small>
 
     <div class="actions">
-      <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
-      <button class="btn btn-primary" [disabled]="isSaving || !selectedProviderName" (click)="saveApiSetup()">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="button" class="btn btn-primary" [disabled]="isSaving || !selectedProviderName" (click)="saveApiSetup()">
         {{ isSaving ? 'Saving...' : 'Save' }}
       </button>
     </div>

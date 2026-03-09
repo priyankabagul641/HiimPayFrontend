@@ -101,78 +101,132 @@
 
 <div class="modal-backdrop" *ngIf="showCreatePopup">
   <div class="modal-box">
-    <h4>Create Admin</h4>
+    <div class="modal-header">
+      <h4>Create Admin</h4>
+      <button type="button" class="close-btn" (click)="showCreatePopup=false">&times;</button>
+    </div>
 
-    <input class="modal-input" placeholder="Name" [(ngModel)]="newAdmin.name">
+    <div class="form-group">
+      <label for="create-name" class="form-label">Full Name <span class="required">*</span></label>
+      <input id="create-name" class="modal-input" placeholder="Enter full name" [(ngModel)]="newAdmin.name">
+    </div>
 
-    <div>
-      <input class="modal-input" placeholder="Email" [(ngModel)]="newAdmin.email">
+    <div class="form-group">
+      <label for="create-email" class="form-label">Email <span class="required">*</span></label>
+      <input id="create-email" class="modal-input" type="email" placeholder="Enter email (e.g., admin@example.com)" [(ngModel)]="newAdmin.email">
       <small class="error-text" *ngIf="newAdmin.email && !isValidEmail(newAdmin.email)">
-        Please enter a valid email address (e.g., admin&#64;example.com)
+        ✗ Please enter a valid email address
       </small>
     </div>
 
-    <div>
-      <input class="modal-input" type="password" placeholder="Password" [(ngModel)]="newAdmin.password">
+    <div class="form-group">
+      <label for="create-password" class="form-label">Password <span class="required">*</span></label>
+      <input id="create-password" class="modal-input" type="password" placeholder="Enter password" [(ngModel)]="newAdmin.password">
       <small class="hint-text" *ngIf="newAdmin.password">
-        Password strength: 
-        <span [ngClass]="getPasswordStrength(newAdmin.password) === 'strong' ? 'strong' : getPasswordStrength(newAdmin.password) === 'medium' ? 'medium' : 'weak'">
+        Strength: 
+        <span [ngClass]="'strength-' + (getPasswordStrength(newAdmin.password) | lowercase)">
           {{ getPasswordStrength(newAdmin.password) | uppercase }}
         </span>
       </small>
       <small class="error-text" *ngIf="newAdmin.password && !isValidPassword(newAdmin.password)">
-        Password must be at least 8 characters with uppercase, lowercase, number, and special character (&#64;$!%*?&)
+        ✗ Min 8 chars: uppercase, lowercase, number, special char (&#64;$!%*?&)
       </small>
     </div>
 
-    <div>
-      <input class="modal-input" placeholder="Contact Number (10+ digits)" [(ngModel)]="newAdmin.contact">
+    <div class="form-group">
+      <label for="create-contact" class="form-label">Mobile Number</label>
+      <input id="create-contact" class="modal-input" type="tel" placeholder="Enter 10 digit mobile number" [(ngModel)]="newAdmin.contact">
       <small class="error-text" *ngIf="newAdmin.contact && !isValidPhoneNumber(newAdmin.contact)">
-        Phone number must be at least 10 digits
+        ✗ Phone number must be exactly 10 digits
       </small>
     </div>
 
-    <textarea class="modal-input modal-textarea" placeholder="Address" [(ngModel)]="newAdmin.address"></textarea>
+    <div class="form-group">
+      <label for="create-address" class="form-label">Address</label>
+      <textarea id="create-address" class="modal-input modal-textarea" placeholder="Enter address" [(ngModel)]="newAdmin.address"></textarea>
+    </div>
 
     <label class="checkbox-row">
       <input type="checkbox" [(ngModel)]="newAdmin.active">
-      <span>Active</span>
+      <span>Set as Active</span>
     </label>
 
     <div class="modal-actions">
       <button type="button" class="secondary-btn" (click)="showCreatePopup=false">Cancel</button>
       <button type="button" class="primary-btn" 
               [disabled]="!newAdmin.name || !isValidEmail(newAdmin.email) || !isValidPassword(newAdmin.password) || (newAdmin.contact && !isValidPhoneNumber(newAdmin.contact))"
-              (click)="createAdmin()">Save</button>
+              (click)="createAdmin()">Create Admin</button>
     </div>
   </div>
 </div>
 
 <div class="modal-backdrop" *ngIf="showEditPopup">
   <div class="modal-box">
-    <h4>Edit Admin</h4>
+    <div class="modal-header">
+      <h4>Edit Admin</h4>
+      <button type="button" class="close-btn" (click)="showEditPopup=false">&times;</button>
+    </div>
 
-    <input class="modal-input" placeholder="Name" [(ngModel)]="editingAdmin.name">
-    <input class="modal-input" placeholder="Email" [(ngModel)]="editingAdmin.email">
-    <input class="modal-input" type="password" placeholder="New Password (leave blank to keep current)" [(ngModel)]="editingAdmin.password">
-    <input class="modal-input" placeholder="Contact Number" [(ngModel)]="editingAdmin.contact">
-    <textarea class="modal-input modal-textarea" placeholder="Address" [(ngModel)]="editingAdmin.address"></textarea>
+    <div class="form-group">
+      <label for="edit-name" class="form-label">Full Name <span class="required">*</span></label>
+      <input id="edit-name" class="modal-input" placeholder="Enter full name" [(ngModel)]="editingAdmin.name">
+    </div>
+
+    <div class="form-group">
+      <label for="edit-email" class="form-label">Email <span class="required">*</span></label>
+      <input id="edit-email" class="modal-input" type="email" placeholder="Enter email" [(ngModel)]="editingAdmin.email">
+      <small class="error-text" *ngIf="editingAdmin.email && !isValidEmail(editingAdmin.email)">
+        ✗ Please enter a valid email address
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="edit-password" class="form-label">New Password</label>
+      <input id="edit-password" class="modal-input" type="password" placeholder="Leave blank to keep current password" [(ngModel)]="editingAdmin.password">
+      <small class="hint-text" *ngIf="editingAdmin.password">
+        Strength: 
+        <span [ngClass]="'strength-' + (getPasswordStrength(editingAdmin.password) | lowercase)">
+          {{ getPasswordStrength(editingAdmin.password) | uppercase }}
+        </span>
+      </small>
+      <small class="error-text" *ngIf="editingAdmin.password && !isValidPassword(editingAdmin.password)">
+        ✗ Min 8 chars: uppercase, lowercase, number, special char (&#64;$!%*?&)
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="edit-contact" class="form-label">Mobile Number</label>
+      <input id="edit-contact" class="modal-input" type="tel" placeholder="Enter 10 digit mobile number" [(ngModel)]="editingAdmin.contact">
+      <small class="error-text" *ngIf="editingAdmin.contact && !isValidPhoneNumber(editingAdmin.contact)">
+        ✗ Phone number must be exactly 10 digits
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="edit-address" class="form-label">Address</label>
+      <textarea id="edit-address" class="modal-input modal-textarea" placeholder="Enter address" [(ngModel)]="editingAdmin.address"></textarea>
+    </div>
 
     <label class="checkbox-row">
       <input type="checkbox" [(ngModel)]="editingAdmin.active">
-      <span>Active</span>
+      <span>Set as Active</span>
     </label>
 
     <div class="modal-actions">
       <button type="button" class="secondary-btn" (click)="showEditPopup=false">Cancel</button>
-      <button type="button" class="primary-btn" (click)="saveEditAdmin()">Update</button>
+      <button type="button" class="primary-btn" 
+              [disabled]="!editingAdmin.name || !isValidEmail(editingAdmin.email) || (editingAdmin.password && !isValidPassword(editingAdmin.password)) || (editingAdmin.contact && !isValidPhoneNumber(editingAdmin.contact))"
+              (click)="saveEditAdmin()">Update Admin</button>
     </div>
   </div>
 </div>
 
 <div class="modal-backdrop" *ngIf="showAccessPopup && selectedAdmin">
   <div class="modal-box">
-    <h4>Manage Access - {{ selectedAdmin.name }}</h4>
+    <div class="modal-header">
+      <h4>Manage Access - {{ selectedAdmin.name }}</h4>
+      <button type="button" class="close-btn" (click)="showAccessPopup=false">&times;</button>
+    </div>
 
     <div class="permissions-grid">
       <label><input type="checkbox" [(ngModel)]="selectedAdmin.permissions.dashboard"> Dashboard</label>

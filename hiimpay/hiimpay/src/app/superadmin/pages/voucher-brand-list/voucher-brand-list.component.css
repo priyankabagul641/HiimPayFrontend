@@ -3,6 +3,7 @@
   --muted: #59718f;
   --line: #dbe5f1;
   --surface: #ffffff;
+  --brand: #103a7f;
   --soft-bg: #f4f7fb;
   --header-bg: #edf3fa;
   display: block;
@@ -54,13 +55,13 @@
 }
 
 .primary-btn {
-  background: #1d4ed8;
+  background: #103a7f;
   color: #fff;
   box-shadow: 0 1px 3px rgba(13, 36, 70, 0.24);
 }
 
 .primary-btn:hover {
-  background: #1b43b8;
+  background: #103a7f;
 }
 
 .secondary-btn {
@@ -142,13 +143,21 @@ select:focus {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--header-bg);
-  color: #2f4c6d;
+  background: var(--brand);
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
+}
+
+/* Keep voucher brand table header consistent with coupon table layout */
+.brand-table thead tr th {
+  display: table-cell;
+  vertical-align: middle;
+  color: #ffffff !important;
+  background: var(--brand);
 }
 
 .brand-table tbody tr.alt-row td {

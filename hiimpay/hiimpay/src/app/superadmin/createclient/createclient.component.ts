@@ -16,6 +16,7 @@ export class CreateclientComponent {
   createForm!: FormGroup;
   buttonName: any = 'Create'
   consultants:any;
+  selectedLogoName: string = '';
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
    private dialogRef: MatDialogRef<CreateclientComponent>, 
    private fb: FormBuilder, private api: ApiService, private toastr: ToastrService,
@@ -46,6 +47,7 @@ export class CreateclientComponent {
       second_Contact_Email: ['', [Validators.pattern(new RegExp('^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$', 'i'))]],
       mobile_Number1: ['', [Validators.required, Validators.pattern('^[6-9]\\d{9}$')]],
       mobile_Number2: ['', [Validators.pattern('^$|^[6-9]\\d{9}$')]],
+      companyLogo: [''],
       // landline_Number: ['', [Validators.pattern('^$|^\\d{6,15}$')]],
       // location: [''],
       status: [''],
@@ -73,6 +75,7 @@ export class CreateclientComponent {
             contactEmail2: form.second_Contact_Email || '',
             contactMobile: form.mobile_Number1,
             contactMobile2: form.mobile_Number2 || '',
+            companyLogo: form.companyLogo || '',
             status: form.status || 'ACTIVE',
             // consultingPhase: form.location || '',
             // isSharedJourneyMap: true,
@@ -114,6 +117,7 @@ export class CreateclientComponent {
             contactEmail2: form.second_Contact_Email || '',
             contactMobile: form.mobile_Number1,
             contactMobile2: form.mobile_Number2 || '',
+            companyLogo: form.companyLogo || '',
             status: form.status || 'ACTIVE',
             consultingPhase: form.location || '',
             isSharedJourneyMap: true,
@@ -224,9 +228,40 @@ export class CreateclientComponent {
           industry: company.industry || '',
           location: company.consultingPhase || '',
           status: company.status || 'ACTIVE',
+          companyLogo: company.companyLogo || '',
         });
+        this.selectedLogoName = company.companyLogo ? 'Current logo available' : '';
       }
     });
+  }
+
+  onCompanyLogoChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length ? input.files[0] : null;
+
+    if (!file) {
+      this.selectedLogoName = '';
+      this.createForm.patchValue({ companyLogo: '' });
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.toastr.error('Please select a valid image file.');
+      input.value = '';
+      return;
+    }
+
+    this.selectedLogoName = file.name;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.createForm.patchValue({ companyLogo: reader.result as string });
+    };
+    reader.onerror = () => {
+      this.toastr.error('Unable to read logo file.');
+      this.selectedLogoName = '';
+      this.createForm.patchValue({ companyLogo: '' });
+    };
+    reader.readAsDataURL(file);
   }
 
   onUpdate(){
