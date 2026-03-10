@@ -2,6 +2,24 @@
   padding: 16px;
 }
 
+.brands-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.brands-table th,
+.brands-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e6edf6;
+  text-align: left;
+  font-size: 13px;
+}
+.brands-table thead th {
+  font-weight: 700;
+  color: #1d3557;
+  background: #f7f9fc;
+}
+.brands-table-wrap h4 { margin: 8px 0 10px; }
+
 .head {
   display: flex;
   justify-content: space-between;

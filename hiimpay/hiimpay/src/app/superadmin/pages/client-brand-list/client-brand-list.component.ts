@@ -33,11 +33,14 @@ export class ClientBrandListPageComponent implements OnInit {
   page: number = 1;
   itemPerPage: number = 10;
   totalItems: number = 0;
+ isLoading = false;
+   brands: any[] = [];
 
   constructor(
     private router: Router,
     private dialog: MatDialog,
-    private adminService: AdminDataService
+    private adminService: AdminDataService,
+
   ) {}
 
   ngOnInit(): void {
@@ -133,32 +136,84 @@ export class ClientBrandListPageComponent implements OnInit {
     return Math.min(upper, this.totalItems || 0);
   }
 
+  loadBrands(companyId?: string) {
+    if (!companyId) {
+      console.warn('loadBrands called without companyId');
+      return;
+    }
+    this.isLoading = true;
+    this.adminService.brandsByCompanyID(companyId).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        this.brands = (res.data || []).map((b: any) => ({
+          id: b.id,
+          brandProductCode: b.brandProductCode || '',
+          brandSku: b.brandSku || '',
+          name: b.brandName || '',
+          brandType: b.brandType || '',
+          onlineRedemptionUrl: b.onlineRedemptionUrl || '',
+          brandImage: b.brandImage || '',
+          epayMinValue: b.epayMinValue ?? 0,
+          epayMaxValue: b.epayMaxValue ?? 0,
+          epayDiscount: b.epayDiscount ?? 0,
+          stockAvailable: b.stockAvailable ?? false,
+          categories: b.serviceType ? [b.serviceType] : []
+        }));
+        this.applyFilters();
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        console.error('loadBrands error:', err);
+      }
+    });
+  }
+
+
   openCoupons(item: ClientBrand) {
     this.router.navigate(['superadmin', 'project', item.clientId, 'client-coupons', item.brandId]);
   }
 
   openBrandCategoryCoupons(clientId: string, item: ClientBrand, event: MouseEvent) {
     event.stopPropagation();
-    const requestId = item.brandId || clientId || item.clientId;
-
     this.loading = true;
-    this.adminService.getClientBrandById(requestId).subscribe({
+    // Fetch all brands for the company and show them in the dialog as a table
+    this.adminService.brandsByCompanyID(clientId).subscribe({
       next: (res: any) => {
         this.loading = false;
-        const brandDetails = (res && res.data) ? res.data : res;
-        this.openBrandDialog(item, brandDetails);
+        const brands = (res && (res.data || res.items || res)) ? (res.data || res.items || res) : [];
+        // normalize minimal brand info
+        const normalized = (brands || []).map((b: any) => ({
+          id: b.id || b.brandId || b.brand_id || '',
+          name: b.brandName || b.name || b.brand_name || '',
+          brandProductCode: b.brandProductCode || b.brandProductCode || '',
+          brandSku: b.brandSku || b.sku || b.brandProductCode || '' ,
+          stockAvailable: b.stockAvailable ?? b.inStock ?? false,
+          epayDiscount: b.epayDiscount ?? b.discount ?? null,
+          epayMaxValue: b.epayMaxValue ?? b.maxValue ?? null,
+          epayMinValue: b.epayMinValue ?? b.minValue ?? null,
+          brandType: b.brandType || b.type || ''
+        }));
+
+        this.dialog.open(BrandCategoryCouponsDialogComponent, {
+          width: '900px',
+          data: {
+            companyId: clientId,
+            companyName: item.clientName,
+            brands: normalized
+          }
+        });
       },
       error: (err: any) => {
         this.loading = false;
-        console.error('getClientBrandById error', err);
-        this.openBrandDialog(item, {
-          id: requestId || '-',
-          brandName: item.brandName,
-          brandProductCode: item.brandProductCode,
-          brandSku: item.brandSku,
-          epayMinValue: item.epayMinValue,
-          epayMaxValue: item.epayMaxValue,
-          stockAvailable: item.stockAvailable
+        console.error('brandsByCompanyID error:', err);
+        // Open dialog with empty brands if call fails
+        this.dialog.open(BrandCategoryCouponsDialogComponent, {
+          width: '900px',
+          data: {
+            companyId: clientId,
+            companyName: item.clientName,
+            brands: []
+          }
         });
       }
     });

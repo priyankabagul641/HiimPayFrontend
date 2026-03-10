@@ -44,12 +44,14 @@
                 <img class="api-logo" [src]="item.companyLogo" alt="logo">    
                     
               </td>
-              <td class="text-left align-middle">
-                <button class="company-link" (click)="setClientId($event, item.id)" [title]="item.companyName || item.clientName">
+              <td class="text-left align-middle truncate-cell col-company" [title]="item.companyName || item.clientName">
+                <button class="company-link truncate-cell" (click)="setClientId($event, item.id)" [title]="item.companyName || item.clientName">
                   {{ item.companyName || item.clientName }}
                 </button>
               </td>
-              <td class="text-center align-middle nowrap">{{ item.industry || '-' }}</td>
+              <td class="text-center align-middle truncate-cell col-industry" [title]="item.industry || '-'">
+                <span class="truncate-inner">{{ item.industry || '-' }}</span>
+              </td>
               <td class="text-center align-middle nowrap">{{ item.mobileNumber1 || item.mobile_Number1 || item.contactMobile || '-' }}</td>
               <td class="text-left align-middle truncate-cell" [title]="item.contactEmail || '-'">
                 {{ item.contactEmail || '-' }}
@@ -85,7 +87,7 @@
                   </div>
                   <div>
                     <p>Contact Name</p>
-                    <span>{{ item.contactName || item.contact_Name || '-' }}</span>
+                    <span class="truncate-cell" [title]="item.contactName || item.contact_Name || '-'">{{ item.contactName || item.contact_Name || '-' }}</span>
                   </div>
                   <div>
                     <p>Second Email</p>
@@ -118,7 +120,7 @@
           </button>
         </div>
 
-        <button class="company-link mobile-link" (click)="setClientId($event, item.id)">
+        <button class="company-link mobile-link truncate-cell" (click)="setClientId($event, item.id)" [title]="item.companyName || item.clientName">
           {{ item.companyName || item.clientName }}
         </button>
 
@@ -130,7 +132,7 @@
         <div class="mobile-details" *ngIf="isExpanded(item.id)">
           <div class="mobile-row"><strong>Registered Address:</strong> <span [title]="item.registeredAddress || '-'">{{ item.registeredAddress || '-' }}</span></div>
           <div class="mobile-row"><strong>Mobile 2:</strong> <span>{{ item.mobileNumber2 || item.mobile_Number2 || '-' }}</span></div>
-          <div class="mobile-row"><strong>Industry:</strong> <span>{{ item.industry || '-' }}</span></div>
+          <div class="mobile-row"><strong>Industry:</strong> <span class="truncate-cell" [title]="item.industry || '-'">{{ item.industry || '-' }}</span></div>
           <div class="mobile-row truncate-cell">
             <strong>Second Email:</strong>
             <span [title]="item.secondContactEmail || item.second_Contact_Email || item.contactEmail2 || item.secondaryEmail || '-'">

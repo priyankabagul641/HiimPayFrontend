@@ -239,9 +239,31 @@
 }
 
 .truncate-cell {
+  /* Keep as table cell-compatible: do NOT change display */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Use this for inline elements inside cells so ellipsis works without altering table layout */
+.truncate-inner {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.col-industry { width: 160px; }
+
+/* Industry multi-line clamp (max 2 lines) */
+.industry-cell {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nowrap {

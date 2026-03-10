@@ -68,7 +68,7 @@
         <p>
           <strong>Status:</strong>
           <span class="status-badge" [class.badge-active]="brand.stockAvailable" [class.badge-inactive]="!brand.stockAvailable">
-            {{ brand.stockAvailable ? 'In Stock' : 'Out of Stock' }}
+            {{ brand.stockAvailable ? 'Active' : 'Inactive' }}
           </span>
         </p>
         <button type="button" class="icon-btn" title="View" (click)="openBrandCategoryCoupons(brand, $event)">

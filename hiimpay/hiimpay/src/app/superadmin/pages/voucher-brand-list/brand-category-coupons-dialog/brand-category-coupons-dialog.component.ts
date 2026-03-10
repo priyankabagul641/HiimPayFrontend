@@ -7,11 +7,19 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./brand-category-coupons-dialog.component.css']
 })
 export class BrandCategoryCouponsDialogComponent {
+  public brands: any[] = [];
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<BrandCategoryCouponsDialogComponent>
   ) {
     console.log('BrandCategoryCouponsDialogComponent received data:', data);
+
+    // if brands array passed, use it (company brands view)
+    if (Array.isArray(data?.brands) && data.brands.length > 0) {
+      this.brands = data.brands;
+      return;
+    }
 
     if (!this.data) {
       this.data = { brand: { name: '', brandSku: '', categories: [] }, categoryCoupons: [] };

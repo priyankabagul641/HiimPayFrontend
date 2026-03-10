@@ -1,7 +1,7 @@
 <div class="brand-coupon-modal">
   <div class="head">
     <div>
-      <h3>{{ data?.brand?.name || 'Brand Details' }}</h3>
+      <!-- <h3>{{ data?.brand?.name || 'Brand Details' }}</h3> -->
       <!-- <div class="subline">Brand SKU: {{ data?.brand?.brandSku || '-' }}</div> -->
     </div>
     <button type="button" class="close-btn" (click)="close()">&times;</button>
@@ -11,7 +11,40 @@
     <span class="chip" *ngFor="let c of data.brand.categories">{{ c }}</span>
   </div>
 
-  <div class="client-card">
+    <!-- If brands array provided (company brands view), render a simple brands table -->
+    <div *ngIf="brands && brands.length" class="brands-table-wrap">
+      <h4>Company Brands ({{ brands.length }})</h4>
+      <table class="brands-table">
+        <thead style="background-color:#1d3557;color:#ffffff">
+          <tr>
+            <th>Brand ID</th>
+            <th>Brand Name</th>
+            <th>SKU</th>
+            <th>Discount</th>
+            <th>Max/Min Value</th>
+            <th>Brand Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of brands">
+            <td>{{ b.id || '-' }}</td>
+            <td>{{ b.name || '-' }}</td>
+            <td>{{ b.brandSku || '-' }}</td>
+            <td>{{ b.epayDiscount ?? '-' }}</td>
+            <td>{{ (b.epayMaxValue ?? '-') + ' / ' + (b.epayMinValue ?? '-') }}</td>
+            <td>{{ b.brandType || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- If brands array is present but empty, show not-available message -->
+    <div *ngIf="brands && brands.length === 0" class="no-brands">
+      <p>No brands are available for this company.</p>
+    </div>
+
+    <!-- If no brands array provided, show single brand details (legacy behavior) -->
+    <div *ngIf="!brands" class="client-card">
     <h4>Brand Details</h4>
     <div class="client-grid">
       <div><span>Brand ID</span><p>{{ data?.brand?.id || '-' }}</p></div>

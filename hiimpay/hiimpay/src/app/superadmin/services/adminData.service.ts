@@ -73,7 +73,60 @@ export class AdminDataService {
   }
 
 // COUPOUN DASHBOARD ENDPOINTS
-
+  brandsByCompanyID(id: any) {
+    return this.http.get<any>(this.baseUrl + `companies/${id}/brands`);
+//     getting responce like this
+// {
+//   "data": [
+//     {
+//       "id": 2,
+//       "brandName": "UrbanStyle Fashion",
+//       "brandProductCode": "USF-GIFT-2026",
+//       "brandSku": "USF-SKU-450",
+//       "sku": "USF-450-IND",
+//       "brandType": "Retail",
+//       "onboardingType": "ONLINE",
+//       "redemptionType": "ONLINE",
+//       "onlineRedemptionUrl": "https://urbanstyle.com/redeem",
+//       "brandImage": "https://example.com/images/urbanstyle-logo.png",
+//       "epayMinValue": 100,
+//       "epayMaxValue": 5000,
+//       "epayDiscount": 20,
+//       "serviceType": "Gift Voucher",
+//       "stockAvailable": true,
+//       "description": "UrbanStyle Fashion gift vouchers valid on all online purchases.",
+//       "tnc": "Valid for one-time use only. Cannot be combined with other promotional codes.",
+//       "importantInstruction": "Apply voucher code at checkout before making payment.",
+//       "createdAt": "2026-02-01T10:00:00",
+//       "updatedAt": "2026-02-24T18:55:26.847"
+//     },
+//     {
+//       "id": 3,
+//       "brandName": "Amazon",
+//       "brandProductCode": "AMZ-2026-001",
+//       "brandSku": "AMA002",
+//       "sku": "AMZSKU001",
+//       "brandType": "E-COMMERCE",
+//       "onboardingType": "API",
+//       "redemptionType": "ONLINE",
+//       "onlineRedemptionUrl": "https://www.amazon.in/redeem",
+//       "brandImage": "https://example.com/images/brands/amazon.png",
+//       "epayMinValue": 100,
+//       "epayMaxValue": 10000,
+//       "epayDiscount": 5,
+//       "serviceType": "GIFT_CARD",
+//       "stockAvailable": true,
+//       "description": "Amazon gift cards usable across all categories.",
+//       "tnc": "Valid for 12 months from date of issue. Cannot be redeemed for cash.",
+//       "importantInstruction": "Use the code at checkout to apply balance.",
+//       "createdAt": "2026-02-25T12:00:00",
+//       "updatedAt": "2026-02-25T10:50:25.991"
+//     }
+//   ],
+//   "message": "Brands fetched successfully",
+//   "success": true
+// }
+  }
   getAllCoupouns(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `coupons`);
 //     getting responce like this
