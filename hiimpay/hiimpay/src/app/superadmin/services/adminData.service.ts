@@ -370,6 +370,12 @@ export class AdminDataService {
   }
 
   // BRANDS
+
+ createBrand(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `brands`, obj);
+  }
+
+
   getAllBrands(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `brands`);
     // expected response shape:

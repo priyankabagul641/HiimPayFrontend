@@ -1,0 +1,126 @@
+<div class="manualbrand-dialog">
+	<div class="dialog-header">
+		<div>
+			<h2 class="title">Create Manual Brand</h2>
+			<p class="subtitle">Add a brand manually</p>
+		</div>
+		<button type="button" class="close-btn" (click)="cancel()">&times;</button>
+	</div>
+
+	<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-body">
+		<div class="section">
+			<div class="row">
+				<div class="col">
+					<label>Brand Name <span class="text-danger">*</span></label>
+					<input class="form-control" type="text" formControlName="brandName" />
+					<small class="error" *ngIf="getControl('brandName')?.touched && getControl('brandName')?.hasError('required')">Brand Name is required</small>
+				</div>
+			</div>
+
+			<div class="row two-cols">
+				<div class="col">
+					<label>Brand Product Code <span class="text-danger">*</span></label>
+					<input class="form-control" type="text" formControlName="brandProductCode" />
+					<small class="error" *ngIf="getControl('brandProductCode')?.touched && getControl('brandProductCode')?.hasError('required')">Brand Product Code is required</small>
+				</div>
+				<div class="col">
+					<label>Brand Image</label>
+					<input #fileInput class="form-control" type="file" (change)="onFileSelected($event)" accept="image/*" />
+					<div *ngIf="brandImagePreview" class="img-preview-wrap">
+						<img [src]="brandImagePreview" class="img-preview" alt="preview"/>
+						<button type="button" class="btn btn-secondary small" (click)="removeSelectedImage()">Remove</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="row two-cols">
+				<!-- duplicate image input removed -->
+			</div>
+
+			<div class="row two-cols">
+				<div class="col">
+					<label>Brand Type <span class="text-danger">*</span></label>
+					<input class="form-control" type="text" formControlName="brandType" />
+					<small class="error" *ngIf="getControl('brandType')?.touched && getControl('brandType')?.hasError('required')">Brand Type is required</small>
+				</div>
+				<div class="col">
+					<label>Redemption Type <span class="text-danger">*</span></label>
+					<select class="form-control" formControlName="redemptionType">
+						<option value="ONLINE">Online</option>
+						<option value="OFFLINE">Offline</option>
+					</select>
+					<small class="error" *ngIf="getControl('redemptionType')?.touched && getControl('redemptionType')?.hasError('required')">Redemption Type is required</small>
+				</div>
+			</div>
+
+			<div class="row two-cols">
+				<div class="col">
+					<label>Online Redemption URL</label>
+					<input class="form-control" type="text" formControlName="onlineRedemptionUrl" />
+				</div>
+			</div>
+
+			<div class="row two-cols">
+				<div class="col">
+					<label>Epay Min Value</label>
+					<input class="form-control" type="number" formControlName="epayMinValue" />
+					<small class="error" *ngIf="getControl('epayMinValue')?.touched && getControl('epayMinValue')?.hasError('min')">Value cannot be negative</small>
+				</div>
+				<div class="col">
+					<label>Epay Max Value</label>
+					<input class="form-control" type="number" formControlName="epayMaxValue" />
+					<small class="error" *ngIf="getControl('epayMaxValue')?.touched && getControl('epayMaxValue')?.hasError('min')">Value cannot be negative</small>
+					<small class="error" *ngIf="getControl('epayMaxValue')?.touched && getControl('epayMaxValue')?.hasError('maxLessThanMin')">Max must be greater than or equal to Min</small>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label>Epay Discount</label>
+					<input class="form-control" type="number" formControlName="epayDiscount" />
+					<small class="error" *ngIf="getControl('epayDiscount')?.touched && getControl('epayDiscount')?.hasError('min')">Discount cannot be negative</small>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label>Service Type</label>
+					<input class="form-control" type="text" formControlName="serviceType" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label>Description</label>
+					<textarea class="form-control" rows="3" formControlName="description"></textarea>
+				</div>
+			</div>
+
+			<div class="row two-cols">
+				<div class="col">
+					<label>TnC (one per line will be shown as bullets)</label>
+					<textarea class="form-control" rows="4" formControlName="tnc"></textarea>
+					<ul class="bullet-preview" *ngIf="getControl('tnc')?.value">
+						<li *ngFor="let line of (getControl('tnc')?.value || '').split('\n')" >{{ line }}</li>
+					</ul>
+				</div>
+				<div class="col">
+					<label>Important Instruction (one per line will be shown as bullets)</label>
+					<textarea class="form-control" rows="4" formControlName="importantInstruction"></textarea>
+					<ul class="bullet-preview" *ngIf="getControl('importantInstruction')?.value">
+						<li *ngFor="let line of (getControl('importantInstruction')?.value || '').split('\n')" >{{ line }}</li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="actions">
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+			<button type="submit" class="btn btn-primary" [disabled]="isLoading">
+				<span *ngIf="!isLoading">Create Brand</span>
+				<span *ngIf="isLoading">Saving...</span>
+			</button>
+		</div>
+	</form>
+</div>

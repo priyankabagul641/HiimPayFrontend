@@ -92,6 +92,7 @@ import { AddBrandDialogComponent } from './pages/voucher-brand-list/add-brand-di
 import { UpdateBrandDialogComponent } from './pages/voucher-brand-list/update-brand-dialog/update-brand-dialog.component';
 import { BrandCategoryCouponsDialogComponent } from './pages/voucher-brand-list/brand-category-coupons-dialog/brand-category-coupons-dialog.component';
 import { ClientInfoDialogComponent } from './pages/voucher-brand-list/client-info-dialog/client-info-dialog.component';
+import { ManualbrandComponent } from './pages/voucher-brand-list/manualbrand/manualbrand.component';
 
 @NgModule({
   declarations: [
@@ -150,7 +151,8 @@ import { ClientInfoDialogComponent } from './pages/voucher-brand-list/client-inf
     AddBrandDialogComponent,
     UpdateBrandDialogComponent,
     BrandCategoryCouponsDialogComponent,
-    ClientInfoDialogComponent
+    ClientInfoDialogComponent,
+    ManualbrandComponent
   ],
   imports: [
     CommonModule,

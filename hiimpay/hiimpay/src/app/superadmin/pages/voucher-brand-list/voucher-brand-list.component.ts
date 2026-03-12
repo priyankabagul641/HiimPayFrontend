@@ -6,6 +6,7 @@ import { AddBrandDialogComponent } from './add-brand-dialog/add-brand-dialog.com
 import { UpdateBrandDialogComponent } from './update-brand-dialog/update-brand-dialog.component';
 import { BrandCategoryCouponsDialogComponent } from './brand-category-coupons-dialog/brand-category-coupons-dialog.component';
 import { ClientInfoDialogComponent } from './client-info-dialog/client-info-dialog.component';
+import { ManualbrandComponent } from './manualbrand/manualbrand.component';
 
 interface Brand {
   id: string;
@@ -16,6 +17,8 @@ interface Brand {
   stockAvailable: boolean;
   categories: string[];
   updatedAt?: string;
+  brandProductCode?: string;
+  onboardingType?: string;
 }
 
 @Component({
@@ -57,6 +60,8 @@ export class VoucherBrandListComponent implements OnInit {
           id: (b.id || b.brandId || '').toString(),
           name: b.brandName || b.name || b.BrandName || '',
           brandSku: b.brandSku || b.brandProductCode || this.generateBrandSku(b.brandName || b.name || ''),
+          brandProductCode: b.brandProductCode || b.brand?.brandProductCode || '',
+          onboardingType: b.onboardingType || b.OnboardingType || b.brand?.onboardingType || '',
           onlineRedemptionUrl: b.onlineRedemptionUrl || b.OnlineRedemptionUrl || '',
           brandImage: b.brandImage || b.BrandImage || '',
           stockAvailable: b.stockAvailable ?? b.stock_available ?? true,
@@ -73,6 +78,21 @@ export class VoucherBrandListComponent implements OnInit {
     });
   }
 
+  openManualBrand(){
+    const dialogRef = this.dialog.open(ManualbrandComponent, {
+      width: '700px',
+      maxHeight: '90vh',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadBrands();
+      }
+    });
+  }
+
+
   refresh() {
     this.loadBrands();
   }
@@ -86,7 +106,9 @@ export class VoucherBrandListComponent implements OnInit {
       if (!q) return true;
       return (
         b.name.toLowerCase().includes(q) ||
-        b.categories.join(' ').toLowerCase().includes(q)
+        b.categories.join(' ').toLowerCase().includes(q) ||
+        (b.onboardingType || '').toString().toLowerCase().includes(q) ||
+        (b.brandProductCode || '').toString().toLowerCase().includes(q)
       );
     });
     
