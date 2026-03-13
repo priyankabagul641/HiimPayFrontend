@@ -16,6 +16,10 @@
 }
 
 .client-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -325,3 +329,24 @@ select:focus {
     padding: 12px 10px;
   }
 }
+
+/* create button (match sup-surveylist) */
+.create-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 20px;
+  background: #103a7f;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(13, 36, 70, 0.24);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.create-btn:hover { background: #1b43b8; }
+
+.create-btn mat-icon { font-size: 18px; width: 18px; height: 18px; line-height: 18px; }

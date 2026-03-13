@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { BrandCategoryCouponsDialogComponent } from '../voucher-brand-list/brand-category-coupons-dialog/brand-category-coupons-dialog.component';
+import { ManytomanyComponent } from './manytomany/manytomany.component';
 import { AdminDataService } from '../../services/adminData.service';
 
 interface ClientBrand {
@@ -45,6 +46,20 @@ export class ClientBrandListPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadClientBrands();
+  }
+
+  openAssignDialog() {
+    const ref = this.dialog.open(ManytomanyComponent, {
+      width: '700px',
+      maxHeight: '80vh'
+    });
+    ref.afterClosed().subscribe((payload: any) => {
+      if (payload) {
+        console.log('Assign payload:', payload);
+        // payload shape: { company: [1,2], brands: [3,4] }
+        // TODO: call backend API to perform assignment if available
+      }
+    });
   }
 
   loadClientBrands() {

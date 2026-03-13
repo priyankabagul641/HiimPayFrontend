@@ -93,6 +93,7 @@ import { UpdateBrandDialogComponent } from './pages/voucher-brand-list/update-br
 import { BrandCategoryCouponsDialogComponent } from './pages/voucher-brand-list/brand-category-coupons-dialog/brand-category-coupons-dialog.component';
 import { ClientInfoDialogComponent } from './pages/voucher-brand-list/client-info-dialog/client-info-dialog.component';
 import { ManualbrandComponent } from './pages/voucher-brand-list/manualbrand/manualbrand.component';
+import { ManytomanyComponent } from './pages/client-brand-list/manytomany/manytomany.component';
 
 @NgModule({
   declarations: [
@@ -152,7 +153,8 @@ import { ManualbrandComponent } from './pages/voucher-brand-list/manualbrand/man
     UpdateBrandDialogComponent,
     BrandCategoryCouponsDialogComponent,
     ClientInfoDialogComponent,
-    ManualbrandComponent
+    ManualbrandComponent,
+    ManytomanyComponent
   ],
   imports: [
     CommonModule,

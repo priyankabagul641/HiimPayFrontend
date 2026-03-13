@@ -1,0 +1,76 @@
+<div class="create-coupon-dialog" >
+	<div class="dialog-header">
+		<h3 id="manytomany-title">Assign Brands to Companies</h3>
+		<button type="button" class="close" (click)="cancel()">&times;</button>
+	</div>
+
+	<form [formGroup]="form" class="form-grid" (click)="$event.stopPropagation()">
+		<!-- Companies dropdown -->
+		<div class="field">
+			<label class="label">Companies</label>
+			<div class="input-like" (click)="toggleCompanyDropdown($event)">
+				<div class="chips">
+					<span class="chip" *ngFor="let id of (form.value.companies || [])"> 
+						{{ companyMap[id] || ('#'+id) }}
+						<button type="button" class="chip-remove" (click)="removeCompany(id); $event.stopPropagation()">×</button>
+					</span>
+					<input type="text" placeholder="Search or select..." [(ngModel)]="companySearch" [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()" class="fake-input" />
+				</div>
+				<span class="caret">▾</span>
+			</div>
+
+			<div class="dropdown" *ngIf="companyDropdownOpen" #companyDropdown>
+				<div class="search-wrap">
+					<input type="search" placeholder="Type to filter companies" [(ngModel)]="companySearch" [ngModelOptions]="{standalone: true}" class="search-input" (click)="$event.stopPropagation()" />
+				</div>
+				<div class="list">
+					<div *ngIf="loadingCompanies" class="muted small">Loading companies...</div>
+					<div *ngIf="!loadingCompanies && filteredCompanies.length===0" class="muted small">No companies</div>
+					<label *ngFor="let c of filteredCompanies" class="list-item">
+						<input type="checkbox" [checked]="isCompanySelected(c.id)" (change)="toggleCompany(c.id)" />
+						<span class="item-text">{{ c.name }}</span>
+						<span class="item-id">#{{ c.id }}</span>
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Brands dropdown -->
+		<div class="field">
+			<label class="label">Brands</label>
+			<div class="input-like" (click)="toggleBrandDropdown($event)">
+				<div class="chips">
+					<span class="chip" *ngFor="let id of (form.value.brands || [])"> 
+						{{ brandMap[id] || ('#'+id) }}
+						<button type="button" class="chip-remove" (click)="removeBrand(id); $event.stopPropagation()">×</button>
+					</span>
+					<input type="text" placeholder="Search or select..." [(ngModel)]="brandSearch" [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()" class="fake-input" />
+				</div>
+				<span class="caret">▾</span>
+			</div>
+
+			<div class="dropdown" *ngIf="brandDropdownOpen" #brandDropdown>
+				<div class="search-wrap">
+					<input type="search" placeholder="Type to filter brands" [(ngModel)]="brandSearch" [ngModelOptions]="{standalone: true}" class="search-input" (click)="$event.stopPropagation()" />
+				</div>
+				<div class="list">
+					<div *ngIf="loadingBrands" class="muted small">Loading brands...</div>
+					<div *ngIf="!loadingBrands && filteredBrands.length===0" class="muted small">No brands</div>
+					<label *ngFor="let b of filteredBrands" class="list-item">
+						<input type="checkbox" [checked]="isBrandSelected(b.id)" (change)="toggleBrand(b.id)" />
+						<span class="item-text">{{ b.name }}</span>
+						<span class="item-id">#{{ b.id }}</span>
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="actions full-width">
+			<div *ngIf="showValidationError" class="error">Please select at least one company and one brand.</div>
+			<div class="actions-right">
+				<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+				<button type="button" class="btn btn-primary" (click)="save()">Assign</button>
+			</div>
+		</div>
+	</form>
+</div>
