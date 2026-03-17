@@ -588,7 +588,7 @@ export class AdminDataService {
   }
 
    creategyftr(obj: any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `vouchers/sync/gyftr`, {});
+    return this.http.post<any>(this.baseUrl + `vouchers/gyftr/full`, {});
   }
 
    createsiripay(obj: any): Observable<any> {

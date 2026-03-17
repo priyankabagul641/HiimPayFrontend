@@ -51,7 +51,9 @@ export class ManageAdminComponent implements OnInit {
   itemsPerPage = 10;
   page = 1;
   totalItems = 0;
-
+  // Password visibility toggles for create and edit forms
+  showCreatePassword = false;
+  showEditPassword = false;
   showCreatePopup = false;
   showAccessPopup = false;
   showEditPopup = false;
@@ -82,6 +84,14 @@ export class ManageAdminComponent implements OnInit {
         this.toastr.error('Failed to load admins');
       }
     });
+  }
+  
+  toggleCreatePassword() {
+    this.showCreatePassword = !this.showCreatePassword;
+  }
+
+  toggleEditPassword() {
+    this.showEditPassword = !this.showEditPassword;
   }
 
   private normalize(u: any): Admin {

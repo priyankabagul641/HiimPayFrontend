@@ -125,7 +125,12 @@
 
     <div class="form-group">
       <label for="create-password" class="form-label">Password <span class="required">*</span></label>
-      <input id="create-password" class="modal-input" type="password" placeholder="Enter password" [(ngModel)]="newAdmin.password">
+      <div class="password-input-group" style="display:flex;align-items:center;">
+        <input id="create-password" class="modal-input" [type]="showCreatePassword ? 'text' : 'password'" placeholder="Enter password" [(ngModel)]="newAdmin.password">
+        <button type="button" class="btn btn-icon" (click)="toggleCreatePassword()" aria-label="Toggle password" style="margin-left:8px;">
+          <i class="fa" [ngClass]="{'fa-eye': showCreatePassword, 'fa-eye-slash': !showCreatePassword}"></i>
+        </button>
+      </div>
       <small class="hint-text" *ngIf="newAdmin.password">
         Strength: 
         <span [ngClass]="'strength-' + (getPasswordStrength(newAdmin.password) | lowercase)">
@@ -186,7 +191,12 @@
 
     <div class="form-group">
       <label for="edit-password" class="form-label">New Password</label>
-      <input id="edit-password" class="modal-input" type="password" placeholder="Leave blank to keep current password" [(ngModel)]="editingAdmin.password">
+      <div class="password-input-group" style="display:flex;align-items:center;">
+        <input id="edit-password" class="modal-input" [type]="showEditPassword ? 'text' : 'password'" placeholder="Leave blank to keep current password" [(ngModel)]="editingAdmin.password">
+        <button type="button" class="btn btn-icon" (click)="toggleEditPassword()" aria-label="Toggle password" style="margin-left:8px;">
+          <i class="fa" [ngClass]="{'fa-eye': showEditPassword, 'fa-eye-slash': !showEditPassword}"></i>
+        </button>
+      </div>
       <small class="hint-text" *ngIf="editingAdmin.password">
         Strength: 
         <span [ngClass]="'strength-' + (getPasswordStrength(editingAdmin.password) | lowercase)">
