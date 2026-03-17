@@ -700,6 +700,10 @@ export class AdminDataService {
   }
 
 
+assignbrnadsToCompany(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `companies/multiAssign-BrandsCompanies`, obj);
+  }
+
 
 
 }

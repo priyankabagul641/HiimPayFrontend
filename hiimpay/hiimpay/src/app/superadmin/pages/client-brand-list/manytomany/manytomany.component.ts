@@ -1,4 +1,5 @@
 import { Component, OnInit, Inject, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AdminDataService } from '../../../services/adminData.service';
@@ -30,6 +31,7 @@ export class ManytomanyComponent implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ManytomanyComponent>,
     private adminService: AdminDataService,
+    private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.form = this.fb.group({
@@ -151,7 +153,19 @@ export class ManytomanyComponent implements OnInit {
       company: selectedCompanies,
       brands: selectedBrands
     };
-    this.dialogRef.close(payload);
+    this.adminService.assignbrnadsToCompany(payload).subscribe({
+      next: (res: any) => {
+        if (res?.success !== false) {
+          this.toastr.success(res?.message || 'Brands assigned successfully.');
+          this.dialogRef.close(res);
+        } else {
+          this.toastr.error(res?.message || 'Failed to assign brands.');
+        }
+      },
+      error: (err: any) => {
+        this.toastr.error(err?.error?.message || 'Failed to assign brands.');
+      }
+    });
   }
 
   removeCompany(id: number) {
