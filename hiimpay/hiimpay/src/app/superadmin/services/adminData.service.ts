@@ -704,6 +704,16 @@ assignbrnadsToCompany(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `companies/multiAssign-BrandsCompanies`, obj);
   }
 
+uploadImg(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `files/upload`, obj);
+//   getting reslike this :
+//   {
+//   "data": "https://tkd-images.s3.ap-south-1.amazonaws.com/1773748704247-AccuWeather.ico",
+//   "message": "File uploaded successfully",
+//   "success": true
+// }
+  
+  }
 
 
 }

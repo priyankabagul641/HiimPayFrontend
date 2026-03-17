@@ -17,6 +17,8 @@ export class CreateclientComponent {
   buttonName: any = 'Create'
   consultants:any;
   selectedLogoName: string = '';
+  selectedLogoFile: File | null = null;
+  isSaving = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
    private dialogRef: MatDialogRef<CreateclientComponent>, 
    private fb: FormBuilder, private api: ApiService, private toastr: ToastrService,
@@ -33,6 +35,52 @@ export class CreateclientComponent {
         console.log('company edit id', this.clientId);
       }
     }
+  }
+
+  private callCreateCompany(obj: any) {
+    this.isSaving = true;
+    this.touchService.createCompany(obj).subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        if (res?.success) {
+          this.toastr.success(res.message || 'Company created successfully.');
+          this.createForm.reset();
+          this.selectedLogoFile = null;
+          this.selectedLogoName = '';
+          this.onClose(true);
+        } else {
+          this.toastr.error(res?.message || 'Failed to create company.');
+        }
+      },
+      error: (err: any) => {
+        this.isSaving = false;
+        console.error('createCompany error:', err);
+        this.toastr.error(err?.error?.message || 'Failed to create company.');
+      }
+    });
+  }
+
+  private callUpdateCompany(payload: any) {
+    this.isSaving = true;
+    this.touchService.updateComponany(this.clientId, payload).subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        if (res?.success) {
+          this.toastr.success(res.message || 'Company updated successfully.');
+          this.createForm.reset();
+          this.selectedLogoFile = null;
+          this.selectedLogoName = '';
+          this.onClose(true);
+        } else {
+          this.toastr.error(res?.message || 'Failed to update company.');
+        }
+      },
+      error: (err: any) => {
+        this.isSaving = false;
+        console.error('updateCompany error:', err);
+        this.toastr.error(err?.error?.message || 'Failed to update company.');
+      }
+    });
   }
 
   ngOnInit() {
@@ -82,21 +130,31 @@ export class CreateclientComponent {
             // isSharedFeedback: true
           };
 
-        this.touchService.createCompany(obj).subscribe({
-          next: (res: any) => {
-            if (res?.success) {
-              this.toastr.success(res.message || 'Company created successfully.');
-              this.createForm.reset();
-              this.onClose(true);
-            } else {
-              this.toastr.error(res?.message || 'Failed to create company.');
+        // If a logo file was selected, upload it first
+        if (this.selectedLogoFile) {
+          this.isSaving = true;
+          const fd = new FormData();
+          fd.append('file', this.selectedLogoFile);
+          fd.append('filename', this.selectedLogoFile.name);
+          // debug: log FormData entries
+          for (const entry of (fd as any).entries()) console.log('fd entry', entry);
+          this.touchService.uploadImg(fd).subscribe({
+            next: (res: any) => {
+              console.log('uploadImg response', res);
+              const url = res?.data || '';
+              obj.companyLogo = url;
+              console.log('create payload after upload', obj);
+              this.callCreateCompany(obj);
+            },
+            error: (err: any) => {
+              this.isSaving = false;
+              console.error('uploadImg error:', err);
+              this.toastr.error(err?.error?.message || 'Failed to upload logo.');
             }
-          },
-          error: (err: any) => {
-            console.error('createCompany error:', err);
-            this.toastr.error(err?.error?.message || 'Failed to create company.');
-          }
-        })
+          });
+        } else {
+          this.callCreateCompany(obj);
+        }
       }
       else {
         this.createForm.markAllAsTouched();
@@ -123,22 +181,28 @@ export class CreateclientComponent {
             isSharedJourneyMap: true,
             isSharedFeedback: true
           };
-
-          this.touchService.updateComponany(this.clientId, payload).subscribe({
-            next: (res: any) => {
-              if (res?.success) {
-                this.toastr.success(res.message || 'Company updated successfully.');
-                this.createForm.reset();
-                this.onClose(true);
-              } else {
-                this.toastr.error(res?.message || 'Failed to update company.');
+          // If a new logo file was selected, upload it first
+          if (this.selectedLogoFile) {
+            this.isSaving = true;
+            const fd = new FormData();
+            fd.append('file', this.selectedLogoFile);
+            fd.append('filename', this.selectedLogoFile.name);
+            for (const entry of (fd as any).entries()) console.log('fd entry', entry);
+            this.touchService.uploadImg(fd).subscribe({
+              next: (res: any) => {
+                console.log('uploadImg response', res);
+                payload.companyLogo = res?.data || '';
+                this.callUpdateCompany(payload);
+              },
+              error: (err: any) => {
+                this.isSaving = false;
+                console.error('uploadImg error:', err);
+                this.toastr.error(err?.error?.message || 'Failed to upload logo.');
               }
-            },
-            error: (err: any) => {
-              console.error('updateCompany error:', err);
-              this.toastr.error(err?.error?.message || 'Failed to update company.');
-            }
-          });
+            });
+          } else {
+            this.callUpdateCompany(payload);
+          }
         } else {
           const obj = {
             client_Name: form.client_Name,
@@ -252,13 +316,16 @@ export class CreateclientComponent {
     }
 
     this.selectedLogoName = file.name;
+    this.selectedLogoFile = file;
     const reader = new FileReader();
     reader.onload = () => {
+      // keep a preview/data url in the form for display if needed
       this.createForm.patchValue({ companyLogo: reader.result as string });
     };
     reader.onerror = () => {
       this.toastr.error('Unable to read logo file.');
       this.selectedLogoName = '';
+      this.selectedLogoFile = null;
       this.createForm.patchValue({ companyLogo: '' });
     };
     reader.readAsDataURL(file);
