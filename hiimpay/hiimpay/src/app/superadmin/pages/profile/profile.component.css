@@ -36,6 +36,27 @@
     align-items: center;
     justify-content: center;
   }
+
+  .avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background-color: #103a7f;
+    color: #fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:28px;
+  }
+
+  .info-row .fw-bold {
+    color: #333;
+  }
+
+  .info-row .col-sm-8 {
+    color: #555;
+  }
   
   .card-body {
     padding-bottom: 3rem;

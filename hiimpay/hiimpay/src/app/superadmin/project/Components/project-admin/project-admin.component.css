@@ -140,3 +140,20 @@ tbody:nth-child(2) {
   top:20vh;
   width: 100%;
 }
+
+/* Truncation helpers for long names/emails/roles */
+.company-name {
+  max-width: 500px;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.truncate {
+  display: block;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

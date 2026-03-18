@@ -29,7 +29,7 @@ export class CreateUserComponent implements OnInit {
     this.companyId = this.data?.companyId || userData?.companyId;
 
     this.createForm = this.fb.group({
-      fullName: ['', Validators.required],
+      fullName: ['', [Validators.required, Validators.pattern('^[A-Za-z ]+$')]],
       email: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$')]],
       mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       passwordHash: ['',],
@@ -40,6 +40,24 @@ export class CreateUserComponent implements OnInit {
     if (this.data?.name === 'edit-user' && this.data.id) {
       this.btnName = 'Update User';
       this.onEdit();
+    }
+  }
+
+  allowLettersOnly(event: KeyboardEvent) {
+    const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+    const key = event.key;
+    if (allowedKeys.includes(key)) return;
+    if (!/^[a-zA-Z\s]$/.test(key)) {
+      event.preventDefault();
+    }
+  }
+
+  allowDigitsOnly(event: KeyboardEvent) {
+    const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+    const key = event.key;
+    if (allowedKeys.includes(key)) return;
+    if (!/^[0-9]$/.test(key)) {
+      event.preventDefault();
     }
   }
 

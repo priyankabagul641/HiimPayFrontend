@@ -13,56 +13,41 @@
         <!-- Profile Card -->
         <div class="card shadow-sm">
           <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+              <div class="me-4 text-center">
+                <div class="avatar">{{ getInitials() }}</div>
+                <div class="mt-2 text-muted small">ID: {{ profileInfo?.id }}</div>
+              </div>
+              <div class="flex-fill">
+                <h3 class="mb-1">{{ profileInfo?.fullName || profileInfo?.name }}</h3>
+                <div class="text-muted mb-2">{{ profileInfo?.email }}</div>
 
-            <h3 class="mb-4">My Profile</h3>
+                <div class="row mb-2 info-row">
+                  <div class="col-sm-4 fw-bold">Mobile</div>
+                  <div class="col-sm-8">{{ profileInfo?.mobile || '-' }}</div>
+                </div>
 
-            <!-- Name -->
-            <div class="row mb-3">
-              <div class="col-4 fw-bold">Name</div>
-              <div class="col-8 text-muted">{{ profileInfo?.name }}</div>
-            </div>
+                <div class="row mb-2 info-row">
+                  <div class="col-sm-4 fw-bold">Role</div>
+                  <div class="col-sm-8">{{ profileInfo?.userType || '-' }}</div>
+                </div>
 
-            <!-- Email -->
-            <div class="row mb-3">
-              <div class="col-4 fw-bold">Email</div>
-              <div class="col-8 text-muted">{{ profileInfo?.email }}</div>
-            </div>
+                <div class="row mb-3 info-row">
+                  <div class="col-sm-4 fw-bold">Status</div>
+                  <div class="col-sm-8">
+                    <span class="badge" [ngClass]="{'bg-success': profileInfo?.status==='ACTIVE', 'bg-danger': profileInfo?.status!=='ACTIVE'}">
+                      {{ profileInfo?.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                </div>
 
-            <!-- Status -->
-            <div class="row mb-3">
-              <div class="col-4 fw-bold">Status</div>
-              <div class="col-8">
-                <span class="badge bg-success"
-                      *ngIf="profileInfo?.active">
-                  Active
-                </span>
-                <span class="badge bg-danger"
-                      *ngIf="!profileInfo?.active">
-                  Inactive
-                </span>
+                <div class="d-flex justify-content-end gap-3">
+                  <button class="btn btn-outline-primary btn-sm" (click)="onEdit()"><i class="fas fa-edit me-1"></i> Edit</button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="onManageAccess()"><i class="fas fa-user-shield me-1"></i> Access</button>
+                  <button class="btn btn-outline-danger btn-sm" (click)="onDelete()"><i class="fas fa-trash me-1"></i> Delete</button>
+                </div>
               </div>
             </div>
-
-            <hr>
-
-            <!-- Actions -->
-            <div class="d-flex justify-content-end gap-3">
-              <button class="btn btn-outline-primary btn-sm"
-                      (click)="onEdit()">
-                <i class="fas fa-edit me-1"></i> Edit
-              </button>
-
-              <button class="btn btn-outline-secondary btn-sm"
-                      (click)="onManageAccess()">
-                <i class="fas fa-user-shield me-1"></i> Access
-              </button>
-
-              <button class="btn btn-outline-danger btn-sm"
-                      (click)="onDelete()">
-                <i class="fas fa-trash me-1"></i> Delete
-              </button>
-            </div>
-
           </div>
         </div>
 

@@ -69,6 +69,24 @@
               </small>
             </div>
 
+            <!-- Password (optional) -->
+            <div class="col-md-6 mt-3">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="bi bi-key-fill"></i>
+                </span>
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="form-control"
+                  formControlName="password"
+                  placeholder="Enter new password (optional)">
+                <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword" style="margin-left:8px">
+                  <i class="fa" [ngClass]="{'fa-eye': showPassword, 'fa-eye-slash': !showPassword}"></i>
+                </button>
+              </div>
+              <small class="text-muted d-block text-end">Leave blank to keep existing password</small>
+            </div>
+
           </div>
 
           <!-- Buttons -->
@@ -82,11 +100,12 @@
               type="button"
               class="updateButton"
               (click)="onSubmit()"
-              [disabled]="formDataMatched || updateRecordsForm.invalid"
+              [disabled]="formDataMatched || updateRecordsForm.invalid || isLoading"
               [ngStyle]="{
-                opacity: (formDataMatched || updateRecordsForm.invalid) ? '0.5' : '1'
+                opacity: (formDataMatched || updateRecordsForm.invalid || isLoading) ? '0.5' : '1'
               }">
-              Update
+              <span *ngIf="!isLoading">Update</span>
+              <span *ngIf="isLoading">Updating...</span>
             </button>
           </mat-dialog-actions>
 

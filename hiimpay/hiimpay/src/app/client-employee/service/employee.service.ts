@@ -64,7 +64,7 @@ export class EmployeeService {
   }
 
   updateUser (id:any, data:any):Observable<any>{
-    return this.http.put<any>(this.baseUrl+`users/${id}`, data);
+    return this.http.put<any>(this.baseUrl+`users/admin`, data);
   }
   
   getUserById (id:any):Observable<any>{
@@ -76,6 +76,6 @@ export class EmployeeService {
   }
 
   deleteUserProfile(id:number):Observable<any>{
-    return this.http.put<any>(this.baseUrl+`users/softDelete/${id}`,'');
+    return this.http.put<any>(this.baseUrl+`users/${id}/soft-delete`,'');
   }
 }

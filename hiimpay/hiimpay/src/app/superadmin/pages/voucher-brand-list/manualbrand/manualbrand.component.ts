@@ -13,6 +13,8 @@ export class ManualbrandComponent implements OnInit {
   form!: FormGroup;
   isLoading = false;
   brandImagePreview: string | ArrayBuffer | null = null;
+  isUploadingImage: boolean = false;
+  uploadedImageUrl: string | null = null;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -122,14 +124,37 @@ export class ManualbrandComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       this.brandImagePreview = reader.result;
-      // set base64 data to form control (server may accept URL or base64)
-      this.form.patchValue({ brandImage: reader.result });
+      // show preview immediately
+      this.form.patchValue({ brandImage: '' });
     };
     reader.readAsDataURL(file);
+
+    // upload to server
+    const fd = new FormData();
+    fd.append('file', file);
+    this.isUploadingImage = true;
+    this.adminService.uploadImg(fd).subscribe({
+      next: (res: any) => {
+        this.isUploadingImage = false;
+        if (res && res.data) {
+          // server returns URL in res.data
+          this.uploadedImageUrl = res.data;
+          this.form.patchValue({ brandImage: this.uploadedImageUrl });
+        } else {
+          this.toastr.error('Image upload failed');
+        }
+      },
+      error: (err: any) => {
+        this.isUploadingImage = false;
+        this.toastr.error(err?.error?.message || 'Failed to upload image');
+      }
+    });
   }
 
   removeSelectedImage() {
     this.brandImagePreview = null;
+    this.uploadedImageUrl = null;
+    this.isUploadingImage = false;
     this.form.patchValue({ brandImage: '' });
     try {
       if (this.fileInput && this.fileInput.nativeElement) {

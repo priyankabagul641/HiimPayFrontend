@@ -65,7 +65,7 @@
 
           <tr *ngFor="let b of filtered | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }; let i = index" [class.alt-row]="i % 2 === 1" class="clickable-row">
             <td class="text-left">
-              <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
+              <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo" (error)="onImageError($event, b)">
               <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
             </td>
             <td class="text-left truncate-cell brand-name" [title]="b.name">{{ b.name }}</td>
@@ -99,7 +99,7 @@
     <div class="mobile-cards">
       <article class="brand-card" *ngFor="let b of filtered | paginate: { itemsPerPage: itemsPerPage, currentPage: page, totalItems: totalItems }">
         <div class="card-head">
-          <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo">
+          <img *ngIf="b.brandImage" class="brand-logo" [src]="b.brandImage" alt="brand logo" (error)="onImageError($event, b)">
           <div *ngIf="!b.brandImage" class="logo-placeholder"></div>
           <button type="button" class="icon-btn" title="View details" (click)="openBrand(b, $event)">
             <mat-icon>visibility</mat-icon>

@@ -15,6 +15,14 @@ import { Location } from '@angular/common';
 export class ProfileComponent implements OnInit {
   profileInfo: any;
   constructor(private dialog: MatDialog,private api:EmployeeService,private tosatr:ToastrService,private router:Router,private location:Location) {}
+  
+  getInitials(): string {
+    const name = this.profileInfo?.fullName || this.profileInfo?.name || '';
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
   ngOnInit(): void {
     this.profileInfo = JSON.parse(
       sessionStorage.getItem('currentLoggedInUserData')!
@@ -24,6 +32,7 @@ export class ProfileComponent implements OnInit {
     const dialogRef = this.dialog.open(ProfileUpdateDialogComponent, {
       width: '600px',
       disableClose: true,
+      data: { profile: this.profileInfo }
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result.action == 'ok') {

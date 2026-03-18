@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../../services/companyService';
 import { ToastrService } from 'ngx-toastr';
 import { CreateUserComponent } from './create-user/create-user.component';
+import { GenericDialogComponent } from '../../../../client-employee/pages/generic-dialog/generic-dialog.component';
 import { jsPDF } from "jspdf";
 
 @Component({
@@ -114,20 +115,28 @@ export class ProjectAdminComponent implements OnInit {
   }
 
   activeDeactiveUser(user: any) {
-    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    const obj = { status: newStatus };
+    const action = user.status === 'ACTIVE' ? 'deactivate' : 'activate';
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      width: '420px',
+      data: { message: `Really want to ${action} user?` },
+    });
 
-    this.service.deleteUserByID(user.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.toaster.success(
-            newStatus === 'ACTIVE' ? 'User activated successfully' : 'User deactivated successfully',
-            'Success'
-          );
-          this.getAllUsers();
-        }
-      },
-      error: (err) => console.log(err)
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.action === 'ok') {
+        const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        this.service.deleteUserByID(user.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.toaster.success(
+                newStatus === 'ACTIVE' ? 'User activated successfully' : 'User deactivated successfully',
+                'Success'
+              );
+              this.getAllUsers();
+            }
+          },
+          error: (err) => console.log(err)
+        });
+      }
     });
   }
 

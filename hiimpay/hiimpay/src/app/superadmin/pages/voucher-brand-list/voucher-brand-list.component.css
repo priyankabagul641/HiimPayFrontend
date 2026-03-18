@@ -207,9 +207,11 @@ select:focus {
 .brand-logo {
   width: 56px;
   height: 40px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid #dce6f2;
+  background: #fff;
+  display: block;
 }
 
 .logo-placeholder {

@@ -150,8 +150,8 @@ export class ManytomanyComponent implements OnInit {
       return;
     }
     const payload = {
-      company: selectedCompanies,
-      brands: selectedBrands
+      companyIds: selectedCompanies,
+      brandIds: selectedBrands
     };
     this.adminService.assignbrnadsToCompany(payload).subscribe({
       next: (res: any) => {

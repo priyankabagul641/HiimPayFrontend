@@ -13,10 +13,10 @@
         <!-- Full Name -->
         <div class="col-md-6 col-sm-12 mt-3">
           <label class="label-control blue-color">Full Name</label>
-          <input type="text" class="form-control" formControlName="fullName" placeholder="Enter full name" />
+          <input type="text" class="form-control" formControlName="fullName" placeholder="Enter full name" (keypress)="allowLettersOnly($event)" />
           <small>
-            <p *ngIf="createForm.get('fullName')?.touched && createForm.get('fullName')?.hasError('required')"
-              class="text-danger">Full name is required</p>
+            <p *ngIf="createForm.get('fullName')?.touched && createForm.get('fullName')?.hasError('required')" class="text-danger">Full name is required</p>
+            <p *ngIf="createForm.get('fullName')?.touched && createForm.get('fullName')?.hasError('pattern')" class="text-danger">Full name should not contain numbers or special characters</p>
           </small>
         </div>
 
@@ -34,7 +34,7 @@
         <!-- Mobile -->
         <div class="col-md-6 col-sm-12 mt-3">
           <label class="label-control blue-color">Mobile</label>
-          <input type="text" class="form-control" formControlName="mobile" placeholder="Enter 10-digit mobile number" />
+          <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" formControlName="mobile" placeholder="Enter 10-digit mobile number" (keypress)="allowDigitsOnly($event)" />
           <small>
             <p *ngIf="createForm.get('mobile')?.touched && createForm.get('mobile')?.hasError('required')"
               class="text-danger">Mobile number is required</p>
