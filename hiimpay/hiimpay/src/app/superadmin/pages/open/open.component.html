@@ -41,7 +41,7 @@
           <ng-container *ngFor="let item of filteredData | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }; let i = index">
             <tr [class.alt-row]="i % 2 === 1">
               <td class="text-left align-middle">
-                <img class="api-logo" [src]="item.companyLogo" alt="logo">    
+                <img class="api-logo" [src]="item.companyLogo || placeholderLogo" alt="logo" (error)="onImageError($event, item)">    
                     
               </td>
               <td class="text-left align-middle truncate-cell col-company" [title]="item.companyName || item.clientName">
@@ -106,7 +106,7 @@
     <div class="mobile-only">
       <article class="mobile-card" *ngFor="let item of filteredData | paginate: { itemsPerPage: itemPerPage, currentPage: p, totalItems: totalItems }">
         <div class="mobile-head">
-          <img class="company-logo" [src]="item.companyLogo" alt="logo">
+          <img class="company-logo" [src]="item.companyLogo || placeholderLogo" alt="logo" (error)="onImageError($event, item)">
           <button *ngIf="isAdmin()" type="button" class="icon-btn" title="Edit" (click)="editClient(item.id); $event.stopPropagation();">
             <mat-icon>edit</mat-icon>
           </button>

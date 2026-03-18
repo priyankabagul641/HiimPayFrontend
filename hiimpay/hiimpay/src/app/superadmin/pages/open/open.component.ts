@@ -32,6 +32,20 @@ export class OpenComponent {
 
   constructor(private api:ApiService, private router:Router,private tosatr:ToastrService,private dialog:MatDialog,private service:SearchService, private touchService: AdminDataService){}
 
+  // Inline SVG placeholder (data URI) used when logo fails to load
+  placeholderLogo: string = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80"><rect width="100%" height="100%" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2397a6b8" font-family="Arial, Helvetica, sans-serif" font-size="12">No Logo</text></svg>';
+
+  onImageError(event: Event, item?: any) {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = this.placeholderLogo;
+      img.style.objectFit = 'contain';
+    }
+    if (item) {
+      item.companyLogo = this.placeholderLogo;
+    }
+  }
+
   isAdmin(): boolean {
     try {
       const raw = sessionStorage.getItem('currentLoggedInUserData');
