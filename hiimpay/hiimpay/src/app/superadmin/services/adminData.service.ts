@@ -68,6 +68,13 @@ export class AdminDataService {
  updateComponany(id: number, obj: any): Observable<any> {
     return this.http.put<any>(this.baseUrl + `companies/${id}`, obj);
   }
+
+   updateBulkUsers(companyId: number, formData: FormData): Observable<any> {
+    // Sends an Excel file to the backend to perform bulk user updates for the given company.
+    // Backend endpoint expected: POST users/bulk-update?companyId={id}
+    return this.http.post<any>(this.baseUrl + `users/bulk-update?companyId=${companyId}`, formData);
+  }
+
  createCompany(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `companies`, obj);
   }

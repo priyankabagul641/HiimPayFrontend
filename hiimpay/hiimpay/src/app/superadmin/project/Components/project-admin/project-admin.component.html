@@ -31,8 +31,16 @@
                 <i class="fa fa-file"></i>
                 Import users from excel
               </button>
+              
               <p></p>
               <input type="file" #holidayFile (change)="onFileBrowse($event)" style="display: none;">
+              <button class="btn button-color text-white addHoliday ms-2" type="button" style="height: 3em"
+                (click)="bulkUpdateFile.click()">
+                <span *ngIf="checkUpdateBulkSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+               <i class="fa fa-file"></i>
+                Update bulk users (Excel)
+              </button>
+              <input id="bulkUpdateFile" type="file" #bulkUpdateFile (change)="onBulkUpdateFileBrowse($event)" style="display: none;" accept=".xls,.xlsx" />
               <ng-container>
 
                 <!-- <button *ngIf="isSelectedFileValid" class="btn button-color text-white addHoliday ms-3" type="button"

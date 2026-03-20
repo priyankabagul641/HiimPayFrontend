@@ -63,3 +63,18 @@ font-family:Arial;
   height: 26px;
   padding: 0;
 }
+
+/* Ensure consistent status badge colors across components */
+.status-badge.badge-active,
+.badge.badge-active {
+  background: #e8f8ec !important;
+  color: #186936 !important;
+  border: 1px solid #b9e8c4 !important;
+}
+
+.status-badge.badge-inactive,
+.badge.badge-inactive {
+  background: #feecef !important;
+  color: #9f2130 !important;
+  border: 1px solid #f8c6cf !important;
+}

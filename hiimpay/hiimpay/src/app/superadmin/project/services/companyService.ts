@@ -78,7 +78,7 @@ export class ProjectService {
   }
 
   downloadOnboardUsertemplate(): Observable<any> {
-    return this.http.get(this.baseUrl + 'users/employee-template' );
+    return this.http.get(this.baseUrl + 'users/upload/employee-template' );
 //     getting responce like this
 // {
 //   "data": "https://tkd-images.s3.ap-south-1.amazonaws.com/1772088325032-employee_upload_template.xlsx",

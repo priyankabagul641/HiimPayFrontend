@@ -32,8 +32,24 @@
                         </small>
 
                         <label for="" class="label-control mt-4">Industry</label>
-                        <input type="text" class="form-control" formControlName="industry"
-                            placeholder="Enter industry">
+                        <select class="form-select" formControlName="industry">
+                            <option value="" disabled>Please select</option>
+                            <option value="RETAIL">RETAIL</option>
+                            <option value="FOOD_AND_BEVERAGE">FOOD_AND_BEVERAGE</option>
+                            <option value="E_COMMERCE">E_COMMERCE</option>
+                            <option value="TRAVEL_AND_TOURISM">TRAVEL_AND_TOURISM</option>
+                            <option value="HOTELS_AND_HOSPITALITY">HOTELS_AND_HOSPITALITY</option>
+                            <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+                            <option value="GAMING">GAMING</option>
+                            <option value="HEALTH_AND_FITNESS">HEALTH_AND_FITNESS</option>
+                            <option value="EDUCATION">EDUCATION</option>
+                            <option value="BEAUTY_AND_WELLNESS">BEAUTY_AND_WELLNESS</option>
+                            <option value="ELECTRONICS">ELECTRONICS</option>
+                            <option value="FASHION_AND_APPAREL">FASHION_AND_APPAREL</option>
+                            <option value="GROCERY">GROCERY</option>
+                            <option value="AUTOMOTIVE">AUTOMOTIVE</option>
+                            <option value="FINANCIAL_SERVICES">FINANCIAL_SERVICES</option>
+                        </select>
                         <small class="p-0">
                             <p *ngIf="createForm.get('industry')?.touched && createForm.get('industry')?.hasError('required')"
                                 class="text-danger">
@@ -44,6 +60,7 @@
                         <label for="companyLogo" class="label-control mt-4">Company logo</label>
                         <input id="companyLogo" type="file" class="form-control" accept="image/*"
                             (change)="onCompanyLogoChange($event)">
+                            <small class="form-text text-muted">Upload logo (PNG/JPG, max 1 MB)</small>
                         <small class="p-0" *ngIf="selectedLogoName">
                             <p class="text-muted mb-0">Selected: {{ selectedLogoName }}</p>
                         </small>

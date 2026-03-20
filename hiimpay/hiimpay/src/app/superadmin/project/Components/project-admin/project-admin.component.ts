@@ -5,6 +5,7 @@ import { ProjectService } from '../../services/companyService';
 import { ToastrService } from 'ngx-toastr';
 import { CreateUserComponent } from './create-user/create-user.component';
 import { GenericDialogComponent } from '../../../../client-employee/pages/generic-dialog/generic-dialog.component';
+import { AdminDataService } from '../../../services/adminData.service';
 import { jsPDF } from "jspdf";
 
 @Component({
@@ -25,6 +26,7 @@ export class ProjectAdminComponent implements OnInit {
   checkDownloadExcelSpinner: boolean = false;
   checkuploadExcelSpinner: boolean = false;
   displayClientData: any;
+  checkUpdateBulkSpinner: boolean = false;
   companyId: number = 0;
   companyName: string = '';
 
@@ -32,6 +34,7 @@ export class ProjectAdminComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private service: ProjectService,
+    private adminService: AdminDataService,
     private toaster: ToastrService,
     private route: ActivatedRoute,
   ) { }
@@ -180,13 +183,54 @@ export class ProjectAdminComponent implements OnInit {
       yPos += lineHeight;
     });
 
-    doc.save("upload_errors.pdf");
+    // Report errors to user but do not auto-download or expose a download button.
+    try {
+      this.toaster.info('Import completed with errors. Check server logs for details.', 'Info');
+    } catch (e) {
+      console.error('Failed to notify about error PDF generation', e);
+    }
   }
+  
 
 
   uploadFile() {
     // Excel bulk upload not yet supported for this API
     this.toaster.info('Bulk upload not available', 'Info');
+  }
+
+  onBulkUpdateFileBrowse(event: any) {
+    const inputElement = event.target as HTMLInputElement;
+    const file = inputElement?.files?.[0];
+    if (!file) return;
+
+    // basic mime type validation
+    if (!['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-excel'].includes(file.type)) {
+      this.toaster.error('Please select a valid Excel file (.xls or .xlsx)', 'Invalid File');
+      inputElement.value = '';
+      return;
+    }
+
+    inputElement.value = '';
+    this.checkUpdateBulkSpinner = true;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.adminService.updateBulkUsers(this.companyId, formData).subscribe({
+      next: (res: any) => {
+        this.checkUpdateBulkSpinner = false;
+        if (res?.success) {
+          this.toaster.success(res.message || 'Bulk users updated successfully', 'Success');
+          this.page = 1;
+          this.getAllUsers();
+        } else {
+          this.toaster.error(res?.message || 'Failed to update users', 'Error');
+        }
+      },
+      error: (err: any) => {
+        this.checkUpdateBulkSpinner = false;
+        this.toaster.error(err?.error?.message || 'Failed to update users', 'Error');
+      }
+    });
   }
 
   onFileBrowse(event: any) {
@@ -207,6 +251,7 @@ export class ProjectAdminComponent implements OnInit {
               if (res?.errors?.length) {
                   this.generateErrorPdf(res.errors);
                 }
+                this.page = 1;
                 this.getAllUsers();
               } else {
                 this.toaster.error(res?.message || 'Failed to import users.', 'Error');
@@ -250,6 +295,15 @@ export class ProjectAdminComponent implements OnInit {
       console.error('Error fetching Excel URL:', error);
       this.checkDownloadExcelSpinner = false;
     });
+  }
+
+  onUpdateBulkClick() {
+    const input = document.getElementById('bulkUpdateFile') as HTMLInputElement | null;
+    if (input) {
+      input.click();
+    } else {
+      this.toaster.info('Please select a file to upload.', 'Info');
+    }
   }
 
 }

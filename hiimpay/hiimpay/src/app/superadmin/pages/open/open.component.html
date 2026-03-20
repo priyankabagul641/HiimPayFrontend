@@ -57,7 +57,13 @@
                 {{ item.contactEmail || '-' }}
               </td>
               <td class="text-center align-middle">
-                <span class="status-badge">{{ item.status }}</span>
+                <span class="status-badge"
+                      [ngClass]="{
+                        'badge-active': (item.status === 'ACTIVE' || item.status === 'Active' || item.status === 'active'),
+                        'badge-inactive': (item.status === 'INACTIVE' || item.status === 'Inactive' || item.status === 'inactive')
+                      }">
+                  {{ item.status }}
+                </span>
               </td>
               <td class="text-center align-middle">
                 <button *ngIf="isAdmin()" type="button" class="icon-btn" title="Edit" (click)="editClient(item.id); $event.stopPropagation();">
