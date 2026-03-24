@@ -1,0 +1,59 @@
+<section class="brand-shell">
+	<div class="brand-header">
+		<div>
+			<h2>Wallet Transactions</h2>
+			<p>Recent wallet activity</p>
+		</div>
+	</div>
+
+	<div class="toolbar-card">
+		<div class="toolbar-grid">
+			<input class="search-input" type="text" placeholder="Search transactions" [(ngModel)]="searchTerm" (input)="page = 1">
+			<div style="text-align:right">
+				<label class="check-wrap">Show
+					<select class="form-control" [(ngModel)]="pageSize" style="width:80px;display:inline-block;margin-left:8px;vertical-align:middle">
+						<option [ngValue]="5">5</option>
+						<option [ngValue]="10">10</option>
+						<option [ngValue]="25">25</option>
+					</select>
+				</label>
+			</div>
+		</div>
+	</div>
+
+	<div class="table-card">
+		<div class="desktop-table">
+			<table class="brand-table" *ngIf="!loading && !error && transactions.length">
+				<thead>
+					<tr>
+						<th class="col-date" (click)="toggleSort('createdAt')">Date <small *ngIf="sortField==='createdAt'">({{ sortDirection }})</small></th>
+						<th class="col-type" (click)="toggleSort('transactionType')">Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
+						<th class="col-amount" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
+						<th class="col-balance">Balance After</th>
+						<th class="col-reference">Reference</th>
+						<th class="col-notes">Notes</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }">
+						<td class="col-date">{{ t.createdAt | date:'short' }}</td>
+						<td class="col-type">{{ t.transactionType }}</td>
+						<td class="col-amount">{{ t.amount | number:'1.2-2' }}</td>
+						<td class="col-balance">{{ t.balanceAfter | number:'1.2-2' }}</td>
+						<td class="col-reference">{{ t.referenceNo }}</td>
+						<td class="col-notes truncate-cell">{{ t.notes }}</td>
+					</tr>
+					<tr *ngIf="filteredTransactions.length === 0">
+						<td colspan="6" class="empty">No transactions found</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="d-flex justify-content-end mt-2 wallet-table" *ngIf="transactions.length">
+		<pagination-controls (pageChange)="page = $event"></pagination-controls>
+	</div>
+	<div *ngIf="loading" class="wallet-table no-data">Loading transactions...</div>
+	<div *ngIf="error" class="wallet-table text-danger">{{ error }}</div>
+</section>

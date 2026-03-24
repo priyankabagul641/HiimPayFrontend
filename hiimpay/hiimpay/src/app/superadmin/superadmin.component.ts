@@ -8,6 +8,7 @@ import { CreateclientComponent } from './createclient/createclient.component';
 import { SearchService } from './services/search.service';
 import { AdminProfileComponent } from './pages/admin-profile/admin-profile.component';
 import { MessageService } from '../message.service';
+import { AdminDataService } from './services/adminData.service';
 import { formatDistanceToNow } from 'date-fns';
 import { filter } from 'rxjs';
 
@@ -36,7 +37,17 @@ export class SuperadminComponent {
   notifications: Notification[] = [];
   unreadNotificationsCount: number = 0;
   isNotificationRead: any; 
-  constructor(public dialog: MatDialog, private observer: BreakpointObserver, private router:Router,public service:SearchService,private messagingService: MessageService) {}
+  // Wallet display properties
+  walletBalance: number = 0;
+  balanceChange: number = 0;
+  constructor(
+    public dialog: MatDialog,
+    private observer: BreakpointObserver,
+    private router: Router,
+    public service: SearchService,
+    private messagingService: MessageService,
+    private adminDataService: AdminDataService
+  ) {}
 
 
   ngOnInit() {
@@ -68,6 +79,37 @@ export class SuperadminComponent {
     .subscribe(() => {
       this.clearSearchInput();
     });
+
+    // Load wallet from API using current logged-in user id
+    try {
+      const currentUser = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+      const userId = currentUser?.id;
+        if (currentUser && (currentUser.userType === 'ADMIN' || currentUser.userType === 'SUPERADMIN' || currentUser.isAdmin)) {
+          // Admin logged in — show total admin balance
+          this.adminDataService.getAdminTotalbalance().subscribe({
+            next: (res: any) => {
+              if (res && res.success && res.data) {
+                this.walletBalance = res.data.totalBalance ?? 0;
+              }
+            },
+            error: (err: any) => console.error('Failed to load admin total balance', err)
+          });
+        } else if (userId) {
+          // Non-admin user — load individual wallet
+          this.adminDataService.getwalletById(userId).subscribe({
+            next: (res: any) => {
+              if (res && res.success && res.data) {
+                this.walletBalance = res.data.balance ?? 0;
+              }
+            },
+            error: (err: any) => {
+              console.error('Failed to load wallet:', err);
+            }
+          });
+        }
+    } catch (e) {
+      console.error('Error parsing user from sessionStorage', e);
+    }
   }
 
   clearSearchInput() {

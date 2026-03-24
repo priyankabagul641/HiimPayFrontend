@@ -108,6 +108,7 @@ import { ClientCouponDialogComponent } from './Components/client-coupon/client-c
 import { BrandCouponAssignmentComponent } from './Components/client-assignment/brand-coupon-assignment.component';
 import { AssignedBrandListComponent } from './Components/client-assignment/assigned-brand-list.component';
 import { AssignedBrandDetailComponent } from './Components/client-assignment/assigned-brand-detail.component';
+import { WallwtCpocComponent } from './Components/wallwt-cpoc/wallwt-cpoc.component';
 
 @NgModule({
   declarations: [
@@ -185,7 +186,8 @@ import { AssignedBrandDetailComponent } from './Components/client-assignment/ass
     ClientCouponDialogComponent,
     BrandCouponAssignmentComponent,
     AssignedBrandListComponent,
-    AssignedBrandDetailComponent
+    AssignedBrandDetailComponent,
+    WallwtCpocComponent
   ],
   imports: [
     CommonModule,

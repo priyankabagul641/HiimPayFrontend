@@ -7,6 +7,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ProjectService } from './services/project.service';
 import { SearchService } from './services/search.service';
 import { MessageService } from '../../message.service';
+import { AdminDataService } from '../services/adminData.service';
 import { formatDistanceToNow } from 'date-fns';
 import { filter } from 'rxjs/operators';
 
@@ -42,6 +43,9 @@ export class ProjectComponent {
   isNotificationRead: any; 
   formattedDate:any;
   cId:any;
+  // Wallet display properties
+  walletBalance: number = 0;
+  balanceChange: number = 0;
   constructor(
     public dialog: MatDialog,
     private observer: BreakpointObserver,
@@ -49,7 +53,8 @@ export class ProjectComponent {
     private router: Router,
     private service: ProjectService,
     public servicesearch: SearchService,
-    private messagingService: MessageService
+    private messagingService: MessageService,
+    private adminDataService: AdminDataService
   ) { }
 
   ngOnInit() {
@@ -119,6 +124,26 @@ this.cId=id;console.log(this.cId);
     .subscribe(() => {
       this.clearSearchInput();
     });
+
+    // Load wallet from API using current logged-in user id
+    try {
+      const currentUser = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+      const userId = currentUser?.id;
+      if (userId) {
+        this.adminDataService.getwalletById(userId).subscribe({
+          next: (res: any) => {
+            if (res && res.success && res.data) {
+              this.walletBalance = res.data.balance ?? 0;
+            }
+          },
+          error: (err: any) => {
+            console.error('Failed to load wallet:', err);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing user from sessionStorage', e);
+    }
   }
 
   clearSearchInput() {

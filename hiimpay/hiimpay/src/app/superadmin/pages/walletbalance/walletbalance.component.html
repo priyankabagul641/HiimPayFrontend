@@ -1,0 +1,76 @@
+<section class="dashboard-shell">
+	<div class="dashboard-head">
+		<h3>Wallet Transactions</h3>
+	</div>
+
+	<div class="toolbar-card">
+		<div class="toolbar-grid">
+			<input class="search-input" type="text" placeholder="Search transactions" [(ngModel)]="searchTerm" (input)="page=1">
+			<div style="text-align:right">
+				<label class="check-wrap">Show
+					<select class="filter-select" [(ngModel)]="pageSize" style="width:100px;display:inline-block;margin-left:8px;vertical-align:middle">
+						<option [ngValue]="5">5</option>
+						<option [ngValue]="10">10</option>
+						<option [ngValue]="25">25</option>
+					</select>
+				</label>
+			</div>
+		</div>
+	</div>
+
+	<div class="table-card" *ngIf="!loading && !error && transactions.length">
+		<div class="table-scroll desktop-only">
+			<table class="company-table">
+				<thead>
+					<tr>
+						<th class="col-date text-left" (click)="toggleSort('createdAt')">Date <small *ngIf="sortField==='createdAt'">({{ sortDirection }})</small></th>
+						<th class="col-type text-left" (click)="toggleSort('transactionType')">Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
+						<th class="col-amount text-center" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
+						<th class="col-balance text-center">Balance After</th>
+						<th class="col-reference text-left">Reference</th>
+						<th class="col-transactionid text-left">Transaction ID</th>
+						<th class="col-paidvia text-left">Paid Via</th>
+						<th class="col-status text-center">Status</th>
+						<th class="col-notes text-left">Notes</th>
+						<th class="col-company text-left">Company</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page } ; let i = index">
+						<tr [class.alt-row]="i % 2 === 1">
+							<td class="text-left align-middle">{{ t.createdAt | date:'short' }}</td>
+							<td class="text-left align-middle">{{ t.transactionType }}</td>
+							<td class="text-center align-middle">{{ t.amount | number:'1.2-2' }}</td>
+							<td class="text-center align-middle">{{ t.balanceAfter | number:'1.2-2' }}</td>
+							<td class="text-left align-middle">{{ t.referenceNo }}</td>
+							<td class="text-left align-middle">{{ t.transactionId }}</td>
+							<td class="text-left align-middle">{{ t.paidVia || '-' }}</td>
+							<td class="text-center align-middle">
+								<span class="status-badge"
+											[ngClass]="{
+												'badge-success': (t.status || '').toString().toLowerCase() === 'success' || (t.status || '').toString().toLowerCase() === 'completed',
+												'badge-pending': (t.status || '').toString().toLowerCase() === 'pending',
+												'badge-cancel': (t.status || '').toString().toLowerCase() === 'cancel' || (t.status || '').toString().toLowerCase() === 'failed'
+											}">
+									{{ t.status || '-' }}
+								</span>
+							</td>
+							<td class="text-left align-middle truncate-cell" [title]="t.notes">{{ t.notes }}</td>
+							<td class="text-left align-middle" [title]="t.companyName">{{ t.companyName }}</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div *ngIf="transactions.length" class="pager-wrap">
+		<span class="pager-info">
+			Showing {{ (page - 1) * pageSize + 1 }}-{{ getPageUpperBound() }} of {{ totalItems }}
+		</span>
+		<pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
+	</div>
+
+	<div *ngIf="loading" class="wallet-table no-data">Loading transactions...</div>
+	<div *ngIf="error" class="wallet-table text-danger">{{ error }}</div>
+</section>

@@ -372,6 +372,18 @@ export class EmployeeService {
 //   "success": true
 // }
   }
+
+   purchaseCoupoun (data:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-wallets/cart/items`, data);
+// object is like this 
+// {
+// "userId": 0,
+//   "voucherId": 0,
+//   "amount": 0,
+//   "quantity": 0
+// }
+
+   }
  
    submitPurchase (data:any):Observable<any>{
     return this.http.post<any>(this.baseUrl+`user-wallets/purchase`, data);

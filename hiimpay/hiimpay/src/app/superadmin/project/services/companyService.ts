@@ -131,6 +131,10 @@ export class ProjectService {
 
   }
 
+ getWalletById(id: any) {
+    return this.http.get<any>(this.baseUrl + `cpoc-wallets/transactions/user/${id}`);
+  }
+
  CompanyDATA(id: any) {
     return this.http.get<any>(this.baseUrl + `companies/${id}`);
 //     getting responce like this

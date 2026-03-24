@@ -65,6 +65,132 @@ export class AdminDataService {
 //   "success": true
 // }
   }
+ getAllTransactions(): Observable<any> {
+    return this.http.get<any>(this.baseUrl + `cpoc-wallets/transactions`);
+//     getting responce like this
+// {
+//   "data": [
+//     {
+//       "transaction": {
+//         "id": 1,
+//         "wallet": {
+//           "id": 1,
+//           "cpocUserId": 60,
+//           "companyId": 7,
+//           "balance": 13333,
+//           "createdAt": "2026-03-23T13:49:27.288",
+//           "updatedAt": "2026-03-23T13:49:41.319"
+//         },
+//         "cpocUserId": 60,
+//         "companyId": 7,
+//         "employeeUserId": null,
+//         "transactionType": "CREDIT",
+//         "amount": 10000,
+//         "balanceAfter": 10000,
+//         "referenceNo": "A001",
+//         "transactionId": null,
+//         "paidVia": null,
+//         "status": null,
+//         "notes": "gift",
+//         "createdAt": "2026-03-23T13:49:27.305"
+//       },
+//       "companyName": "FinEdge Solutions Pvt Ltd"
+//     },
+//     {
+//       "transaction": {
+//         "id": 2,
+//         "wallet": {
+//           "id": 1,
+//           "cpocUserId": 60,
+//           "companyId": 7,
+//           "balance": 13333,
+//           "createdAt": "2026-03-23T13:49:27.288",
+//           "updatedAt": "2026-03-23T13:49:41.319"
+//         },
+//         "cpocUserId": 60,
+//         "companyId": 7,
+//         "employeeUserId": null,
+//         "transactionType": "CREDIT",
+//         "amount": 3333,
+//         "balanceAfter": 13333,
+//         "referenceNo": "A002",
+//         "transactionId": null,
+//         "paidVia": null,
+//         "status": null,
+//         "notes": "gift",
+//         "createdAt": "2026-03-23T13:49:41.317"
+//       },
+//       "companyName": "FinEdge Solutions Pvt Ltd"
+//     },
+//     {
+//       "transaction": {
+//         "id": 3,
+//         "wallet": {
+//           "id": 2,
+//           "cpocUserId": 77,
+//           "companyId": 28,
+//           "balance": 5000,
+//           "createdAt": "2026-03-23T13:50:42.769",
+//           "updatedAt": "2026-03-23T13:50:42.773"
+//         },
+//         "cpocUserId": 77,
+//         "companyId": 28,
+//         "employeeUserId": null,
+//         "transactionType": "CREDIT",
+//         "amount": 5000,
+//         "balanceAfter": 5000,
+//         "referenceNo": "A0023",
+//         "transactionId": null,
+//         "paidVia": null,
+//         "status": null,
+//         "notes": "gift one",
+//         "createdAt": "2026-03-23T13:50:42.771"
+//       },
+//       "companyName": "Tablabs Technologies"
+//     },
+//     {
+//       "transaction": {
+//         "id": 4,
+//         "wallet": {
+//           "id": 3,
+//           "cpocUserId": 29,
+//           "companyId": 5,
+//           "balance": 1000,
+//           "createdAt": "2026-03-23T14:07:26.57",
+//           "updatedAt": "2026-03-23T14:07:26.58"
+//         },
+//         "cpocUserId": 29,
+//         "companyId": 5,
+//         "employeeUserId": null,
+//         "transactionType": "CREDIT",
+//         "amount": 1000,
+//         "balanceAfter": 1000,
+//         "referenceNo": "string",
+//         "transactionId": null,
+//         "paidVia": null,
+//         "status": null,
+//         "notes": "api check",
+//         "createdAt": "2026-03-23T14:07:26.578"
+//       },
+//       "companyName": "testing data"
+//     }
+//   ],
+//   "message": "CPOC wallet transactions fetched successfully",
+//   "success": true
+// }
+  }
+  getAdminTotalbalance(): Observable<any> {
+    return this.http.get<any>(this.baseUrl + `cpoc-wallets/total-balance`);
+//     getting res like this {
+//   "data": {
+//     "totalBalance": 19333
+//   },
+//   "message": "Total CPOC wallet balance fetched successfully",
+//   "success": true
+// }
+  }
+
+  
  updateComponany(id: number, obj: any): Observable<any> {
     return this.http.put<any>(this.baseUrl + `companies/${id}`, obj);
   }
@@ -259,6 +385,9 @@ export class AdminDataService {
   }
   getCoupounById(Id: number) {
     return this.http.get<any>(this.baseUrl + `coupons/${Id}`);
+  }
+   getwalletById(Id: number) {
+    return this.http.get<any>(this.baseUrl + `cpoc-wallets/user/${Id}`);
   }
 
    getCategoryByCoupounId(Id: number) {

@@ -47,6 +47,7 @@ import { ClientCouponListComponent } from './Components/client-coupon/client-cou
 import { BrandCouponAssignmentComponent } from './Components/client-assignment/brand-coupon-assignment.component';
 import { AssignedBrandListComponent } from './Components/client-assignment/assigned-brand-list.component';
 import { AssignedBrandDetailComponent } from './Components/client-assignment/assigned-brand-detail.component';
+import { WallwtCpocComponent } from './Components/wallwt-cpoc/wallwt-cpoc.component';
 
 const routes: Routes = [
   {
@@ -126,6 +127,7 @@ const routes: Routes = [
       {path:'clientsurvey',component: CpocSurveyComponent},
       {path:'client-survey-res/:id',component: CpocSurveyRespComponent},
       {path:'profile-cpoc',component:ProfileCpocComponent}
+      ,{ path: 'wallet-transactions', component: WallwtCpocComponent }
     ],
   },{ path: 'cpoc', loadChildren: () => import('./project.module').then(m => m.ProjectModule) }
 ];

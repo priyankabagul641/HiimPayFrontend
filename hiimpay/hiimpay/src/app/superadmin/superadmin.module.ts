@@ -95,6 +95,8 @@ import { ClientInfoDialogComponent } from './pages/voucher-brand-list/client-inf
 import { ManualbrandComponent } from './pages/voucher-brand-list/manualbrand/manualbrand.component';
 import { ManytomanyComponent } from './pages/client-brand-list/manytomany/manytomany.component';
 
+import { WalletbalanceComponent } from './pages/walletbalance/walletbalance.component';
+
 @NgModule({
   declarations: [
     SuperadminComponent,
@@ -154,7 +156,9 @@ import { ManytomanyComponent } from './pages/client-brand-list/manytomany/manyto
     BrandCategoryCouponsDialogComponent,
     ClientInfoDialogComponent,
     ManualbrandComponent,
-    ManytomanyComponent
+    ManytomanyComponent,
+   
+    WalletbalanceComponent
   ],
   imports: [
     CommonModule,
