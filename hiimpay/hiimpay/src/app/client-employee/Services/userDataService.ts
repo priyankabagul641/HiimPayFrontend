@@ -246,20 +246,7 @@ export class EmployeeService {
 // }
   }
 
-   getUserWalletById(id: any): Observable<any> {
-    return this.http.get<any>(this.baseUrl+`user-reward-wallets/user/${id}`);
-//     getting responce like this{
-//   "data": {
-//     "id": 2,
-//     "userId": 36,
-//     "balance": 10010,
-//     "createdAt": "2026-02-27T12:19:44.091",
-//     "updatedAt": "2026-02-27T12:56:19.487"
-//   },
-//   "message": "Reward wallet fetched successfully",
-//   "success": true
-// }
-  }
+
    getUserTransactionsById(id: any): Observable<any> {
     return this.http.get<any>(this.baseUrl+`user-reward-wallets/user/${id}/transactions`);
 //     getting responce like this 
@@ -415,4 +402,44 @@ export class EmployeeService {
 // }
    }
 
+   createWallet(obj:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`payments/razorpay/wallet/order`, obj);
+// object is like this 
+// {
+//   "userId": 0,
+//   "amount": 0,
+//   "walletType": "string",
+//   "receipt": "string",
+//   "notes": "string"
+// }
+   }
+
+   razorPayWalletRes(data:any,id:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-reward-wallets/user/${id}/credit`, data);
+// object is like this 
+// {
+//   "amount": 0,
+//   "referenceNo": "string",
+//   "notes": "string",
+//   "razorpayOrderId": "string",
+//   "razorpayPaymentId": "string",
+//   "razorpaySignature": "string"
+// }
+  }
+
+  getUserWalletById(id: any): Observable<any> {
+    return this.http.get<any>(this.baseUrl+`user-reward-wallets/user/${id}`);
+//     getting responce like this{
+//   "data": {
+//     "id": 2,
+//     "userId": 36,
+//     "balance": 10010,
+//     "createdAt": "2026-02-27T12:19:44.091",
+//     "updatedAt": "2026-02-27T12:56:19.487"
+//   },
+//   "message": "Reward wallet fetched successfully",
+//   "success": true
+// }
+  }
+  
 }

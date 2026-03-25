@@ -1,33 +1,190 @@
 <ng-container>
-  <div class="wallet-toggle">
-    <button [class.active]="shell.walletView === 'amount'" (click)="shell.selectWalletView('amount')">Amount</button>
+
+  <!-- Page Header -->
+  <div class="wallet-header">
+    <h2 class="wallet-title">My Wallet</h2>
+    <p class="wallet-subtitle">Manage your balance and track transactions</p>
   </div>
 
-  <ng-container *ngIf="shell.walletView === 'amount'">
-    <div class="amount-summary-grid">
-      <article class="mini-card">
-        <mat-icon>account_balance_wallet</mat-icon>
-        <p>Wallet Balance</p>
-        <h5>₹{{ shell.remainingAmount }}</h5>
-      </article>
-    </div>
-
-    <article class="insight-card">
-      <div class="insight-head">
-        <h4>Transaction History</h4>
-        <span>{{ shell.walletTransactions.length }} transactions</span>
-      </div>
-      <div class="amount-transaction-list">
-        <div class="amount-transaction-item" *ngFor="let tx of shell.walletTransactions">
-          <div>
-            <p>{{ tx.description }}</p>
-            <small>{{ tx.date | date: 'd MMM yyyy' }}</small>
-          </div>
-          <strong [class.credit]="tx.type === 'credit'" [class.debit]="tx.type === 'debit'">
-            {{ tx.type === 'credit' ? '+' : '-' }}₹{{ tx.amount }}
-          </strong>
+  <!-- Balance Hero Card -->
+  <div class="balance-card">
+    <div class="balance-card-content">
+      <div class="balance-left">
+        <div class="balance-icon-ring">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="balance-text">
+          <span class="balance-label">Available Balance</span>
+          <span class="balance-amount">₹{{ shell.remainingAmount }}</span>
+          <span class="balance-updated">Updated just now</span>
         </div>
       </div>
-    </article>
-  </ng-container>
+      <button class="add-money-btn" type="button" (click)="openCreditForm()">
+        <mat-icon>add</mat-icon>
+        <span>Add Money</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-tile stat-credit">
+      <div class="stat-tile-icon">
+        <mat-icon>south_west</mat-icon>
+      </div>
+      <div class="stat-tile-info">
+        <span class="stat-tile-val">₹{{ totalCredited }}</span>
+        <span class="stat-tile-lbl">Total Credited</span>
+      </div>
+    </div>
+    <div class="stat-tile stat-debit">
+      <div class="stat-tile-icon">
+        <mat-icon>north_east</mat-icon>
+      </div>
+      <div class="stat-tile-info">
+        <span class="stat-tile-val">₹{{ totalDebited }}</span>
+        <span class="stat-tile-lbl">Total Spent</span>
+      </div>
+    </div>
+    <div class="stat-tile stat-count">
+      <div class="stat-tile-icon">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+      <div class="stat-tile-info">
+        <span class="stat-tile-val">{{ shell.walletTransactions.length }}</span>
+        <span class="stat-tile-lbl">Transactions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="tx-section">
+    <div class="tx-header">
+      <div class="tx-header-left">
+        <mat-icon>history</mat-icon>
+        <h3>Transaction History</h3>
+      </div>
+      <span class="tx-count-badge">{{ shell.walletTransactions.length }}</span>
+    </div>
+
+    <div class="tx-list" *ngIf="shell.walletTransactions.length > 0; else emptyState">
+      <div class="tx-row" *ngFor="let tx of paginatedTransactions">
+        <div class="tx-row-icon"
+          [class.icon-credit]="tx.type === 'credit'"
+          [class.icon-debit]="tx.type !== 'credit'">
+          <mat-icon>{{ tx.type === 'credit' ? 'add' : 'remove' }}</mat-icon>
+        </div>
+        <div class="tx-row-info">
+          <p class="tx-desc">{{ tx.description }}</p>
+          <span class="tx-date">{{ tx.date | date: 'd MMM yyyy' }}</span>
+        </div>
+        <div class="tx-row-amount"
+          [class.amt-credit]="tx.type === 'credit'"
+          [class.amt-debit]="tx.type !== 'credit'">
+          {{ tx.type === 'credit' ? '+' : '-' }}₹{{ tx.amount }}
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-pagination" *ngIf="shell.walletTransactions.length > 0">
+      <p class="tx-pagination-info">Showing {{ startIndex }}-{{ endIndex }} of {{ totalTransactions }}</p>
+      <div class="tx-pagination-controls" *ngIf="totalPages > 1">
+        <button class="page-btn" type="button" (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+        <button
+          class="page-btn page-num"
+          type="button"
+          *ngFor="let page of visiblePages"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="page-btn" type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <p>No transactions yet</p>
+        <small>Your wallet activity will appear here</small>
+        <button class="empty-add-btn" type="button" (click)="openCreditForm()">
+          <mat-icon>add</mat-icon> Add Money
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Credit Wallet Modal -->
+  <div class="modal-overlay" *ngIf="showCreditForm" (click)="closeCreditForm()"></div>
+  <div class="modal-dialog" *ngIf="showCreditForm" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-icon-wrap">
+        <mat-icon>add_card</mat-icon>
+      </div>
+      <div class="modal-heading">
+        <h4>Add Money to Wallet</h4>
+        <p>Secure payment via Razorpay</p>
+      </div>
+      <button type="button" class="modal-close-btn" (click)="closeCreditForm()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="quick-label">Quick Select</p>
+      <div class="chip-row">
+        <button type="button" class="chip" [class.chip-active]="creditAmount === 500" (click)="creditAmount = 500">₹500</button>
+        <button type="button" class="chip" [class.chip-active]="creditAmount === 1000" (click)="creditAmount = 1000">₹1,000</button>
+        <button type="button" class="chip" [class.chip-active]="creditAmount === 2000" (click)="creditAmount = 2000">₹2,000</button>
+        <button type="button" class="chip" [class.chip-active]="creditAmount === 5000" (click)="creditAmount = 5000">₹5,000</button>
+      </div>
+
+      <div class="form-field">
+        <label class="form-field-label">Amount (₹) <span class="req">*</span></label>
+        <div class="amount-input-wrap">
+          <span class="amount-prefix">₹</span>
+          <input
+            type="number"
+            class="amount-input"
+            [(ngModel)]="creditAmount"
+            placeholder="0"
+            min="1"
+          />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-field-label">Notes <span class="opt">(optional)</span></label>
+        <input
+          type="text"
+          class="text-input"
+          [(ngModel)]="creditNotes"
+          placeholder="e.g. Monthly bonus top-up"
+        />
+      </div>
+
+      <p class="secure-note">
+        <mat-icon>lock</mat-icon> 100% Secure &middot; Powered by Razorpay
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="closeCreditForm()">Cancel</button>
+      <button
+        type="button"
+        class="btn-pay"
+        [disabled]="isCreditLoading || !creditAmount || creditAmount <= 0"
+        (click)="submitCreditWallet()"
+      >
+        <mat-icon *ngIf="!isCreditLoading">lock</mat-icon>
+        <span *ngIf="!isCreditLoading">Pay ₹{{ creditAmount || 0 }}</span>
+        <span *ngIf="isCreditLoading" class="loading-text">
+          <mat-icon class="spin-icon">autorenew</mat-icon> Processing...
+        </span>
+      </button>
+    </div>
+  </div>
+
 </ng-container>
