@@ -68,6 +68,9 @@
         <h2 *ngIf="isDetailsView">Coupon Details</h2>
 
         <div class="header-actions right">
+          <button class="icon-only" type="button" (click)="openCart()" title="Cart" aria-label="Cart">
+            <mat-icon>shopping_cart</mat-icon>
+          </button>
           <button class="icon-only" type="button" (click)="toggleFaqPanel()" title="FAQ" aria-label="FAQ">
             <mat-icon>help_outline</mat-icon>
           </button>

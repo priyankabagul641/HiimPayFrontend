@@ -600,6 +600,10 @@ export class ClientEmployeeComponent implements OnInit {
     this.router.navigate(['/clientEmployee/profile']);
   }
 
+  openCart() {
+    this.router.navigate(['/clientEmployee/cart']);
+  }
+
   toggleFaqItem(index: number) {
     this.faqOpenIndex = this.faqOpenIndex === index ? -1 : index;
   }

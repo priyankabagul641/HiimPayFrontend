@@ -155,7 +155,20 @@ export class CouponDetailsComponent implements OnInit {
     if (this.totalQuantity <= 0) {
       return;
     }
-    this.router.navigate(['/clientEmployee/cart']);
+
+    const cartItems = this.cartService.getCartSnapshot();
+    const userId = this.shell.userId;
+
+    this.cartService.addtoCartItems(cartItems, userId).subscribe({
+      next: () => {
+        this.router.navigate(['/clientEmployee/cart']);
+      },
+      error: (err: any) => {
+        console.error('addtoCartItems API error:', err);
+        // Navigate anyway so UX is not blocked
+        this.router.navigate(['/clientEmployee/cart']);
+      }
+    });
   }
 
   private syncDenomination(index: number) {

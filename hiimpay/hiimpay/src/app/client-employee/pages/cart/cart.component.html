@@ -50,7 +50,9 @@
         <span>Amount to be Paid</span>
         <strong>₹{{ amountToPay | number:'1.0-0' }}</strong>
       </div>
-      <button type="button" class="buy-btn">Buy Now</button>
+      <button type="button" class="buy-btn" (click)="buyNow()" [disabled]="isBuying || cartItems.length === 0">
+        {{ isBuying ? 'Processing...' : 'Buy Now' }}
+      </button>
     </aside>
   </div>
 </section>

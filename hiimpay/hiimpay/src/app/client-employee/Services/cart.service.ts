@@ -120,6 +120,40 @@ addtoCartItems (data:any,id:number):Observable<any>{
 // ]
 
    }
+updateQuantityById(obj: any,voucherid:any): Observable<any> {
+    return this.http.put<any>(this.baseUrl + `user-wallets/cart/items/${voucherid}`, obj);
+    //obj should be like this
+// {
+//   "quantity": 0
+// }
+  }
 
+deleteVouchersById(voucherid:any): Observable<any> {
+    return this.http.delete<any>(this.baseUrl + `user-wallets/cart/items/${voucherid}`);
+  }
+
+ BuyNow (data:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-wallets/cart/checkout`, data);
+// object is like this 
+// {
+//   "userId": 0,
+//   "referenceNo": "string",
+//   "notes": "string",
+//   "allocationSource": "string",
+//   "status": "string",
+//   "redemptionChannel": "string"
+// }
+
+   }
+   razorPay (data:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`payments/razorpay/order`, data);
+// object is like this 
+// {
+//   "userId": 30,
+//   "receipt": "string",
+//   "notes": "string"
+// }
+
+   }
 
 }
