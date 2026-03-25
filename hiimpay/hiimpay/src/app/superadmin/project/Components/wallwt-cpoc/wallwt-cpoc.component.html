@@ -4,6 +4,10 @@
 			<h2>Wallet Transactions</h2>
 			<p>Recent wallet activity</p>
 		</div>
+		<div class="header-actions">
+			<div class="balance-chip">Balance: ₹{{ walletBalance | number:'1.2-2' }}</div>
+			<button type="button" class="credit-btn" (click)="openCreditForm()">Credit Wallet Amount</button>
+		</div>
 	</div>
 
 	<div class="toolbar-card">
@@ -56,4 +60,44 @@
 	</div>
 	<div *ngIf="loading" class="wallet-table no-data">Loading transactions...</div>
 	<div *ngIf="error" class="wallet-table text-danger">{{ error }}</div>
+
+	<div class="credit-form-overlay" *ngIf="showCreditForm" (click)="closeCreditForm()"></div>
+	<div class="credit-form-panel" *ngIf="showCreditForm">
+		<div class="credit-form-header">
+			<h4>Credit Wallet Amount</h4>
+			<button type="button" class="close-btn" (click)="closeCreditForm()">×</button>
+		</div>
+
+		<div class="credit-form-body">
+			<label class="form-label">Amount (₹) <span class="req">*</span></label>
+			<input
+				type="number"
+				class="form-input"
+				[(ngModel)]="creditAmount"
+				placeholder="Enter amount"
+				min="1"
+			/>
+
+			<label class="form-label mt">Notes <span class="muted">(optional)</span></label>
+			<input
+				type="text"
+				class="form-input"
+				[(ngModel)]="creditNotes"
+				placeholder="e.g. Wallet top-up"
+			/>
+		</div>
+
+		<div class="credit-form-actions">
+			<button type="button" class="cancel-btn" (click)="closeCreditForm()">Cancel</button>
+			<button
+				type="button"
+				class="submit-btn"
+				[disabled]="isCreditLoading || !creditAmount || creditAmount <= 0"
+				(click)="submitCreditWallet()"
+			>
+				<span *ngIf="!isCreditLoading">Proceed to Pay</span>
+				<span *ngIf="isCreditLoading">Processing...</span>
+			</button>
+		</div>
+	</div>
 </section>
