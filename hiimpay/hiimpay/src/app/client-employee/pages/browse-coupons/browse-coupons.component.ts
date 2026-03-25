@@ -23,6 +23,10 @@ export class BrowseCouponsComponent {
     }));
   }
 
+  trackById(_index: number, coupon: any): number {
+    return coupon.id;
+  }
+
   openCouponDetails(couponId: number) {
     this.router.navigate(['/clientEmployee/coupon-details', couponId]);
   }

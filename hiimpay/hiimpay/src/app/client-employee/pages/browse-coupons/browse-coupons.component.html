@@ -4,10 +4,16 @@
     <p>Get amazing discounts on your favorite brands</p>
   </div>
 
-  <div class="coupon-grid">
+  <div class="browse-loading" *ngIf="shell.browseCouponsLoading">
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+  </div>
+
+  <div class="coupon-grid" *ngIf="!shell.browseCouponsLoading">
     <article
       class="coupon-card"
-      *ngFor="let coupon of coupons; let i = index"
+      *ngFor="let coupon of coupons; let i = index; trackBy: trackById"
       [style.--i]="i"
       (click)="openCouponDetails(coupon.id)"
     >
@@ -25,9 +31,9 @@
             <span class="discount-label">Discount</span>
           </div>
           <div class="coupon-actions">
-            <button class="add-cart-btn" (click)="addtoCartItems(coupon, $event)">
+            <!-- <button class="add-cart-btn" (click)="addtoCartItems(coupon, $event)">
               Add to Cart
-            </button>
+            </button> -->
             <button class="buy-now-btn" (click)="$event.stopPropagation(); openCouponDetails(coupon.id)">
               <span>Buy Now</span>
               <span class="btn-arrow">›</span>
