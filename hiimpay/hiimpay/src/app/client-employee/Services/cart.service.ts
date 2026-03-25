@@ -141,7 +141,10 @@ deleteVouchersById(voucherid:any): Observable<any> {
 //   "notes": "string",
 //   "allocationSource": "string",
 //   "status": "string",
-//   "redemptionChannel": "string"
+//   "redemptionChannel": "string",
+//   "razorpayOrderId": "string",
+//   "razorpayPaymentId": "string",
+//   "razorpaySignature": "string"
 // }
 
    }

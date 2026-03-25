@@ -13,6 +13,7 @@ export class CartComponent implements OnInit, OnDestroy {
   cartItems: CartItem[] = [];
   isBuying = false;
   private sub?: Subscription;
+  private readonly razorpayKeyId = 'rzp_test_SUgWJosaiMRnFd';
 
   constructor(
     private cartService: CartService,
@@ -107,15 +108,102 @@ export class CartComponent implements OnInit, OnDestroy {
     };
 
     this.cartService.razorPay(razorPayload).subscribe({
-      next: () => {
-        this.isBuying = false;
-        this.toastr.success('Razorpay order created successfully.');
+      next: async (res: any) => {
+        const order = res?.data || {};
+        const orderId = order?.orderId;
+        const amount = Number(order?.amountInPaise ?? order?.amount ?? 0);
+
+        if (!orderId || !amount) {
+          this.isBuying = false;
+          this.toastr.error('Invalid Razorpay order response.');
+          return;
+        }
+
+        const loaded = await this.loadRazorpayScript();
+        if (!loaded || !(window as any).Razorpay) {
+          this.isBuying = false;
+          this.toastr.error('Razorpay SDK failed to load.');
+          return;
+        }
+
+        const options = {
+          key: this.razorpayKeyId,
+          amount,
+          currency: order?.currency || 'INR',
+          name: 'HiimPay',
+          description: 'Cart Payment',
+          order_id: orderId,
+          handler: (paymentResponse: any) => {
+            const buyNowPayload = {
+              userId,
+              referenceNo: paymentResponse?.razorpay_payment_id || `REF-${Date.now()}`,
+              notes: 'Checkout from cart',
+              allocationSource: 'PURCHASE',
+              status: 'PENDING',
+              redemptionChannel: 'ONLINE',
+              razorpay_order_id: paymentResponse?.razorpay_order_id,
+              razorpay_payment_id: paymentResponse?.razorpay_payment_id,
+              razorpay_signature: paymentResponse?.razorpay_signature
+            };
+
+            this.cartService.BuyNow(buyNowPayload).subscribe({
+              next: (res: any) => {
+                const checkoutSuccess =
+                  res?.success === true ||
+                  (res?.message || '').toLowerCase().includes('checkout completed successfully');
+
+                this.isBuying = false;
+                if (!checkoutSuccess) {
+                  this.toastr.error('Payment captured, but checkout failed.');
+                  return;
+                }
+
+                [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
+                this.toastr.success('Payment completed and cart checkout successful.');
+                this.router.navigate(['/clientEmployee/my-coupons']);
+              },
+              error: (err: any) => {
+                this.isBuying = false;
+                console.error('BuyNow API error:', err);
+                this.toastr.error('Payment success, but checkout API failed.');
+              }
+            });
+          },
+          modal: {
+            ondismiss: () => {
+              this.isBuying = false;
+              this.toastr.info('Payment popup closed.');
+            }
+          },
+          notes: {
+            userId: String(userId)
+          }
+        };
+
+        const razorpay = new (window as any).Razorpay(options);
+        razorpay.open();
       },
       error: (err: any) => {
         this.isBuying = false;
         console.error('razorPay API error:', err);
         this.toastr.error('Razorpay order failed. Please try again.');
       }
+    });
+  }
+
+  private loadRazorpayScript(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
     });
   }
 }
