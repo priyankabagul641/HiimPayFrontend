@@ -1,0 +1,56 @@
+<section class="cart-page">
+  <div class="cart-grid">
+    <div class="cart-list">
+      <article class="cart-card" *ngFor="let item of cartItems">
+        <div class="card-left">
+          <img [src]="item.image" [alt]="item.brand" />
+        </div>
+
+        <div class="card-center">
+          <h3>{{ item.title || item.brand }}</h3>
+          <div class="meta-row">
+            <span>Qty: {{ item.quantity }}</span>
+            <span>Amount: ₹{{ item.total | number:'1.0-0' }}</span>
+            <span class="save">Savings: ₹{{ item.savings | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="qty-controls">
+            <button type="button" (click)="decrement(item)">-</button>
+            <strong>{{ item.quantity }}</strong>
+            <button type="button" (click)="increment(item)">+</button>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button type="button" class="icon-btn" title="Edit" (click)="editItem(item)">✎</button>
+          <button type="button" class="icon-btn danger" title="Delete" (click)="removeItem(item)">🗑</button>
+        </div>
+      </article>
+
+      <div class="empty" *ngIf="cartItems.length === 0">
+        No vouchers in cart.
+      </div>
+    </div>
+
+    <aside class="summary-panel">
+      <h4>Summary</h4>
+      <div class="summary-row">
+        <span>Total Vouchers</span>
+        <strong>{{ totalVouchers }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Voucher Amount</span>
+        <strong>₹{{ voucherAmount | number:'1.0-0' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Savings</span>
+        <strong class="save">₹{{ totalSavings | number:'1.0-0' }}</strong>
+      </div>
+      <div class="summary-row final">
+        <span>Amount to be Paid</span>
+        <strong>₹{{ amountToPay | number:'1.0-0' }}</strong>
+      </div>
+      <button type="button" class="buy-btn">Buy Now</button>
+    </aside>
+  </div>
+</section>

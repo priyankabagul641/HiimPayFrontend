@@ -1,0 +1,127 @@
+<section class="details-page" *ngIf="coupon?.id">
+  <div class="details-grid">
+    <aside class="left-col">
+      <div class="brand-image-card">
+        <img [src]="coupon.image" [alt]="coupon.brand || 'Coupon'" />
+      </div>
+
+      <div class="info-card">
+        <p class="description">{{ coupon.description || 'Get instant e-gift cards for your favorite brands with secure checkout and instant delivery.' }}</p>
+        <ul class="info-list">
+          <li>Validity: 12 Months</li>
+          <li>Instant Delivery</li>
+          <li>No Additional Fees</li>
+          <li>Secure Payment</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="right-col">
+      <div class="title-card">
+        <span class="badge">{{ discountPercent }}% off</span>
+        <h1>{{ coupon.title || (coupon.brand + ' E-Gift Card') }}</h1>
+        <p class="category">{{ coupon.category || 'Food and Beverages' }}</p>
+      </div>
+
+      <div class="denomination-card">
+        <h2>Choose Denomination</h2>
+        <div class="denomination-head">
+          <span>MRP</span>
+          <span>Discount %</span>
+          <span>Your Savings</span>
+          <span>Total</span>
+          <span>Quantity</span>
+        </div>
+
+        <div class="denomination-row" *ngFor="let row of denominations; let i = index">
+          <span>₹{{ row.mrp }}</span>
+          <span>{{ discountPercent }}%</span>
+          <span class="save">₹{{ rowSavings(row) | number:'1.0-0' }}</span>
+          <span>₹{{ rowTotal(row) | number:'1.0-0' }}</span>
+          <div class="qty-box">
+            <button type="button" (click)="decrement(i)">-</button>
+            <strong>{{ row.quantity }}</strong>
+            <button type="button" (click)="increment(i)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-amount-card">
+        <h2>Choose Custom Amount</h2>
+        
+        <div class="custom-amount-list" *ngIf="customAmounts.length > 0">
+          <div class="custom-amount-row" *ngFor="let row of customAmounts; let i = index">
+            <div class="custom-input-wrapper">
+              <input 
+                type="number" 
+                [(ngModel)]="row.amount"
+                (change)="onCustomAmountChange(i)"
+                placeholder="Enter amount" 
+                min="100"
+                max="100000"
+                class="custom-amount-input" />
+            </div>
+            <div class="qty-controls">
+              <button type="button" class="qty-btn" (click)="customDecrement(i)">−</button>
+              <span class="qty-display">{{ row.quantity }}</span>
+              <button type="button" class="qty-btn" (click)="customIncrement(i)">+</button>
+            </div>
+            <button 
+              type="button" 
+              class="row-remove-btn" 
+              (click)="removeCustomAmount(i)"
+              title="Remove this custom amount">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div class="custom-actions">
+          <button type="button" class="add-custom-btn" (click)="addCustomAmount()">+ Add Custom Amount</button>
+        </div>
+      </div>
+
+      <div class="tabs-card">
+        <div class="tabs-head">
+          <button type="button" [class.active]="activeTab === 'redeem'" (click)="setTab('redeem')">How to Redeem</button>
+          <button type="button" [class.active]="activeTab === 'terms'" (click)="setTab('terms')">Terms and Condition</button>
+          <button type="button" [class.active]="activeTab === 'description'" (click)="setTab('description')">Description</button>
+        </div>
+
+        <div class="tab-content" *ngIf="activeTab === 'redeem'">
+          <ol>
+            <li *ngFor="let step of coupon.redeemSteps">{{ step }}</li>
+          </ol>
+        </div>
+
+        <div class="tab-content" *ngIf="activeTab === 'terms'">
+          <p>{{ coupon.terms || 'Standard terms and conditions are applicable.' }}</p>
+        </div>
+
+        <div class="tab-content" *ngIf="activeTab === 'description'">
+          <p>{{ coupon.description || 'This e-gift voucher can be used across applicable partner channels.' }}</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="sticky-summary">
+    <div class="summary-item">
+      <small>Total Quantity</small>
+      <strong>{{ totalQuantity }}</strong>
+    </div>
+    <div class="summary-item">
+      <small>Total Savings</small>
+      <strong class="save">₹{{ totalSavings | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+      <small>Total Amount</small>
+      <strong>₹{{ totalAmount | number:'1.0-0' }}</strong>
+    </div>
+    <button type="button" class="proceed-btn" (click)="proceedToCart()">Proceed to Cart</button>
+  </div>
+</section>
+
+<section class="details-page" *ngIf="!coupon?.id">
+  <div class="empty-state">Coupon not found.</div>
+</section>

@@ -29,6 +29,7 @@ export class LoginComponent implements OnInit {
   toastMessage = '';
   showToast = false;
   notifications: Array<{ message: string; time: string; unread: boolean }> = [];
+  captchaLoading = false;
 
   constructor(
     private router: Router,
@@ -182,8 +183,10 @@ export class LoginComponent implements OnInit {
   }
 
   regenerateCaptcha() {
-    this.generateCaptcha();
-    this.loginForm.get('enteredCaptcha')?.setValue('');
+    if (!this.captchaLoading) {
+      this.generateCaptcha();
+      this.loginForm.get('enteredCaptcha')?.setValue('');
+    }
   }
 
   get emailId() {
@@ -191,6 +194,8 @@ export class LoginComponent implements OnInit {
   }
 
   private generateCaptcha() {
+    this.captchaLoading = true;
+    
     let generated = '';
     if (this.captchaConfig.type === 1) {
       generated =
@@ -202,32 +207,48 @@ export class LoginComponent implements OnInit {
     setTimeout(() => {
       const captcahCanvas: any = document.getElementById('captcahCanvas');
       if (!captcahCanvas) {
+        this.captchaLoading = false;
         return;
       }
       const ctx = captcahCanvas.getContext('2d');
       if (!ctx) {
+        this.captchaLoading = false;
         return;
       }
 
-      ctx.fillStyle = this.captchaConfig.back.solid;
+      // Clear canvas with light background
+      ctx.fillStyle = '#fef9e7';
       ctx.fillRect(0, 0, captcahCanvas.width, captcahCanvas.height);
-      captcahCanvas.style.letterSpacing = '15px';
 
-      ctx.beginPath();
-      ctx.font = `${this.captchaConfig.font.size} ${this.captchaConfig.font.family}`;
-      ctx.fillStyle = this.captchaConfig.font.color;
-      ctx.textBaseline = 'middle';
-      ctx.fillText(this.captchaCode, 40, 38);
+      // Draw subtle border
+      ctx.strokeStyle = '#d4a574';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(1, 1, captcahCanvas.width - 2, captcahCanvas.height - 2);
 
-      if (this.captchaConfig.back.stroke) {
-        ctx.strokeStyle = this.captchaConfig.back.stroke;
-        for (let i = 0; i < 120; i += 1) {
-          ctx.moveTo(Math.random() * 300, Math.random() * 120);
-          ctx.lineTo(Math.random() * 300, Math.random() * 120);
-        }
-        ctx.stroke();
+      // Add minimal noise lines (reduced from 120 to ~25)
+      ctx.strokeStyle = 'rgba(212, 165, 116, 0.15)';
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 25; i += 1) {
+        ctx.moveTo(Math.random() * captcahCanvas.width, Math.random() * captcahCanvas.height);
+        ctx.lineTo(Math.random() * captcahCanvas.width, Math.random() * captcahCanvas.height);
       }
-    }, 60);
+      ctx.stroke();
+
+      // Draw text with better positioning
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.fillStyle = '#103a7f';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = '4px';
+
+      // Center text in canvas
+      const textWidth = ctx.measureText(this.captchaCode).width;
+      const xPos = (captcahCanvas.width - textWidth) / 2;
+      const yPos = captcahCanvas.height / 2;
+
+      ctx.fillText(this.captchaCode, xPos, yPos);
+      
+      this.captchaLoading = false;
+    }, 100);
   }
 
   private isValidEmail(email: string) {

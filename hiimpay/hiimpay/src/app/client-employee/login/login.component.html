@@ -14,12 +14,26 @@
         <label for="emailId">Company Email</label>
         <input id="emailId" type="email" formControlName="emailId" placeholder="name@company.com" />
 
-        <label>CAPTCHA</label>
+        <label class="captcha-label">CAPTCHA Verification</label>
         <div class="captcha-compact">
-          <canvas id="captcahCanvas" class="captcha-box" width="325" height="64"></canvas>
-          <button class="icon-btn inline" type="button" (click)="regenerateCaptcha()">↻</button>
+          <div class="captcha-canvas-wrapper">
+            <canvas id="captcahCanvas" class="captcha-box" width="280" height="50"></canvas>
+            <button 
+              class="icon-btn inline" 
+              type="button" 
+              (click)="regenerateCaptcha()"
+              [disabled]="captchaLoading"
+              title="Refresh CAPTCHA">
+              <span [class.rotating]="captchaLoading">↻</span>
+            </button>
+          </div>
         </div>
-        <input type="text" formControlName="enteredCaptcha" placeholder="Enter CAPTCHA" maxlength="6" />
+        <input 
+          type="text" 
+          formControlName="enteredCaptcha" 
+          class="captcha-input-field"
+          placeholder="Enter the characters shown above" 
+          maxlength="6" />
 
         <button class="primary-btn" type="button" (click)="sendOtp()" [disabled]="isSendingOtp">
           <span *ngIf="!isSendingOtp">Send OTP</span>

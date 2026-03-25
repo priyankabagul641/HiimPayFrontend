@@ -396,7 +396,12 @@ export class UserloginComponent implements OnInit {
     }
   }
 
+  captchaLoading = false;
+  
   createCaptcha() {
+    // Set loading state
+    this.captchaLoading = true;
+    
     switch (this.config.type) {
       case 1:
         let char =
@@ -410,33 +415,52 @@ export class UserloginComponent implements OnInit {
     }
     setTimeout(() => {
       let captcahCanvas: any = document.getElementById("captcahCanvas");
+      if (!captcahCanvas) return;
+      
       var ctx = captcahCanvas?.getContext("2d");
-      ctx.fillStyle = this.config.back.solid;
+      if (!ctx) return;
+      
+      // Clear canvas with light background
+      ctx.fillStyle = "#fef9e7";
       ctx.fillRect(0, 0, captcahCanvas.width, captcahCanvas.height);
 
-      ctx.beginPath();
+      // Draw subtle border
+      ctx.strokeStyle = "#d4a574";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(1, 1, captcahCanvas.width - 2, captcahCanvas.height - 2);
 
-      captcahCanvas.style.letterSpacing = 15 + "px";
-      ctx.font = this.config.font.size + " " + this.config.font.family;
-      ctx.fillStyle = this.config.font.color;
-      ctx.textBaseline = "middle";
-      ctx.fillText(this.code, 40, 50);
-      if (this.config.back.stroke) {
-        ctx.strokeStyle = this.config.back.stroke;
-        for (var i = 0; i < 150; i++) {
-          ctx.moveTo(Math.random() * 300, Math.random() * 300);
-          ctx.lineTo(Math.random() * 300, Math.random() * 300);
-        }
-        ctx.stroke();
+      // Add minimal noise lines (reduced from 150 to ~20-30)
+      ctx.strokeStyle = "rgba(212, 165, 116, 0.15)";
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 25; i++) {
+        ctx.moveTo(Math.random() * captcahCanvas.width, Math.random() * captcahCanvas.height);
+        ctx.lineTo(Math.random() * captcahCanvas.width, Math.random() * captcahCanvas.height);
       }
+      ctx.stroke();
 
-    }, 100);
+      // Draw text with better positioning
+      ctx.font = "bold 24px Arial, sans-serif";
+      ctx.fillStyle = "#103a7f";
+      ctx.textBaseline = "middle";
+      ctx.letterSpacing = "4px";
+      
+      // Center text in canvas
+      const textWidth = ctx.measureText(this.code).width;
+      const xPos = (captcahCanvas.width - textWidth) / 2;
+      const yPos = captcahCanvas.height / 2;
+      
+      ctx.fillText(this.code, xPos, yPos);
+      
+      this.captchaLoading = false;
+    }, 150);
   }
 
   reloadCaptcha(): void {
-    this.createCaptcha();
-    this.captch_input = '';
-    this.checkCaptchaValue = false;
+    if (!this.captchaLoading) {
+      this.createCaptcha();
+      this.captch_input = '';
+      this.checkCaptchaValue = false;
+    }
   }
 
 

@@ -1,0 +1,35 @@
+<main class="browse-main">
+  <div class="browse-header">
+    <h1>E-Gift Cards & Coupons</h1>
+    <p>Get amazing discounts on your favorite brands</p>
+  </div>
+
+  <div class="coupon-grid">
+    <article
+      class="coupon-card"
+      *ngFor="let coupon of coupons; let i = index"
+      [style.--i]="i"
+      (click)="openCouponDetails(coupon.id)"
+    >
+      <div class="coupon-image-wrap">
+        <img [src]="coupon.image" [alt]="coupon.brandName" class="coupon-image" />
+      </div>
+
+      <div class="coupon-content">
+        <h3>{{ coupon.title || (coupon.brandName + ' E-Gift Card') }}</h3>
+        <p class="coupon-brand">{{ coupon.brandName }}</p>
+
+        <div class="coupon-footer">
+          <div class="discount-wrap">
+            <span class="discount-value">{{ coupon.discount }}</span>
+            <span class="discount-label">Discount</span>
+          </div>
+          <button class="buy-now-btn" (click)="openCouponDetails(coupon.id)">
+            <span>Buy Now</span>
+            <span class="btn-arrow">›</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</main>

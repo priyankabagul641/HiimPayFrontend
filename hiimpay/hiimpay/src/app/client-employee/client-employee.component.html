@@ -1,1 +1,240 @@
-<router-outlet></router-outlet>
+<div class="coupon-portal">
+  <div class="ambient-bg"></div>
+
+  <section class="screen app-screen" [class.sidebar-hidden]="!showSidebar">
+    <aside class="left-nav" [class.hidden]="!showSidebar">
+      <div class="nav-brand">
+        <img src="assets/images/navexwise.jpeg" alt="HiimPay" />
+        <div *ngIf="showSidebar">
+          <strong>HiimPay</strong>
+          <span>Coupon Portal</span>
+        </div>
+      </div>
+
+      <button
+        routerLink="/clientEmployee/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Dashboard"
+        data-short="DB"
+      >
+        <mat-icon>dashboard</mat-icon>
+        <span class="label">Dashboard</span>
+      </button>
+
+      <button
+        routerLink="/clientEmployee/browse"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Browse Coupons"
+        data-short="BR"
+      >
+        <mat-icon>confirmation_number</mat-icon>
+        <span class="label">Browse Coupons</span>
+      </button>
+
+      <button
+        routerLink="/clientEmployee/my-coupons"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="My Coupons"
+        data-short="MC"
+      >
+        <mat-icon>sell</mat-icon>
+        <span class="label">My Coupons</span>
+      </button>
+
+      <button
+        routerLink="/clientEmployee/wallet"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Wallet"
+        data-short="WL"
+      >
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span class="label">Wallet</span>
+      </button>
+    </aside>
+
+    <main class="main-content">
+      <header class="screen-header">
+        <div class="header-actions">
+          <button class="icon-action" type="button" (click)="toggleSidebar()">☰</button>
+          <button class="icon-action" type="button" *ngIf="showBackButton" (click)="goBack()">← Back</button>
+        </div>
+
+        <h2 *ngIf="isDashboardRoute">Hello, {{ loggedInUserName }}</h2>
+        <h2 *ngIf="!isDashboardRoute && !isDetailsView">{{ currentTitle }}</h2>
+        <h2 *ngIf="isDetailsView">Coupon Details</h2>
+
+        <div class="header-actions right">
+          <button class="icon-only" type="button" (click)="toggleFaqPanel()" title="FAQ" aria-label="FAQ">
+            <mat-icon>help_outline</mat-icon>
+          </button>
+          <button class="icon-only bell" type="button" (click)="toggleNotifications()" title="Notifications" aria-label="Notifications">
+            <mat-icon>notifications_none</mat-icon>
+            <span *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+          <button class="avatar-btn" [matMenuTriggerFor]="profileMenu" type="button" title="Profile" aria-label="Profile">
+            <img src="assets/images/navexwise.jpeg" alt="profile" />
+          </button>
+        </div>
+      </header>
+
+      <mat-menu #profileMenu="matMenu">
+        <button mat-menu-item (click)="openProfile()">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+
+      <section class="floating-panel" *ngIf="showNotificationPanel">
+        <h4>Notifications</h4>
+        <div class="notification-item" *ngFor="let item of notifications">
+          <p>{{ item.message }}</p>
+          <small>{{ item.time }}</small>
+        </div>
+      </section>
+
+      <section class="floating-panel" *ngIf="showFaqPanel">
+        <h4>Frequently Asked Questions</h4>
+        <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faqOpenIndex === i">
+          <button class="faq-toggle" type="button" (click)="toggleFaqItem(i)">
+            <span class="q">{{ faq.question }}</span>
+            <span class="expand">{{ faqOpenIndex === i ? '−' : '+' }}</span>
+          </button>
+          <p class="a" *ngIf="faqOpenIndex === i">{{ faq.answer }}</p>
+        </div>
+      </section>
+
+      <div class="content-stack">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </section>
+
+  <div class="toast" *ngIf="showToast">{{ toastMessage }}</div>
+
+  <div class="grab-overlay" *ngIf="showGrabDialog" (click)="closeGrabDialog()"></div>
+  <div class="grab-dialog" *ngIf="showGrabDialog">
+    <ng-container *ngIf="grabDialogStep === 'confirm'">
+      <div class="grab-dialog-header">
+        <div class="grab-brand-logo" [style.background]="grabDialogOffer?.brandColor">
+          {{ grabDialogOffer?.brandLogo }}
+        </div>
+        <div>
+          <h4>{{ grabDialogOffer?.brand }}</h4>
+          <p>{{ grabDialogOffer?.title }}</p>
+        </div>
+        <button class="grab-close-btn" type="button" (click)="closeGrabDialog()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="grab-offer-meta">
+        <span class="grab-badge">{{ (grabDialogOffer?.discountPercent ?? 0) > 0 ? grabDialogOffer?.discountPercent + '% OFF' : 'Offer' }}</span>
+        <span class="grab-range" *ngIf="grabDialogOffer?.minValue">
+          ₹{{ grabDialogOffer?.minValue }} – ₹{{ grabDialogOffer?.maxValue }}
+        </span>
+        <span class="grab-expiry">
+          <mat-icon>schedule</mat-icon> Expires {{ grabDialogOffer?.expiryDate | date:'d MMM yyyy' }}
+        </span>
+      </div>
+
+      <div class="grab-form">
+        <label class="grab-label">Amount (₹) <span class="req">*</span></label>
+        <input
+          type="number"
+          class="grab-input"
+          [(ngModel)]="grabAmount"
+          [min]="grabDialogOffer?.minValue || 1"
+          [max]="grabDialogOffer?.maxValue"
+          placeholder="Enter amount"
+          (ngModelChange)="validateGrabAmount()"
+        />
+        <small class="grab-hint" *ngIf="grabDialogOffer?.minValue && !grabAmountError">
+          Min ₹{{ grabDialogOffer?.minValue }} &nbsp;·&nbsp; Max ₹{{ grabDialogOffer?.maxValue }}
+        </small>
+        <small class="grab-amount-error" *ngIf="grabAmountError">
+          <mat-icon style="font-size:14px;vertical-align:middle;">error_outline</mat-icon>
+          {{ grabAmountError }}
+        </small>
+
+        <label class="grab-label mt">Notes <span class="muted">(optional)</span></label>
+        <input
+          type="text"
+          class="grab-input"
+          [(ngModel)]="grabNotes"
+          placeholder="e.g. Birthday gift, quarterly bonus..."
+        />
+      </div>
+
+      <div class="grab-terms">
+        <mat-icon>info_outline</mat-icon>
+        <span>{{ grabDialogOffer?.terms }}</span>
+      </div>
+
+      <div class="grab-actions">
+        <button class="grab-cancel-btn" type="button" (click)="closeGrabDialog()">Cancel</button>
+        <button
+          class="grab-confirm-btn"
+          type="button"
+          [disabled]="!grabAmount || isProcessingGrab || !!grabAmountError"
+          (click)="confirmPurchase()"
+        >
+          <span *ngIf="!isProcessingGrab">Confirm Purchase</span>
+          <span *ngIf="isProcessingGrab" class="grab-spinner">Processing...</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="grabDialogStep === 'checkout'">
+      <div class="grab-success-screen">
+        <div class="grab-success-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <h4>Voucher Claimed!</h4>
+        <p>{{ grabResult?.message }}</p>
+
+        <div class="grab-receipt">
+          <div class="receipt-row">
+            <span>Brand</span>
+            <strong>{{ grabDialogOffer?.brand }}</strong>
+          </div>
+          <div class="receipt-row">
+            <span>Amount Paid</span>
+            <strong>₹{{ grabResult?.amount }}</strong>
+          </div>
+          <div class="receipt-row">
+            <span>Reference No.</span>
+            <strong class="ref-code">{{ grabResult?.refNo }}</strong>
+          </div>
+        </div>
+
+        <div class="grab-ref-copy">
+          <code>{{ grabResult?.refNo }}</code>
+          <button class="grab-copy-btn" type="button" (click)="copyCode(grabResult?.refNo)">
+            <mat-icon>content_copy</mat-icon> Copy
+          </button>
+        </div>
+
+        <p class="grab-redeem-hint">
+          <mat-icon>storefront</mat-icon> Use this reference at
+          <a [href]="grabDialogOffer?.redemptionUrl" target="_blank" *ngIf="grabDialogOffer?.redemptionUrl">
+            {{ grabDialogOffer?.brand }} website
+          </a>
+          <span *ngIf="!grabDialogOffer?.redemptionUrl">the brand website</span>
+          to redeem your voucher.
+        </p>
+
+        <button class="grab-confirm-btn full-w" type="button" (click)="closeGrabDialog()">
+          Done
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>

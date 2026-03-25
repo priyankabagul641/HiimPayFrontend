@@ -1,0 +1,57 @@
+<ng-container>
+  <div class="metrics-grid">
+    <article class="metric-card wallet">
+      <div class="metric-top">
+        <span class="metric-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+        <span class="metric-trend up">+8%</span>
+      </div>
+      <p>Wallet Balance</p>
+      <h3>₹{{ shell.walletBalance }}</h3>
+    </article>
+  </div>
+
+  <div class="quick-actions">
+    <article class="qa-tile" *ngFor="let item of shell.quickActions">
+      <mat-icon class="qa-icon">{{ item.icon }}</mat-icon>
+      <p>{{ item.title }}</p>
+      <small>{{ item.description }}</small>
+      <button (click)="shell.onQuickAction(item.action)">Open</button>
+    </article>
+  </div>
+
+  <div class="featured-section">
+    <div class="featured-header">
+      <h2>Featured Offers</h2>
+      <p>Get amazing discounts on your favorite brands</p>
+    </div>
+
+    <div class="coupon-grid">
+      <article
+        class="coupon-card"
+        *ngFor="let offer of shell.featuredOffers; let i = index"
+        [style.--i]="i"
+        (click)="shell.openCouponDetails(offer.id)"
+      >
+        <div class="coupon-image-wrap">
+          <img [src]="offer.image" [alt]="offer.brand" class="coupon-image" />
+        </div>
+
+        <div class="coupon-content">
+          <h3>{{ offer.title || (offer.brand + ' E-Gift Card') }}</h3>
+          <p class="coupon-brand">{{ offer.brand }}</p>
+
+          <div class="coupon-footer">
+            <div class="discount-wrap">
+              <span class="discount-value">{{ offer.discountPercent }}%</span>
+              <span class="discount-label">Discount</span>
+            </div>
+            <button class="buy-now-btn" (click)="shell.openCouponDetails(offer.id)">
+              <span>Buy Now</span>
+              <span class="btn-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</ng-container>

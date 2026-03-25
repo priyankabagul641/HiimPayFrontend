@@ -715,7 +715,7 @@ export class AdminDataService {
   }
 
    createxoxoday(obj: any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `vouchers/sync/gyftr`, {});
+    return this.http.post<any>(this.baseUrl + `vouchers/pull/xoxoday?all=true`, {});
   }
 
    createmyhumble(obj: any): Observable<any> {

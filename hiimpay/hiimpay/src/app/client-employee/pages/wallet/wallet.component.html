@@ -1,0 +1,33 @@
+<ng-container>
+  <div class="wallet-toggle">
+    <button [class.active]="shell.walletView === 'amount'" (click)="shell.selectWalletView('amount')">Amount</button>
+  </div>
+
+  <ng-container *ngIf="shell.walletView === 'amount'">
+    <div class="amount-summary-grid">
+      <article class="mini-card">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <p>Wallet Balance</p>
+        <h5>₹{{ shell.remainingAmount }}</h5>
+      </article>
+    </div>
+
+    <article class="insight-card">
+      <div class="insight-head">
+        <h4>Transaction History</h4>
+        <span>{{ shell.walletTransactions.length }} transactions</span>
+      </div>
+      <div class="amount-transaction-list">
+        <div class="amount-transaction-item" *ngFor="let tx of shell.walletTransactions">
+          <div>
+            <p>{{ tx.description }}</p>
+            <small>{{ tx.date | date: 'd MMM yyyy' }}</small>
+          </div>
+          <strong [class.credit]="tx.type === 'credit'" [class.debit]="tx.type === 'debit'">
+            {{ tx.type === 'credit' ? '+' : '-' }}₹{{ tx.amount }}
+          </strong>
+        </div>
+      </div>
+    </article>
+  </ng-container>
+</ng-container>

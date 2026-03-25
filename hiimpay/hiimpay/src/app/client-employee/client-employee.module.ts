@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ClientEmployeeComponent } from './client-employee.component';
 
 import { ClientEmployeeRoutingModule } from './client-employee-routing.module';
-import { ClientEmployeeComponent } from './client-employee.component';
 import {MatTabsModule} from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 
 import {MatBadgeModule} from '@angular/material/badge';
@@ -28,18 +27,29 @@ import { GenericDialogComponent } from './pages/generic-dialog/generic-dialog.co
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatRadioModule} from '@angular/material/radio';
 import { ProfileUpdateDialogComponent } from './pages/profile-update-dialog/profile-update-dialog.component';
+import { DashboardPageComponent } from './pages/dashboard/dashboard.component';
+import { BrowseCouponsComponent } from './pages/browse-coupons/browse-coupons.component';
+import { MyCouponsComponent } from './pages/my-coupons/my-coupons.component';
+import { WalletComponent } from './pages/wallet/wallet.component';
+import { CouponDetailsComponent } from './pages/coupon-details/coupon-details.component';
+import { CartComponent } from './pages/cart/cart.component';
 
 @NgModule({
   declarations: [
     ClientEmployeeComponent,
     LoginComponent,
-    DashboardComponent,
     SurveyResponseComponent,
     ReminderComponent,
     ProfileComponent,
     FaquserComponent,
     GenericDialogComponent,
-    ProfileUpdateDialogComponent
+    ProfileUpdateDialogComponent,
+    DashboardPageComponent,
+    BrowseCouponsComponent,
+    CouponDetailsComponent,
+    CartComponent,
+    MyCouponsComponent,
+    WalletComponent
   ],
   imports: [
     CommonModule,

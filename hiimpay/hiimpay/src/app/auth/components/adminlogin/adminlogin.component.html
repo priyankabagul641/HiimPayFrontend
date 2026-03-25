@@ -67,16 +67,30 @@
                 </small>
               </div>
               <div class="mt-4 {{ config.cssClass }}">
-                <div class="d-flex flex-column align-items-center">
-                  <!-- Flex container to align canvas and button inline -->
-                  <div class="d-flex align-items-center mb-3">
-                    <canvas id="captcahCanvas" width="325" height="80"></canvas>
-                    <button class="btn btn-outline-secondary ms-3" (click)="reloadCaptcha()">&#x21bb;</button>
+                <label class="captcha-label" style="font-weight: 600; margin-bottom: 8px;">Security Verification</label>
+                <div class="captcha-container">
+                  <div class="captcha-canvas-wrapper">
+                    <canvas id="captcahCanvas" class="captcha-canvas" width="280" height="50"></canvas>
+                    <button 
+                      type="button" 
+                      class="captcha-refresh-btn" 
+                      (click)="reloadCaptcha()"
+                      [disabled]="captchaLoading"
+                      title="Refresh CAPTCHA">
+                      <span class="refresh-icon" [class.rotating]="captchaLoading">↻</span>
+                    </button>
                   </div>
-                  <div class="input-group mb-3 recaptcha-input">
-                    <input type="text" [(ngModel)]="captch_input" name="captcha" [ngModelOptions]="{standalone: true}"
-                      class="form-control" placeholder="Enter the CAPTCHA" (input)="checkCaptcha()" />
-                  </div>
+                </div>
+                <div class="input-group mb-3 recaptcha-input">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="captch_input" 
+                    name="captcha" 
+                    [ngModelOptions]="{standalone: true}"
+                    class="form-control captcha-input" 
+                    placeholder="Enter the characters shown above" 
+                    (input)="checkCaptcha()" 
+                    maxlength="6"/>
                 </div>
               </div>
               <button type="submit" (click)="submit()" class="btn btn-block mb-2 text-center text-light  w-100 mt-2"

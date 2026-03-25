@@ -133,6 +133,33 @@ export class ProjectService {
 
  getWalletById(id: any) {
     return this.http.get<any>(this.baseUrl + `cpoc-wallets/transactions/user/${id}`);
+//   {
+//   "data": [
+//     {
+//       "id": 4,
+//       "wallet": {
+//         "id": 3,
+//         "cpocUserId": 29,
+//         "companyId": 5,
+//         "balance": 1000,
+//         "createdAt": "2026-03-23T14:07:26.57",
+//         "updatedAt": "2026-03-23T14:07:26.58"
+//       },
+//       "cpocUserId": 29,
+//       "companyId": 5,
+//       "employeeUserId": null,
+//       "transactionType": "CREDIT",
+//       "amount": 1000,
+//       "balanceAfter": 1000,
+//       "referenceNo": "string",
+//       "notes": "api check",
+//       "createdAt": "2026-03-23T14:07:26.578"
+//     }
+//   ],
+//   "message": "CPOC wallet transactions fetched successfully",
+//   "success": true
+// }
+  
   }
 
  CompanyDATA(id: any) {

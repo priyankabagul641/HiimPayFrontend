@@ -1,0 +1,167 @@
+:host {
+  display: block;
+}
+
+.cart-page {
+  padding: 14px;
+  animation: cart-fade-in 0.3s ease;
+}
+
+.cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+}
+
+.cart-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cart-card {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  padding: 12px;
+}
+
+.card-left img {
+  width: 120px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.card-center h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.meta-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #475569;
+  font-size: 14px;
+}
+
+.qty-controls {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-controls button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid #d5deea;
+  background: #fff;
+  cursor: pointer;
+}
+
+.card-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d5deea;
+  background: #fff;
+  cursor: pointer;
+}
+
+.icon-btn.danger {
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.summary-panel {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  padding: 14px;
+  height: fit-content;
+  position: sticky;
+  top: 10px;
+}
+
+.summary-panel h4 {
+  margin: 0 0 10px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef2f7;
+  color: #334155;
+}
+
+.summary-row.final {
+  border-bottom: 0;
+  padding-top: 12px;
+  font-weight: 700;
+}
+
+.save {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.buy-btn {
+  width: 100%;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #1d4ed8, #2563eb);
+  color: #fff;
+  padding: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  color: #64748b;
+}
+
+@keyframes cart-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 980px) {
+  .cart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .cart-card {
+    grid-template-columns: 1fr;
+  }
+
+  .card-left img {
+    width: 100%;
+    height: 170px;
+  }
+}
