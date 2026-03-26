@@ -8,13 +8,27 @@ i {
 }
 
 .active {
-  /* active router color changes */
+  /* generic active fallback */
   background-color: #6fc4fd;
-  color:rgb(43, 22, 4)!important;
+  color: rgb(43, 22, 4) !important;
   border-radius: 10%;
-  i {
-    color:rgb(43, 22, 4);
-  }
+}
+
+mat-sidenav mat-nav-list a[mat-list-item].active {
+  background-color: #103a7f !important;
+  color: #ffffff !important;
+  border-radius: 10px;
+}
+
+mat-sidenav mat-nav-list a[mat-list-item].active .entry,
+mat-sidenav mat-nav-list a[mat-list-item].active .entry span,
+mat-sidenav mat-nav-list a[mat-list-item].active mat-icon,
+mat-sidenav mat-nav-list a[mat-list-item].active i {
+  color: #ffffff !important;
+}
+
+mat-sidenav mat-nav-list a[mat-list-item].active:hover {
+  background-color: #103a7f !important;
 }
 
 

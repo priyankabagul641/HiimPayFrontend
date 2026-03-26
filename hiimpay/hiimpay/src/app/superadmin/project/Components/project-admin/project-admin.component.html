@@ -1,72 +1,72 @@
-<div class="container">
+<div class="container manage-users-page">
   <div class="row mt-2 px-4">
     <div class="col-lg col-md col-sm-12">
-      <div class="d-flex align-items-center justify-content-between">
-        
-        <h3 style="margin: 0; color: #103a7f; font-weight: bolder">
-          Manage users
-        </h3>
+      <div class="page-head">
+        <div>
+          <h3 class="page-title">Manage users</h3>
+        </div>
 
-        <span class="blue-color font-weight-bold company-name" style="font-weight: 700" [title]="companyName">Company name : {{ companyName }}</span>
-
+        <span class="blue-color font-weight-bold company-name company-pill" [title]="companyName">Company name : {{ companyName }}</span>
       </div>
     </div>
   </div>
 </div>
 
-<div class="container">
+<div class="container manage-users-page">
   <div class="row px-4 py-4">
     <div class="col-lg-12 col-md col-sm-12">
         <div class="row mb-2">
-          <div class="d-flex align-items-center justify-content-between">
-            <h3 style="margin: 0; font-weight: 900" class="blue-color">
-              <!-- Manage users -->
-            </h3>
-            <!-- <div class="d-flex align-items-end justify-content-end"> -->
-            <div class="btn-group" role="group" aria-label="Basic example">
-              <button class="btn button-color text-white addHoliday ms-2" type="button" style="height: 3em"
-                (click)="holidayFile.click()">
-                <span *ngIf="checkuploadExcelSpinner" class="spinner-border spinner-border-sm" role="status"
-                  aria-hidden="true"></span>
-                <i class="fa fa-file"></i>
-                Import users from excel
-              </button>
-              
-              <p></p>
-              <input type="file" #holidayFile (change)="onFileBrowse($event)" style="display: none;">
-              <button class="btn button-color text-white addHoliday ms-2" type="button" style="height: 3em"
-                (click)="bulkUpdateFile.click()">
-                <span *ngIf="checkUpdateBulkSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-               <i class="fa fa-file"></i>
-                Update bulk users (Excel)
-              </button>
-              <input id="bulkUpdateFile" type="file" #bulkUpdateFile (change)="onBulkUpdateFileBrowse($event)" style="display: none;" accept=".xls,.xlsx" />
-              <ng-container>
+          <div class="toolbar-wrap">
+            <div class="toolbar-spacer" aria-hidden="true"></div>
 
-                <!-- <button *ngIf="isSelectedFileValid" class="btn button-color text-white addHoliday ms-3" type="button"
-                  style="height: 3em" (click)="uploadFile()">
-                  <i class="fa-solid fa fa-upload fa-xl" style="margin-inline-end: 0.5em "></i>
-                  Upload selected file
-                </button> -->
-              </ng-container>
-              <button class="btn button-color text-white addHoliday ms-2" type="button" style="height: 3em"
-                (click)="downloadExcelFormat()">
-                <span *ngIf="checkDownloadExcelSpinner" class="spinner-border spinner-border-sm" role="status"
-                  aria-hidden="true"></span>
-                <i class="fa fa-file"></i>
-                Bulk user upload template
-              </button>
-              <input #holidayFile style="display: none" type="file" (change)="onFileBrowse($event)"
-                accept=".xls,.xlsx" />
-              <button class="btn background-color ms-2 rounded-0" type="button" (click)="openPopup()"
-                style="height: 3em">
+            <div class="top-actions" role="group" aria-label="Manage users actions">
+              <div class="secondary-actions">
+                <button
+                  class="action-btn secondary-btn"
+                  type="button"
+                  [disabled]="checkuploadExcelSpinner"
+                  (click)="holidayFile.click()"
+                  title="Import users from Excel"
+                >
+                  <span *ngIf="checkuploadExcelSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                  <span>Import users from excel</span>
+                </button>
+
+                <input type="file" #holidayFile (change)="onFileBrowse($event)" class="hidden-input" accept=".xls,.xlsx">
+
+                <button
+                  class="action-btn secondary-btn"
+                  type="button"
+                  [disabled]="checkUpdateBulkSpinner"
+                  (click)="bulkUpdateFile.click()"
+                  title="Update users in bulk from Excel"
+                >
+                  <span *ngIf="checkUpdateBulkSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <i class="fa fa-refresh" aria-hidden="true"></i>
+                  <span>Update bulk users (Excel)</span>
+                </button>
+
+                <input id="bulkUpdateFile" type="file" #bulkUpdateFile (change)="onBulkUpdateFileBrowse($event)" class="hidden-input" accept=".xls,.xlsx" />
+
+                <button
+                  class="action-btn secondary-btn"
+                  type="button"
+                  [disabled]="checkDownloadExcelSpinner"
+                  (click)="downloadExcelFormat()"
+                  title="Download the bulk upload template"
+                >
+                  <span *ngIf="checkDownloadExcelSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                  <span>Bulk user upload template</span>
+                </button>
+              </div>
+
+              <button class="action-btn primary-btn" type="button" (click)="openPopup()" title="Create user">
                 <img src="assets/plus.svg" class="me-2" height="18" alt="" />
                 <span class="filter-text">Create user</span>
               </button>
             </div>
-            <!-- </div> -->
-
-
           </div>
         </div>
 
@@ -91,13 +91,14 @@
                 <p class="fw-normal mb-1 truncate" [title]="data.email">{{data.email}}</p>
               </div>
               <div class="col">
-                <!-- <p class="badge rounded-pill" style="background-color: #069de0">
+                <span *ngIf="data.status=='ACTIVE'" class="status-badge status-active">
+                  <span class="status-dot" aria-hidden="true"></span>
                   Active
-                </p> -->
-                <span *ngIf="data.status=='ACTIVE'" class="badge rounded-pill d-inline"
-                  style="background-color: green;">Active</span>
-                <span *ngIf="data.status!='ACTIVE'" class="badge rounded-pill d-inline"
-                  style="background-color: red;">Inactive</span>
+                </span>
+                <span *ngIf="data.status!='ACTIVE'" class="status-badge status-inactive">
+                  <span class="status-dot" aria-hidden="true"></span>
+                  Inactive
+                </span>
               </div>
 
               <div class="col">
@@ -109,18 +110,20 @@
                 </p>
               </div>
               <div class="col">
-                <div class="col">
-                  <button class="border-0 m-2" style="font-size: 20px" (click)="editUser(data.id)">
-                    <i class="fa fa-pencil" style="color: #103a7f"></i>
+                <div class="action-group">
+                  <button class="icon-action-btn" type="button" (click)="editUser(data.id)" title="Edit user" aria-label="Edit user">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
                   </button>
-                  <mat-slide-toggle class="green-toggle" [checked]="data?.status=='ACTIVE'" (change)="activeDeactiveUser(data)"></mat-slide-toggle>
+                  <span class="toggle-wrap" title="Activate / Deactivate User">
+                    <mat-slide-toggle class="green-toggle" [checked]="data?.status=='ACTIVE'" (change)="activeDeactiveUser(data)" aria-label="Activate or deactivate user"></mat-slide-toggle>
+                  </span>
                   <!-- <button class="border-0 m-2" style="font-size: 20px" (click)="deleteUser(data)">
                     <i class="fa fa-trash" style="color: #103a7f"></i>
                   </button> -->
                 </div>
               </div>
             </div>
-            <div class="text-end my-4" style="font-weight: 300 !important; font-size: 13px">
+            <div class="text-end my-4 pagination-wrap">
               <pagination-controls (pageChange)="pageChangeEvent($event)" [maxSize]="5"></pagination-controls>
             </div>
           </div>

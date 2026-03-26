@@ -5,7 +5,7 @@
 			<p>Recent wallet activity</p>
 		</div>
 		<div class="header-actions">
-			<div class="balance-chip">Balance: ₹{{ walletBalance | number:'1.2-2' }}</div>
+			<!-- <div class="balance-chip">Balance: ₹{{ walletBalance | number:'1.2-2' }}</div> -->
 			<button type="button" class="credit-btn" (click)="openCreditForm()">Credit Wallet Amount</button>
 		</div>
 	</div>
@@ -25,33 +25,48 @@
 		</div>
 	</div>
 
-	<div class="table-card">
+	<div class="table-card" *ngIf="!loading && !error && transactions.length">
 		<div class="desktop-table">
-			<table class="brand-table" *ngIf="!loading && !error && transactions.length">
+			<table class="brand-table">
 				<thead>
 					<tr>
 						<th class="col-date" (click)="toggleSort('createdAt')">Date <small *ngIf="sortField==='createdAt'">({{ sortDirection }})</small></th>
 						<th class="col-type" (click)="toggleSort('transactionType')">Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
 						<th class="col-amount" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
 						<th class="col-balance">Balance After</th>
-						<th class="col-reference">Reference</th>
 						<th class="col-notes">Notes</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }">
 						<td class="col-date">{{ t.createdAt | date:'short' }}</td>
-						<td class="col-type">{{ t.transactionType }}</td>
+						<td class="col-type"><span class="type-badge">{{ t.transactionType }}</span></td>
 						<td class="col-amount">{{ t.amount | number:'1.2-2' }}</td>
 						<td class="col-balance">{{ t.balanceAfter | number:'1.2-2' }}</td>
-						<td class="col-reference">{{ t.referenceNo }}</td>
 						<td class="col-notes truncate-cell">{{ t.notes }}</td>
 					</tr>
 					<tr *ngIf="filteredTransactions.length === 0">
-						<td colspan="6" class="empty">No transactions found</td>
+						<td colspan="5" class="empty">No transactions found</td>
 					</tr>
 				</tbody>
 			</table>
+		</div>
+
+		<div class="mobile-cards">
+			<article class="brand-card" *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }">
+				<div class="card-head">
+					<h4>{{ t.createdAt | date:'mediumDate' }}</h4>
+					<span class="type-badge">{{ t.transactionType }}</span>
+				</div>
+				<div class="card-grid">
+					<p><strong>Time:</strong> {{ t.createdAt | date:'shortTime' }}</p>
+					<p><strong>Amount:</strong> ₹{{ t.amount | number:'1.2-2' }}</p>
+					<p><strong>Balance After:</strong> ₹{{ t.balanceAfter | number:'1.2-2' }}</p>
+					<p class="truncate-cell"><strong>Notes:</strong> {{ t.notes || '-' }}</p>
+				</div>
+			</article>
+
+			<div *ngIf="filteredTransactions.length === 0" class="empty mobile-empty">No transactions found</div>
 		</div>
 	</div>
 

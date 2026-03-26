@@ -5,29 +5,32 @@
   <div class="assignment-root">
     <div class="hero">
       <div>
-        <p class="eyebrow">Client Rewards Console</p>
+
         <h2>Assign Coupon Or Amount</h2>
         <p class="sub">Create bulk reward assignments in a cleaner and faster workflow.</p>
       </div>
       <div class="meta-pills">
         <div class="pill">
+          <div class="pill-icon"><i class="fa fa-tags" aria-hidden="true"></i></div>
           <span class="pill-label">Brands</span>
           <span class="pill-value">{{ selectedBrands.length }}</span>
         </div>
         <div class="pill">
+          <div class="pill-icon"><i class="fa fa-ticket" aria-hidden="true"></i></div>
           <span class="pill-label">Coupons</span>
           <span class="pill-value">{{ selectedCoupons.length }}</span>
         </div>
         <div class="pill">
+          <div class="pill-icon"><i class="fa fa-users" aria-hidden="true"></i></div>
           <span class="pill-label">Employees</span>
           <span class="pill-value">{{ activeTab==='coupon' ? selectedEmployees.length : selectedAmountEmployees.length }}</span>
         </div>
       </div>
     </div>
 
-    <div class="tabs">
-      <button class="tab" [class.active]="activeTab==='coupon'" (click)="activeTab='coupon'">Reward Coupoun</button>
-      <button class="tab" [class.active]="activeTab==='amount'" (click)="activeTab='amount'">Reward Points</button>
+    <div class="segment-control primary-segment" role="tablist" aria-label="Reward type selector">
+      <button class="tab segment-btn" [class.active]="activeTab==='coupon'" (click)="activeTab='coupon'">Reward Coupon</button>
+      <button class="tab segment-btn" [class.active]="activeTab==='amount'" (click)="activeTab='amount'">Reward Points</button>
     </div>
 
     <ng-container *ngIf="activeTab==='coupon'">
@@ -69,15 +72,17 @@
       </div>
 
       <div class="actions">
-        <button class="btn assign-btn" (click)="assignCouponNow()">Assign Coupon</button>
+        <button class="btn assign-btn" (click)="assignCouponNow()">
+          <i class="fa fa-rocket" aria-hidden="true"></i>
+          <span>Assign Coupon</span>
+        </button>
       </div>
     </ng-container>
 
     <ng-container *ngIf="activeTab==='amount'">
-      <div class="sub-tabs">
-        <button class="tab" [class.active]="amountEntryMode==='manual'" (click)="amountEntryMode='manual'">Manual</button>
-        <button class="tab" [class.active]="amountEntryMode==='excel'" (click)="amountEntryMode='excel'">Excel Upload</button>
-          
+      <div class="segment-control secondary-segment" role="tablist" aria-label="Reward points entry mode selector">
+        <button class="tab segment-btn" [class.active]="amountEntryMode==='manual'" (click)="amountEntryMode='manual'">Manual</button>
+        <button class="tab segment-btn" [class.active]="amountEntryMode==='excel'" (click)="amountEntryMode='excel'">Excel Upload</button>
       </div>
 
       <div class="panel" *ngIf="amountEntryMode==='manual'">
@@ -93,48 +98,88 @@
 
         <div class="row-block">
           <label>Step 2: Enter Rewarded Points</label>
-          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
-        </div>
-
-        <div class="row-block">
-          <label>Notes (Optional)</label>
-          <textarea rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions"></textarea>
-        </div>
-      </div>
-
-      <div class="panel" *ngIf="amountEntryMode==='excel'">
-         <div class="row-block">
-         <button class="btn assign-btn" style="margin-left: 0.75rem;" (click)="downloadAmountTemplate()" [disabled]="isDownloadingTemplate">
-          <span *ngIf="isDownloadingTemplate" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-          <i *ngIf="!isDownloadingTemplate" class="fa fa-download me-1"></i>
-          Download Template
-        </button> </div>
-        <div class="row-block">
-          <label>Step 1: Upload Excel</label>
-          <div class="upload-wrap">
-            <input id="amountExcel" type="file" accept=".xlsx,.xls" (change)="onAmountExcelSelect($event)">
-            <label class="upload-label" for="amountExcel">
-              <span class="upload-title">Drop your file here or click to browse</span>
-              <span class="upload-sub">Supported: .xlsx, .xls</span>
-            </label>
+          <div class="points-field">
+            <span class="points-icon"><i class="fa fa-star" aria-hidden="true"></i></span>
+            <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
+            <span class="points-suffix">PTS</span>
           </div>
-          <small class="hint" *ngIf="amountExcelFileName">Selected: {{ amountExcelFileName }}</small>
-        </div>
-           <div class="row-block">
-          <label>Step 2: Enter Rewarded Points</label>
-          <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter Rewarded Points">
         </div>
 
         <div class="row-block">
           <label>Notes (Optional)</label>
           <textarea rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions"></textarea>
+          <small class="field-help">Add context for this reward assignment if needed.</small>
         </div>
-      
       </div>
 
-      <div class="actions">
-        <button class="btn assign-btn" (click)="assignAmountNow()">Assign Amount</button>
-      
+      <div class="panel excel-flow" *ngIf="amountEntryMode==='excel'">
+        <div class="step-card step-download">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <div class="step-head">
+              <div>
+                <p class="step-kicker">Step 1</p>
+                <h3>Download Template</h3>
+                <p>Download the Excel template to prepare reward point assignments in the required format.</p>
+              </div>
+              <button class="btn step-action-btn" (click)="downloadAmountTemplate()" [disabled]="isDownloadingTemplate">
+                <span *ngIf="isDownloadingTemplate" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <i *ngIf="!isDownloadingTemplate" class="fa fa-download me-1" aria-hidden="true"></i>
+                <span>Download</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card step-upload">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <p class="step-kicker">Step 2</p>
+            <h3>Upload Excel File</h3>
+            <p>Drag and drop your prepared file here, or browse from your device.</p>
+            <div class="upload-wrap">
+              <input id="amountExcel" type="file" accept=".xlsx,.xls" (change)="onAmountExcelSelect($event)">
+              <label class="upload-label" for="amountExcel">
+                <span class="upload-icon"><i class="fa fa-cloud-upload" aria-hidden="true"></i></span>
+                <span class="upload-title">Drag & Drop Excel File</span>
+                <span class="upload-sub">or click to browse</span>
+                <span class="upload-meta">Supported formats: .xlsx, .xls</span>
+              </label>
+            </div>
+            <small class="hint file-chip" *ngIf="amountExcelFileName">
+              <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+              <span>Selected: {{ amountExcelFileName }}</span>
+            </small>
+          </div>
+        </div>
+
+        <div class="step-card step-points">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <label>Reward Points <span class="required">*</span></label>
+            <div class="points-field">
+              <span class="points-icon"><i class="fa fa-star" aria-hidden="true"></i></span>
+              <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
+              <span class="points-suffix">PTS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card step-notes">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <label>Notes (Optional)</label>
+            <textarea rows="4" [(ngModel)]="amountNotes" placeholder="Add any context or instructions for this upload"></textarea>
+            <small class="field-help">Optional note for internal tracking and assignment context.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions sticky-actions" [class.excel-actions]="amountEntryMode==='excel'">
+        <button class="btn assign-btn" (click)="assignAmountNow()">
+          <i class="fa fa-rocket" aria-hidden="true"></i>
+          <span>Assign Reward Points</span>
+        </button>
       </div>
     </ng-container>
   </div>
