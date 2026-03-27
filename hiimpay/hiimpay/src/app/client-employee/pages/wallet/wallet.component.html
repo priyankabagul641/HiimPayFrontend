@@ -19,7 +19,7 @@
           <span class="balance-updated">Updated just now</span>
         </div>
       </div>
-      <button class="add-money-btn" type="button" (click)="openCreditForm()">
+      <button class="add-money-btn" type="button" (click)="$event.stopPropagation(); openCreditForm()">
         <mat-icon>add</mat-icon>
         <span>Add Money</span>
       </button>
@@ -109,7 +109,7 @@
         </div>
         <p>No transactions yet</p>
         <small>Your wallet activity will appear here</small>
-        <button class="empty-add-btn" type="button" (click)="openCreditForm()">
+        <button class="empty-add-btn" type="button" (click)="$event.stopPropagation(); openCreditForm()">
           <mat-icon>add</mat-icon> Add Money
         </button>
       </div>
@@ -117,8 +117,8 @@
   </div>
 
   <!-- Credit Wallet Modal -->
-  <div class="modal-overlay" *ngIf="showCreditForm" (click)="closeCreditForm()"></div>
-  <div class="modal-dialog" *ngIf="showCreditForm" role="dialog" aria-modal="true">
+  <div class="wallet-modal-overlay" *ngIf="showCreditForm" (click)="closeCreditForm()"></div>
+  <div class="wallet-modal-dialog" *ngIf="showCreditForm" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-icon-wrap">
         <mat-icon>add_card</mat-icon>
