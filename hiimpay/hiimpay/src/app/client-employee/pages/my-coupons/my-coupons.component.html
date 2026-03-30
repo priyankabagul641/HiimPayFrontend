@@ -43,11 +43,20 @@
         {{ shell.getDaysLeft(coupon.expiresOn) }}d left
       </span>
     </div>
-    <img
-      [src]="coupon.imageUrl || (coupon.brand === 'Swiggy' ? 'assets/images/servey1.jfif' : coupon.brand === 'Myntra' ? 'assets/images/servey2.png' : 'assets/images/servey5.png')"
-      alt="{{ coupon.brand }}"
-      class="offer-img mini"
-    />
+    <ng-container *ngIf="hasCouponImage(coupon); else myCouponNoImageState">
+      <img
+        [src]="coupon.imageUrl"
+        alt="{{ coupon.brand }}"
+        class="offer-img mini"
+        (error)="onCouponImageError(coupon)"
+      />
+    </ng-container>
+    <ng-template #myCouponNoImageState>
+      <div class="offer-img mini offer-img-fallback" aria-label="No image available">
+        <mat-icon>image_not_supported</mat-icon>
+        <span>No Image</span>
+      </div>
+    </ng-template>
     <div class="code-row">
       <code [class.copy-pulse]="shell.copiedCouponCode === coupon.code">{{ coupon.code }}</code>
       <button class="secondary-btn" (click)="shell.copyCode(coupon.code)" *ngIf="coupon.status === 'active'">Copy</button>

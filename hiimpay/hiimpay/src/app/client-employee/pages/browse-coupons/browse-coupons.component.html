@@ -18,7 +18,20 @@
       (click)="openCouponDetails(coupon.id)"
     >
       <div class="coupon-image-wrap">
-        <img [src]="coupon.image" [alt]="coupon.brandName" class="coupon-image" />
+        <ng-container *ngIf="hasCouponImage(coupon); else browseNoImageState">
+          <img
+            [src]="coupon.image"
+            [alt]="coupon.brandName"
+            class="coupon-image"
+            (error)="onCouponImageError(coupon)"
+          />
+        </ng-container>
+        <ng-template #browseNoImageState>
+          <div class="coupon-image-fallback" aria-label="No image available">
+            <mat-icon>image_not_supported</mat-icon>
+            <span>No Image</span>
+          </div>
+        </ng-template>
       </div>
 
       <div class="coupon-content">

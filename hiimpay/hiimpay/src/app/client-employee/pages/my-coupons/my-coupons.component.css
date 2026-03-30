@@ -1,3 +1,22 @@
 :host {
   display: block;
 }
+
+.offer-img-fallback {
+  background: linear-gradient(145deg, #f8fafc, #e5edf6);
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.offer-img-fallback mat-icon {
+  font-size: 34px;
+  width: 34px;
+  height: 34px;
+}

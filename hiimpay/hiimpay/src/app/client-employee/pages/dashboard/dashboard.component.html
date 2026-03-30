@@ -1,9 +1,16 @@
 <ng-container>
   <div class="metrics-grid">
-    <article class="metric-card wallet">
+    <article
+      class="metric-card wallet metric-card-action"
+      role="button"
+      tabindex="0"
+      (click)="openWalletPage()"
+      (keydown.enter)="openWalletPage()"
+      (keydown.space)="$event.preventDefault(); openWalletPage()"
+    >
       <div class="metric-top">
         <span class="metric-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-        <span class="metric-trend up">+8%</span>
+        <!-- <span class="metric-trend up">+8%</span> -->
       </div>
       <p>Wallet Balance</p>
       <h3>₹{{ shell.walletBalance }}</h3>
@@ -33,7 +40,20 @@
         (click)="shell.openCouponDetails(offer.id)"
       >
         <div class="coupon-image-wrap">
-          <img [src]="offer.image" [alt]="offer.brand" class="coupon-image" />
+          <ng-container *ngIf="hasOfferImage(offer); else noImageState">
+            <img
+              [src]="offer.image"
+              [alt]="offer.brand"
+              class="coupon-image"
+              (error)="onOfferImageError(offer)"
+            />
+          </ng-container>
+          <ng-template #noImageState>
+            <div class="coupon-image-fallback" aria-label="No image available">
+              <mat-icon>image_not_supported</mat-icon>
+              <span>No Image</span>
+            </div>
+          </ng-template>
         </div>
 
         <div class="coupon-content">
@@ -45,7 +65,7 @@
               <span class="discount-value">{{ offer.discountPercent }}%</span>
               <span class="discount-label">Discount</span>
             </div>
-            <button class="buy-now-btn" (click)="shell.openCouponDetails(offer.id)">
+            <button class="buy-now-btn" (click)="$event.stopPropagation(); shell.openCouponDetails(offer.id)">
               <span>Buy Now</span>
               <span class="btn-arrow">›</span>
             </button>

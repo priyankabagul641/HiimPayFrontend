@@ -9,6 +9,8 @@ import { CartService } from '../../Services/cart.service';
   styleUrls: ['./browse-coupons.component.css']
 })
 export class BrowseCouponsComponent {
+  private readonly imageLoadErrors = new Set<string>();
+
   constructor(
     public shell: ClientEmployeeComponent,
     private router: Router,
@@ -25,6 +27,14 @@ export class BrowseCouponsComponent {
 
   trackById(_index: number, coupon: any): number {
     return coupon.id;
+  }
+
+  hasCouponImage(coupon: any): boolean {
+    return Boolean(coupon?.image) && !this.imageLoadErrors.has(this.getCouponImageKey(coupon));
+  }
+
+  onCouponImageError(coupon: any): void {
+    this.imageLoadErrors.add(this.getCouponImageKey(coupon));
   }
 
   openCouponDetails(couponId: number) {
@@ -69,5 +79,9 @@ export class BrowseCouponsComponent {
       next: () => {},
       error: (err: any) => console.error('Add to cart API error:', err)
     });
+  }
+
+  private getCouponImageKey(coupon: any): string {
+    return String(coupon?.id ?? coupon?.brandName ?? coupon?.title ?? 'unknown-coupon');
   }
 }
