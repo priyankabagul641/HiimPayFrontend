@@ -532,17 +532,50 @@ export class ClientEmployeeComponent implements OnInit {
     this.grabDialogStep = 'confirm';
   }
 
-  copyCode(code: string) {
+  async copyCode(code: string) {
     if (!code) return;
-    this.copiedCouponCode = code;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(code);
+    const value = String(code).trim();
+    if (!value) return;
+
+    this.copiedCouponCode = value;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        this.copyTextWithFallback(value);
+      }
+      this.showToastMessage(`Coupon code ${value} copied`);
+      this.pushNotification(`Coupon ${value} copied`);
+    } catch {
+      try {
+        this.copyTextWithFallback(value);
+        this.showToastMessage(`Coupon code ${value} copied`);
+        this.pushNotification(`Coupon ${value} copied`);
+      } catch {
+        this.showToastMessage('Unable to copy coupon code. Please copy manually.');
+      }
     }
-    this.showToastMessage(`Coupon code ${code} copied`);
-    this.pushNotification(`Coupon ${code} copied`);
+
     setTimeout(() => {
       this.copiedCouponCode = '';
     }, 1200);
+  }
+
+  private copyTextWithFallback(text: string): void {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    if (!copied) {
+      throw new Error('Copy command failed');
+    }
   }
 
   getDaysLeft(dateValue: string) {

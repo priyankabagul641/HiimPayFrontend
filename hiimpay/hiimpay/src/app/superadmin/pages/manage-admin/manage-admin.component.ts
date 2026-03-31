@@ -7,6 +7,7 @@ interface Admin {
   name: string;
   email: string;
   contact: string;
+  passwordHash?: string;
   address: string;
   active: boolean;
   permissions: {
@@ -58,7 +59,7 @@ export class ManageAdminComponent implements OnInit {
   showAccessPopup = false;
   showEditPopup = false;
   selectedAdmin!: Admin;
-  editingAdmin: { id?: number; name: string; email: string; password: string; contact: string; address: string; active: boolean } = this.getEmptyEditAdmin();
+  editingAdmin: { id?: number; name: string; email: string; password: string; passwordHash: string; contact: string; address: string; active: boolean } = this.getEmptyEditAdmin();
 
   newAdmin: NewAdmin = this.getEmptyAdmin();
 
@@ -100,6 +101,7 @@ export class ManageAdminComponent implements OnInit {
       name:    u.fullName || u.name || '-',
       email:   u.email || '-',
       contact: u.mobile  || u.contact || '-',
+      passwordHash: u.passwordHash || '',
       address: u.address || '-',
       active:  (u.status || '').toUpperCase() === 'ACTIVE',
       permissions: {
@@ -182,6 +184,7 @@ export class ManageAdminComponent implements OnInit {
     const payload = {
       fullName:     this.newAdmin.name,
       email:        this.newAdmin.email,
+      mobile:       this.newAdmin.contact || '',
       passwordHash: this.newAdmin.password,
       userType:     'ADMIN',
       status:       this.newAdmin.active ? 'ACTIVE' : 'INACTIVE'
@@ -255,7 +258,7 @@ export class ManageAdminComponent implements OnInit {
   }
 
   getEmptyEditAdmin() {
-    return { id: undefined as number | undefined, name: '', email: '', password: '', contact: '', address: '', active: true };
+    return { id: undefined as number | undefined, name: '', email: '', password: '', passwordHash: '', contact: '', address: '', active: true };
   }
 
   openEditAdmin(admin: Admin) {
@@ -264,6 +267,7 @@ export class ManageAdminComponent implements OnInit {
       name:    admin.name,
       email:   admin.email,
       password: '',
+      passwordHash: admin.passwordHash || '',
       contact: admin.contact,
       address: admin.address,
       active:  admin.active
@@ -326,12 +330,9 @@ export class ManageAdminComponent implements OnInit {
       userType:  'ADMIN',
       status:    this.editingAdmin.active ? 'ACTIVE' : 'INACTIVE',
       mobile:    this.editingAdmin.contact,
+      passwordHash: this.editingAdmin.password || this.editingAdmin.passwordHash || '',
       address:   this.editingAdmin.address
     };
-
-    if (this.editingAdmin.password) {
-      payload['passwordHash'] = this.editingAdmin.password;
-    }
 
     this.adminService.updateAdmin(payload, this.editingAdmin.id).subscribe({
       next: (res: any) => {

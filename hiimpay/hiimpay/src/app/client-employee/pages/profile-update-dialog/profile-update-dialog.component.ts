@@ -15,8 +15,11 @@ import { Router } from '@angular/router';
 export class ProfileUpdateDialogComponent implements OnInit {
   updateRecordsForm!: FormGroup;
   profileInfo: any;
+  existingPasswordHash: string = '';
   formDataMatched: boolean = true;
   showPassword: boolean = false;
+  disablePasswordEdit: boolean = false;
+  staticPassword: string = 'Cpoc@1234';
   isLoading: boolean = false;
   userId: number | null = null;
 
@@ -52,6 +55,9 @@ export class ProfileUpdateDialogComponent implements OnInit {
     // this.service.getUserById(id).subscribe({next:(res:any)=>{
     //   parsedProfileInfo = res;
     // },error:(err)=>{console.log(err)},complete:()=>{}})
+    this.disablePasswordEdit = !!this.data?.disablePasswordEdit;
+    this.staticPassword = this.data?.staticPassword || 'Cpoc@1234';
+
     const stored = sessionStorage.getItem('currentLoggedInUserData');
     let parsedProfileInfo = this.data?.profile || (stored ? JSON.parse(stored) : null);
 
@@ -81,11 +87,12 @@ export class ProfileUpdateDialogComponent implements OnInit {
       jobType: parsedProfileInfo?.jobType || '',
       departmentName: parsedProfileInfo?.departmentName || '',
       email: parsedProfileInfo?.email || parsedProfileInfo?.userEmail || '',
-      contactNumber: parsedProfileInfo?.mobile || parsedProfileInfo?.contactNumber || '' ,
+      mobile: parsedProfileInfo?.mobile || parsedProfileInfo?.contactNumber || '' ,
     };
+    this.existingPasswordHash = (parsedProfileInfo?.passwordHash || '').toString();
 
     this.updateRecordsForm = this.fb.group({
-      name: [this.profileInfo.name, [Validators.required]],
+      name: [this.profileInfo.name],
       workLocation: [this.profileInfo.workLocation],
       jobType: [this.profileInfo.jobType],
       departmentName: [this.profileInfo.departmentName],
@@ -93,26 +100,25 @@ export class ProfileUpdateDialogComponent implements OnInit {
       email: [
         this.profileInfo.email,
         [
-          Validators.required,
           Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'),
         ],
       ],
-      contactNumber: [
-        this.profileInfo.contactNumber,
-        [Validators.required, Validators.pattern('^[6-9]\\d{9}$')],
+      mobile: [
+        this.profileInfo.mobile,
+        [Validators.pattern('^[6-9]\\d{9}$')],
       ],
-      password: ['']
+      passwordHash: ['']
     });
     this.onFormChange();
     // set initial match state
-    const initialKeys = ['name', 'workLocation', 'jobType', 'departmentName', 'email', 'contactNumber'];
+    const initialKeys = ['name', 'workLocation', 'jobType', 'departmentName', 'email', 'mobile'];
     const initialFiltered: any = {};
     initialKeys.forEach((k) => (initialFiltered[k] = this.updateRecordsForm.get(k)?.value));
     this.formDataMatched = JSON.stringify(initialFiltered) === JSON.stringify(this.profileInfo);
   }
 
   onFormChange() {
-    const keysToCompare = ['name', 'workLocation', 'jobType', 'departmentName', 'email', 'contactNumber'];
+    const keysToCompare = ['name', 'workLocation', 'jobType', 'departmentName', 'email', 'mobile'];
     this.updateRecordsForm.valueChanges.subscribe((val) => {
       const filtered: any = {};
       keysToCompare.forEach((k) => (filtered[k] = val[k]));
@@ -132,17 +138,15 @@ export class ProfileUpdateDialogComponent implements OnInit {
       return;
     }
     const vals = this.updateRecordsForm.value;
-    let finalObj: any = {};
-    if (vals.name !== this.profileInfo.name) finalObj.fullName = vals.name;
-    if (vals.email !== this.profileInfo.email) finalObj.email = vals.email;
-    if (vals.contactNumber !== this.profileInfo.contactNumber) finalObj.mobile = vals.contactNumber;
-    if (vals.password && vals.password.trim().length > 0) finalObj.passwordHash = vals.password;
-
-    // if nothing changed, still send editable fields so API is called
-    if (Object.keys(finalObj).length === 0) {
-      finalObj = { fullName: vals.name, email: vals.email, mobile: vals.contactNumber };
-      if (vals.password && vals.password.trim().length > 0) finalObj.passwordHash = vals.password;
-    }
+    const typedPassword = (vals.passwordHash ?? '').toString().trim();
+    const finalObj: any = {
+      name: (vals.name ?? this.profileInfo.name ?? '').toString().trim(),
+      email: (vals.email ?? this.profileInfo.email ?? '').toString().trim(),
+      mobile: (vals.mobile ?? this.profileInfo.mobile ?? '').toString().trim(),
+      passwordHash: this.disablePasswordEdit
+        ? this.staticPassword
+        : (typedPassword || this.existingPasswordHash)
+    };
 
     console.log('Profile update payload:', finalObj);
     this.isLoading = true;

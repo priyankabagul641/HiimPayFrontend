@@ -24,9 +24,14 @@ export class ProfileCpocComponent implements OnInit {
     const dialogRef = this.dialog.open(ProfileUpdateDialogComponent, {
       width: '600px',
       disableClose: true,
+      data: {
+        profile: this.profileInfo,
+        disablePasswordEdit: true,
+        staticPassword: 'Cpoc@1234'
+      }
     });
     dialogRef.afterClosed().subscribe((result) => {
-      if (result.action == 'ok') {
+      if (result?.action == 'ok') {
         this.profileInfo = JSON.parse(
           sessionStorage.getItem('currentLoggedInUserData')!
         );

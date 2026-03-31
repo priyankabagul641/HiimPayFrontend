@@ -84,6 +84,8 @@
 	border-bottom: 1px solid #e6edf6;
 	font-size: 14px;
 	color: #1d3557;
+	overflow-wrap: break-word;
+	word-break: normal;
 }
 
 :host .company-table th {
@@ -96,7 +98,13 @@
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-	white-space: nowrap;
+	white-space: normal;
+	line-height: 1.25;
+}
+
+:host .company-table td {
+	white-space: normal;
+	line-height: 1.35;
 }
 
 :host .company-table tbody tr:hover td {
@@ -115,16 +123,24 @@
 	border-bottom: 0;
 }
 
-:host .col-company { width: 260px; }
+:host .col-company { width: 180px; }
 :host .col-date { width: 160px; }
 :host .col-type { width: 120px; }
 :host .col-amount { width: 110px; text-align: right; font-variant-numeric: tabular-nums; }
-:host .col-balance { width: 110px; text-align: right; font-variant-numeric: tabular-nums; }
-:host .col-reference { width: 120px; }
-:host .col-transactionid { width: 160px; }
+:host .col-balance { width: 130px; text-align: right; font-variant-numeric: tabular-nums; }
+:host .col-reference { width: 160px; }
+:host .col-transactionid { width: 180px; }
 :host .col-paidvia { width: 120px; }
 :host .col-status { width: 120px; }
-:host .col-notes { width: auto; }
+:host .col-notes { width: 160px; }
+
+:host .col-reference,
+:host .col-transactionid,
+:host .col-paidvia,
+:host .col-notes {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
 
 :host .company-logo, :host .api-logo {
 	width: 56px;
@@ -137,9 +153,9 @@
 }
 
 :host .truncate-cell {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
+	overflow-wrap: break-word;
+	word-break: normal;
 }
 
 :host .truncate-inner {

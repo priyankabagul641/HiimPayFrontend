@@ -783,6 +783,20 @@ export class AdminDataService {
 // }
 
   }
+  
+     createCategory(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `brand-categories`, obj);
+    //obj should be like this
+// {
+//   "id": 0,
+//   "categoryName": "string",
+//   "categoryCode": "string",//pass dynamic
+//   "displayOrder": 0,//pass dynamic
+//   "isDeleted": false,
+//   "deletedAt": "2026-03-30T10:51:51.334Z",
+//   "active": true
+// }
+  }
 
   getAllAdmin(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `users/filter?userType=ADMIN&status=active`);
@@ -812,7 +826,7 @@ export class AdminDataService {
   }
 
      createAdmin(obj: any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `/users/createAdmin`, obj);
+    return this.http.put<any>(this.baseUrl + `users/admin`, obj);
     //obj should be like this
 //     {
 //   "fullName": "System Administrator",
@@ -824,7 +838,7 @@ export class AdminDataService {
   }
 
        updateAdmin(obj: any,id:any): Observable<any> {
-    return this.http.post<any>(this.baseUrl + `users/admin`, obj);
+    return this.http.put<any>(this.baseUrl + `users/admin`, obj);
     //obj should be like this
 //     {
 //   "fullName": "System Administrator",
@@ -839,6 +853,7 @@ export class AdminDataService {
 assignbrnadsToCompany(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `companies/multiAssign-BrandsCompanies`, obj);
   }
+
 
 uploadImg(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `files/upload`, obj);

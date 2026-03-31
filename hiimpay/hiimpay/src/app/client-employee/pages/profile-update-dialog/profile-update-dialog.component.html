@@ -24,8 +24,8 @@
               <small
                 class="text-danger d-block text-end"
                 *ngIf="updateRecordsForm.get('name')?.touched &&
-                       updateRecordsForm.get('name')?.hasError('required')">
-                Name is required
+                  updateRecordsForm.get('name')?.value?.trim() === ''">
+                Name cannot be empty
               </small>
             </div>
 
@@ -38,14 +38,14 @@
                 <input
                   type="text"
                   class="form-control"
-                  formControlName="contactNumber"
+                  formControlName="mobile"
                   placeholder="Enter contact number">
               </div>
               <small
                 class="text-danger d-block text-end"
-                *ngIf="updateRecordsForm.get('contactNumber')?.touched &&
-                       updateRecordsForm.get('contactNumber')?.hasError('required')">
-                Contact number is required
+                *ngIf="updateRecordsForm.get('mobile')?.touched &&
+                  updateRecordsForm.get('mobile')?.hasError('pattern')">
+                Enter a valid 10-digit contact number
               </small>
             </div>
 
@@ -64,13 +64,13 @@
               <small
                 class="text-danger d-block text-end"
                 *ngIf="updateRecordsForm.get('email')?.touched &&
-                       updateRecordsForm.get('email')?.hasError('required')">
-                Email is required
+                  updateRecordsForm.get('email')?.hasError('pattern')">
+                Enter a valid email address
               </small>
             </div>
 
             <!-- Password (optional) -->
-            <div class="col-md-6 mt-3">
+            <div class="col-md-6 mt-3" *ngIf="!disablePasswordEdit">
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="bi bi-key-fill"></i>
@@ -78,7 +78,7 @@
                 <input
                   [type]="showPassword ? 'text' : 'password'"
                   class="form-control"
-                  formControlName="password"
+                  formControlName="passwordHash"
                   placeholder="Enter new password (optional)">
                 <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword" style="margin-left:8px">
                   <i class="fa" [ngClass]="{'fa-eye': showPassword, 'fa-eye-slash': !showPassword}"></i>

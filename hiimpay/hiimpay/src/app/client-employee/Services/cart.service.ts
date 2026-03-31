@@ -155,6 +155,19 @@ deleteVouchersById(voucherid:any): Observable<any> {
 //   "userId": 30,
 //   "receipt": "string",
 //   "notes": "string"
+// "amount":number
+// }
+
+   }
+    razorPayVerify (data:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`payments/razorpay/verify`, data);
+// object is like this 
+// {
+//   "userId": 0,
+//   "razorpayOrderId": "string",
+//   "razorpayPaymentId": "string",
+//   "razorpaySignature": "string",
+//   "notes": "string"
 // }
 
    }

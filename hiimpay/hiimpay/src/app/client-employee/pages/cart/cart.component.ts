@@ -103,6 +103,7 @@ export class CartComponent implements OnInit, OnDestroy {
     this.isBuying = true;
     const razorPayload = {
       userId,
+      amount: this.amountToPay,
       receipt: `RECEIPT-${Date.now()}`,
       notes: 'Cart checkout payment order'
     };
@@ -134,6 +135,14 @@ export class CartComponent implements OnInit, OnDestroy {
           description: 'Cart Payment',
           order_id: orderId,
           handler: (paymentResponse: any) => {
+            const verifyPayload = {
+              userId,
+              razorpayOrderId: paymentResponse?.razorpay_order_id,
+              razorpayPaymentId: paymentResponse?.razorpay_payment_id,
+              razorpaySignature: paymentResponse?.razorpay_signature,
+              notes: 'Cart checkout payment verification'
+            };
+
             const buyNowPayload = {
               userId,
               referenceNo: paymentResponse?.razorpay_payment_id || `REF-${Date.now()}`,
@@ -141,31 +150,51 @@ export class CartComponent implements OnInit, OnDestroy {
               allocationSource: 'PURCHASE',
               status: 'PENDING',
               redemptionChannel: 'ONLINE',
-              razorpay_order_id: paymentResponse?.razorpay_order_id,
-              razorpay_payment_id: paymentResponse?.razorpay_payment_id,
-              razorpay_signature: paymentResponse?.razorpay_signature
+              razorpayOrderId: paymentResponse?.razorpay_order_id,
+              razorpayPaymentId: paymentResponse?.razorpay_payment_id,
+              razorpaySignature: paymentResponse?.razorpay_signature
             };
 
-            this.cartService.BuyNow(buyNowPayload).subscribe({
-              next: (res: any) => {
-                const checkoutSuccess =
-                  res?.success === true ||
-                  (res?.message || '').toLowerCase().includes('checkout completed successfully');
+            this.cartService.razorPayVerify(verifyPayload).subscribe({
+              next: (verifyRes: any) => {
+                const verifySuccess =
+                  verifyRes?.success === true ||
+                  (verifyRes?.message || '').toLowerCase().includes('verified') ||
+                  (verifyRes?.message || '').toLowerCase().includes('success');
 
-                this.isBuying = false;
-                if (!checkoutSuccess) {
-                  this.toastr.error('Payment captured, but checkout failed.');
+                if (!verifySuccess) {
+                  this.isBuying = false;
+                  this.toastr.error('Payment verification failed. Checkout not completed.');
                   return;
                 }
 
-                [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
-                this.toastr.success('Payment completed and cart checkout successful.');
-                this.router.navigate(['/clientEmployee/my-coupons']);
+                this.cartService.BuyNow(buyNowPayload).subscribe({
+                  next: (res: any) => {
+                    const checkoutSuccess =
+                      res?.success === true ||
+                      (res?.message || '').toLowerCase().includes('checkout completed successfully');
+
+                    this.isBuying = false;
+                    if (!checkoutSuccess) {
+                      this.toastr.error('Payment captured, but checkout failed.');
+                      return;
+                    }
+
+                    [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
+                    this.toastr.success('Payment completed and cart checkout successful.');
+                    this.router.navigate(['/clientEmployee/my-coupons']);
+                  },
+                  error: (err: any) => {
+                    this.isBuying = false;
+                    console.error('BuyNow API error:', err);
+                    this.toastr.error('Payment verified, but checkout API failed.');
+                  }
+                });
               },
               error: (err: any) => {
                 this.isBuying = false;
-                console.error('BuyNow API error:', err);
-                this.toastr.error('Payment success, but checkout API failed.');
+                console.error('razorPayVerify API error:', err);
+                this.toastr.error('Payment success, but verification failed.');
               }
             });
           },

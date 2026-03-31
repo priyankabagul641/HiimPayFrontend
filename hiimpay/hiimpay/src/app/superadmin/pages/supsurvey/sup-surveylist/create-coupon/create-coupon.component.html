@@ -83,13 +83,13 @@
         </div>
 
         <div class="col">
-          <label>Category <span class="text-danger">*</span></label>
+          <label>Category <span class="text-danger" *ngIf="isCategoryRequired()">*</span></label>
           <select formControlName="categoryId" class="form-control"
-                  [class.is-invalid]="couponForm.get('categoryId')?.invalid && couponForm.get('categoryId')?.touched">
+                  [class.is-invalid]="isCategoryRequired() && couponForm.get('categoryId')?.invalid && couponForm.get('categoryId')?.touched">
             <option [ngValue]="null" disabled>Select category</option>
             <option *ngFor="let cat of filteredCategories" [ngValue]="cat.id">{{ cat.categoryName }}</option>
           </select>
-          <div class="invalid-feedback">Category is required.</div>
+          <div class="invalid-feedback" *ngIf="isCategoryRequired() && couponForm.get('categoryId')?.invalid && couponForm.get('categoryId')?.touched">Category is required.</div>
         </div>
       </div>
     </section>

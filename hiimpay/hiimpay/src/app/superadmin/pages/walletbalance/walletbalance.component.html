@@ -27,25 +27,25 @@
 						<th class="col-type text-left" (click)="toggleSort('transactionType')">Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
 						<th class="col-amount text-center" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
 						<th class="col-balance text-center">Balance After</th>
-						<th class="col-reference text-left">Reference</th>
+						<!-- <th class="col-reference text-left">Reference</th> -->
 						<th class="col-transactionid text-left">Transaction ID</th>
 						<th class="col-paidvia text-left">Paid Via</th>
 						<th class="col-status text-center">Status</th>
-						<th class="col-notes text-left">Notes</th>
+						<!-- <th class="col-notes text-left">Notes</th> -->
 						<th class="col-company text-left">Company</th>
 					</tr>
 				</thead>
 				<tbody>
 					<ng-container *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page } ; let i = index">
 						<tr [class.alt-row]="i % 2 === 1">
-							<td class="text-left align-middle">{{ t.createdAt | date:'short' }}</td>
-							<td class="text-left align-middle">{{ t.transactionType }}</td>
-							<td class="text-center align-middle">{{ t.amount | number:'1.2-2' }}</td>
-							<td class="text-center align-middle">{{ t.balanceAfter | number:'1.2-2' }}</td>
-							<td class="text-left align-middle">{{ t.referenceNo }}</td>
-							<td class="text-left align-middle">{{ t.transactionId }}</td>
-							<td class="text-left align-middle">{{ t.paidVia || '-' }}</td>
-							<td class="text-center align-middle">
+							<td class="col-date text-left align-middle">{{ t.createdAt | date:'short' }}</td>
+							<td class="col-type text-left align-middle">{{ t.transactionType }}</td>
+							<td class="col-amount text-center align-middle">{{ t.amount | number:'1.2-2' }}</td>
+							<td class="col-balance text-center align-middle">{{ t.balanceAfter | number:'1.2-2' }}</td>
+							<!-- <td class="col-reference text-left align-middle">{{ t.referenceNo }}</td> -->
+							<td class="col-transactionid text-left align-middle">{{ t.transactionId }}</td>
+							<td class="col-paidvia text-left align-middle">{{ t.paidVia || '-' }}</td>
+							<td class="col-status text-center align-middle">
 								<span class="status-badge"
 											[ngClass]="{
 												'badge-success': (t.status || '').toString().toLowerCase() === 'success' || (t.status || '').toString().toLowerCase() === 'completed',
@@ -55,8 +55,8 @@
 									{{ t.status || '-' }}
 								</span>
 							</td>
-							<td class="text-left align-middle truncate-cell" [title]="t.notes">{{ t.notes }}</td>
-							<td class="text-left align-middle" [title]="t.companyName">{{ t.companyName }}</td>
+							<!-- <td class="col-notes text-left align-middle truncate-cell" [title]="t.notes">{{ t.notes }}</td> -->
+							<td class="col-company text-left align-middle" [title]="t.companyName">{{ t.companyName }}</td>
 						</tr>
 					</ng-container>
 				</tbody>

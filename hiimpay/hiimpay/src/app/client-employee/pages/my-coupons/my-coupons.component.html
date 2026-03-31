@@ -1,29 +1,23 @@
 <ng-container>
-  <div class="wallet-insight-grid">
-    <article class="finance-card balance">
-      <div class="finance-top">
-        <span class="finance-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-        <span class="finance-trend">+10%</span>
-      </div>
-      <p>Purchased Coupons</p>
-      <h3>{{ shell.purchasedCount }}</h3>
-    </article>
-    <article class="finance-card total">
-      <div class="finance-top">
-        <span class="finance-icon"><mat-icon>savings</mat-icon></span>
-        <span class="finance-trend">+9%</span>
-      </div>
-      <p>Assigned Coupons</p>
-      <h3>{{ shell.assignedCount }}</h3>
-    </article>
-    <article class="finance-card month">
-      <div class="finance-top">
-        <span class="finance-icon"><mat-icon>show_chart</mat-icon></span>
-        <span class="finance-trend">+4%</span>
-      </div>
-      <p>Expired Coupons</p>
-      <h3>{{ shell.expiredCount }}</h3>
-    </article>
+  <div class="my-coupon-hero">
+    <div class="hero-left">
+      <h2>My Coupon Vault</h2>
+      <p>Track, copy and redeem your live vouchers in one place.</p>
+    </div>
+    <div class="hero-right">
+      <article class="stat-pill purchased">
+        <span>Purchased</span>
+        <strong>{{ shell.purchasedCount }}</strong>
+      </article>
+      <article class="stat-pill assigned">
+        <span>Assigned</span>
+        <strong>{{ shell.assignedCount }}</strong>
+      </article>
+      <article class="stat-pill expired">
+        <span>Expired</span>
+        <strong>{{ shell.expiredCount }}</strong>
+      </article>
+    </div>
   </div>
 
   <div class="tab-row">
@@ -32,42 +26,51 @@
     <button [class.active]="shell.activeCouponTab === 'expired'" (click)="shell.selectCouponTab('expired')">Expired</button>
   </div>
 
-  <article class="owned-card" *ngFor="let coupon of shell.filteredOwnedCoupons">
-    <div class="owned-header">
-      <h4>{{ coupon.brand }} - {{ coupon.title }}</h4>
-      <span
-        class="countdown"
-        [class.warn]="shell.getDaysLeft(coupon.expiresOn) <= 3 && coupon.status === 'active'"
-        *ngIf="coupon.status === 'active'"
-      >
-        {{ shell.getDaysLeft(coupon.expiresOn) }}d left
-      </span>
-    </div>
-    <ng-container *ngIf="hasCouponImage(coupon); else myCouponNoImageState">
+  <div class="coupon-grid" *ngIf="!shell.userWalletCouponsLoading && sortedOwnedCoupons.length > 0">
+    <article class="coupon-tile" *ngFor="let coupon of sortedOwnedCoupons">
+      <div class="tile-head">
+        <h4>{{ coupon.brand }}</h4>
+        <span
+          class="countdown"
+          [class.warn]="getCouponDaysLeft(coupon) <= 3 && coupon.status === 'active'"
+          *ngIf="coupon.status === 'active' && getCouponDaysLeft(coupon) > 0"
+        >
+          {{ getCouponDaysLeft(coupon) }}d left
+        </span>
+      </div>
+
       <img
+        *ngIf="hasCouponImage(coupon)"
         [src]="coupon.imageUrl"
         alt="{{ coupon.brand }}"
         class="offer-img mini"
         (error)="onCouponImageError(coupon)"
       />
-    </ng-container>
-    <ng-template #myCouponNoImageState>
-      <div class="offer-img mini offer-img-fallback" aria-label="No image available">
-        <mat-icon>image_not_supported</mat-icon>
-        <span>No Image</span>
-      </div>
-    </ng-template>
-    <div class="code-row">
-      <code [class.copy-pulse]="shell.copiedCouponCode === coupon.code">{{ coupon.code }}</code>
-      <button class="secondary-btn" (click)="shell.copyCode(coupon.code)" *ngIf="coupon.status === 'active'">Copy</button>
-    </div>
-    <p>{{ coupon.redeemInstruction }}</p>
-  </article>
 
-  <div *ngIf="shell.userWalletCouponsLoading" style="text-align: center; padding: 20px;">
+      <p class="tile-title">{{ coupon.title }}</p>
+
+      <div class="meta-row">
+        <!-- <span class="meta-chip">{{ coupon.allocationSource || 'PURCHASE' }}</span> -->
+        <span class="meta-chip" *ngIf="coupon.expiresOn">Valid till {{ coupon.expiresOn | date:'mediumDate' }}</span>
+      </div>
+
+      <div class="code-row">
+        <!-- <code [class.copy-pulse]="shell.copiedCouponCode === getCouponCode(coupon)">{{ getCouponCode(coupon) || '-' }}</code> -->
+        <button class="secondary-btn" (click)="shell.copyCode(getCouponCode(coupon))" *ngIf="coupon.status === 'active' && getCouponCode(coupon)">Copy</button>
+      </div>
+
+      <!-- <p class="instruction">{{ coupon.redeemInstruction }}</p> -->
+
+      <a class="redeem-link" *ngIf="coupon.redemptionUrl && coupon.redemptionUrl !== '-'" [href]="coupon.redemptionUrl" target="_blank" rel="noopener noreferrer">
+        Redeem Now
+      </a>
+    </article>
+  </div>
+
+  <div *ngIf="shell.userWalletCouponsLoading" class="state-box">
     <p>Loading your coupons...</p>
   </div>
-  <div *ngIf="!shell.userWalletCouponsLoading && shell.filteredOwnedCoupons.length === 0" style="text-align: center; padding: 20px;">
+  <div *ngIf="!shell.userWalletCouponsLoading && sortedOwnedCoupons.length === 0" class="state-box">
     <p>No {{ shell.activeCouponTab }} coupons found.</p>
   </div>
 </ng-container>

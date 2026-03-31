@@ -41,6 +41,7 @@ export class CreateCouponComponent implements OnInit {
   showBrandDropdown = false;
   highlightedIndex = -1;
   selectedBrandId: any = null;
+  selectedBrandOnboardingType = '';
   categoriesList: any[] = [];
   filteredCategories: any[] = [];
 
@@ -116,6 +117,16 @@ export class CreateCouponComponent implements OnInit {
       next: (res: any) => {
         this.brands = res?.data || [];
         this.filteredBrands = [...this.brands];
+
+        // Keep validation in sync when brand is preselected (edit mode).
+        const preselectedBrandId = this.couponForm.get('brandId')?.value;
+        if (preselectedBrandId && !this.selectedBrandOnboardingType) {
+          const preselectedBrand = this.brands.find((b: any) => b.id === preselectedBrandId);
+          if (preselectedBrand) {
+            this.selectedBrandOnboardingType = (preselectedBrand.onboardingType || preselectedBrand.OnboardingType || '').toString().toUpperCase();
+            this.applyCategoryValidatorByOnboardingType(this.selectedBrandOnboardingType);
+          }
+        }
       },
       error: (err: any) => console.error('loadBrands error:', err)
     });
@@ -138,10 +149,28 @@ export class CreateCouponComponent implements OnInit {
     this.couponForm.patchValue({ brandId: brand.id });
     this.brandSearchTerm = brand.brandName;
     this.selectedBrandId = brand.id;
+    this.selectedBrandOnboardingType = (brand.onboardingType || brand.OnboardingType || '').toString().toUpperCase();
+    this.applyCategoryValidatorByOnboardingType(this.selectedBrandOnboardingType);
     this.showBrandDropdown = false;
     this.dropdownSearchTerm = '';
     this.highlightedIndex = -1;
     this.onBrandChange();
+  }
+
+  isCategoryRequired(): boolean {
+    return (this.selectedBrandOnboardingType || '').toUpperCase() !== 'MANUAL';
+  }
+
+  private applyCategoryValidatorByOnboardingType(onboardingType: string): void {
+    const categoryCtrl = this.couponForm.get('categoryId');
+    if (!categoryCtrl) return;
+
+    if ((onboardingType || '').toUpperCase() === 'MANUAL') {
+      categoryCtrl.clearValidators();
+    } else {
+      categoryCtrl.setValidators([Validators.required]);
+    }
+    categoryCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   toggleBrandDropdown() {
@@ -294,6 +323,10 @@ export class CreateCouponComponent implements OnInit {
   onBrandChange() {
     const selectedBrandId = this.couponForm.get('brandId')?.value;
     if (selectedBrandId) {
+      const selectedBrand = this.brands.find((b: any) => b.id === selectedBrandId);
+      this.selectedBrandOnboardingType = (selectedBrand?.onboardingType || selectedBrand?.OnboardingType || '').toString().toUpperCase();
+      this.applyCategoryValidatorByOnboardingType(this.selectedBrandOnboardingType);
+
       // Call API to get categories for the selected brand
       this.adminService.getCategoryByCoupounId(selectedBrandId).subscribe({
         next: (res: any) => {
@@ -332,6 +365,8 @@ export class CreateCouponComponent implements OnInit {
         }
       });
     } else {
+      this.selectedBrandOnboardingType = '';
+      this.applyCategoryValidatorByOnboardingType(this.selectedBrandOnboardingType);
       this.filteredCategories = [];
       this.couponForm.patchValue({ categoryId: null });
     }
@@ -494,7 +529,7 @@ export class CreateCouponComponent implements OnInit {
       providerName:       "",
       productName:        form.productName,
       brand:              { id: form.brandId },
-      category:           { id: form.categoryId },
+      category:           form.categoryId ? { id: form.categoryId } : null,
       description:        form.description || '',
       imageUrl:           form.imageUrl || '',
       redemptionType:     form.redemptionType,
