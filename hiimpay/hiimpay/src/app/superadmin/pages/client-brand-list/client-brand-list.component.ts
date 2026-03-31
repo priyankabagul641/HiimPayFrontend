@@ -94,18 +94,56 @@ export class ClientBrandListPageComponent implements OnInit {
         }
         console.log('loadClientBrands - normalized data length:', data.length, 'raw response:', res);
         this.totalItems = total;
-        this.rows = (data || []).map((r: any) => ({
-          clientId: (r.clientId || r.client_id || r.client?.id || r.id || '').toString(),
-          clientName: r.clientName || r.companyName || r.client?.name || r.client_name || r.client?.companyName || 'Unknown',
-          brandId: (r.brandId || r.brand?.id || r.brand_id || r.brandId || '').toString(),
-          brandName: r.brandName || r.brand?.brandName || r.brand?.name || r.brand_name || r.brand?.BrandName || '',
-          brandProductCode: r.brandProductCode || r.brand?.brandProductCode || r.brandProductCode || '',
-          brandSku: r.brandSku || r.brand?.brandSku || r.brand?.brandProductCode || this.generateBrandSku(r.brand?.brandName || r.brandName || ''),
-          categories: r.categories || r.brand?.categories || r.categoryList || [],
-          epayMinValue: r.epayMinValue ?? r.brand?.epayMinValue ?? 0,
-          epayMaxValue: r.epayMaxValue ?? r.brand?.epayMaxValue ?? 0,
-          stockAvailable: r.stockAvailable ?? r.brand?.stockAvailable ?? true
-        }));
+        // normalize and compute a sort key (prefer updated timestamps, fall back to numeric id)
+        const mapped = (data || []).map((r: any) => {
+          const getTime = (v: any) => {
+            const candidates = [
+              v?.updatedAt,
+              v?.updated_at,
+              v?.updatedOn,
+              v?.updated_on,
+              v?.createdAt,
+              v?.created_at,
+              v?.id,
+              v?.brand?.updatedAt,
+              v?.brand?.updated_at,
+              v?.brand?.createdAt,
+              v?.brand?.created_at,
+              v?.brand?.id
+            ];
+            for (const c of candidates) {
+              if (c === undefined || c === null) continue;
+              const num = Number(c);
+              if (!isNaN(num) && String(c).trim() !== '') return num;
+              const parsed = Date.parse(String(c));
+              if (!isNaN(parsed)) return parsed;
+            }
+            return 0;
+          };
+
+          return {
+            _sortKey: getTime(r),
+            clientId: (r.clientId || r.client_id || r.client?.id || r.id || '').toString(),
+            clientName: r.clientName || r.companyName || r.client?.name || r.client_name || r.client?.companyName || 'Unknown',
+            brandId: (r.brandId || r.brand?.id || r.brand_id || r.brandId || '').toString(),
+            brandName: r.brandName || r.brand?.brandName || r.brand?.name || r.brand_name || r.brand?.BrandName || '',
+            brandProductCode: r.brandProductCode || r.brand?.brandProductCode || r.brandProductCode || '',
+            brandSku: r.brandSku || r.brand?.brandSku || r.brand?.brandProductCode || this.generateBrandSku(r.brand?.brandName || r.brandName || ''),
+            categories: r.categories || r.brand?.categories || r.categoryList || [],
+            epayMinValue: r.epayMinValue ?? r.brand?.epayMinValue ?? 0,
+            epayMaxValue: r.epayMaxValue ?? r.brand?.epayMaxValue ?? 0,
+            stockAvailable: r.stockAvailable ?? r.brand?.stockAvailable ?? true
+          } as any;
+        });
+
+        // sort newest-first by computed key
+        const sorted = mapped.sort((a: any, b: any) => (b._sortKey || 0) - (a._sortKey || 0));
+        // remove internal sort key before assigning
+        this.rows = sorted.map((x: any) => {
+          const { _sortKey, ...rest } = x;
+          return rest as ClientBrand;
+        });
+
         this.applyFilters();
       },
       error: () => {

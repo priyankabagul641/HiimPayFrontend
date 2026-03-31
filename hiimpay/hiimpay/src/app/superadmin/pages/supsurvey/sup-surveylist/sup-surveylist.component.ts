@@ -48,6 +48,12 @@ export class SupSurveylistComponent implements OnInit {
         } else if (res.success) {
           this.isLoading = false;
           this.surveyList = (res.data || []).map((coupon: any) => this.enrichCouponSku(coupon));
+          // Sort coupons in descending order (newest first) by updatedAt, fallback to numeric id
+          this.surveyList.sort((a: any, b: any) => {
+            const aTime = a.updatedAt ? Date.parse(a.updatedAt) : (parseInt(a.id?.toString?.() || '0', 10) || 0);
+            const bTime = b.updatedAt ? Date.parse(b.updatedAt) : (parseInt(b.id?.toString?.() || '0', 10) || 0);
+            return bTime - aTime;
+          });
           this.applyFilters();
         }
       },
@@ -64,6 +70,12 @@ export class SupSurveylistComponent implements OnInit {
         this.isLoading = false;
         const data = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
         this.surveyList = (data || []).map((coupon: any) => this.enrichCouponSku(coupon));
+        // Sort coupons newest-first
+        this.surveyList.sort((a: any, b: any) => {
+          const aTime = a.updatedAt ? Date.parse(a.updatedAt) : (parseInt(a.id?.toString?.() || '0', 10) || 0);
+          const bTime = b.updatedAt ? Date.parse(b.updatedAt) : (parseInt(b.id?.toString?.() || '0', 10) || 0);
+          return bTime - aTime;
+        });
         this.applyFilters();
       },
       error: () => {

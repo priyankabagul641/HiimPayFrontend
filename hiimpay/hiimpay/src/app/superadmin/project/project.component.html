@@ -52,7 +52,7 @@
         </div>
       </div>
     </mat-menu>
-    <div class="wallet-container d-flex align-items-center me-2">
+    <div *ngIf="showWalletLink" class="wallet-container d-flex align-items-center me-2">
       <button type="button" routerLink="./wallet-transactions" class="btn p-2 d-flex align-items-center" style="background:transparent;border:0;">
         <div class="d-flex align-items-center justify-content-center rounded" style="width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;">
           <mat-icon style="font-size:18px;">account_balance_wallet</mat-icon>
@@ -134,7 +134,7 @@
           <span *ngIf="!isCollapsed">Assigned Brands</span>
         </span>
       </a>
-      <a mat-list-item routerLink="./wallet-transactions" routerLinkActive="active">
+      <a *ngIf="showWalletLink" mat-list-item routerLink="./wallet-transactions" routerLinkActive="active">
         <span class="entry">
           <mat-icon>account_balance_wallet</mat-icon>
           <span *ngIf="!isCollapsed">Wallet Transactions</span>

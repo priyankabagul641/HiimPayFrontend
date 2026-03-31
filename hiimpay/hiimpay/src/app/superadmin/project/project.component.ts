@@ -32,6 +32,7 @@ export class ProjectComponent {
   isMobile = true;
   isCollapsed = true;
   isCpoc: boolean = false;
+  showWalletLink: boolean = true;
   clientData: any;
   getId: any;
   message:any;
@@ -128,6 +129,9 @@ this.cId=id;console.log(this.cId);
     // Load wallet from API using current logged-in user id
     try {
       const currentUser = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+      const userType = (currentUser?.userType || '').toString().toUpperCase();
+      // hide wallet link for ADMIN users
+      this.showWalletLink = !(userType === 'ADMIN' || currentUser?.isAdmin === true);
       const userId = currentUser?.id;
       if (userId) {
         this.adminDataService.getwalletById(userId).subscribe({

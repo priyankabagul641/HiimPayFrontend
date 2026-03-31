@@ -69,6 +69,12 @@ export class VoucherBrandListComponent implements OnInit {
           categories: b.categories || b.categoryList || [],
           updatedAt: b.updatedAt || b.updated_at || ''
         }));
+        // Sort brands in descending order (newest first). Prefer updatedAt, fallback to numeric id.
+        this.brands.sort((a, b) => {
+          const aTime = a.updatedAt ? Date.parse(a.updatedAt) : (parseInt(a.id as any, 10) || 0);
+          const bTime = b.updatedAt ? Date.parse(b.updatedAt) : (parseInt(b.id as any, 10) || 0);
+          return bTime - aTime;
+        });
         this.applyFilters();
       },
       error: () => {
