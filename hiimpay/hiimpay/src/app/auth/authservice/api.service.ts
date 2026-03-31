@@ -30,6 +30,15 @@ export class ApiService {
 
   generateOTP(emailId:any){
     return this.http.post<any>(this.baseUrl+`users/SendOTPOnEmailId?emailId=${emailId}`,'');
+//     geeting res like this 
+//     {
+//   "data": {
+//     "otp": "123456",
+//     "email": "vayu@yopmail.com"
+//   },
+//   "message": "OTP sent successfully",
+//   "success": true
+// }
   }
 
   // verifyOTP(emailId:any,otp:any){
@@ -39,6 +48,23 @@ export class ApiService {
   verifyOTP(email: string, otp: string) {
     const url = `${this.baseUrl}users/VerifyOtpJWT?emailId=${email}&otp=${otp}`;
     return this.http.post(url,'');
+//     geeting res like this 
+//     {
+//   "data": {
+//     "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjUiLCJlbWFpbCI6InZheXVAeW9wbWFpbC5jb20iLCJpYXQiOjE3NzQ5NDAwMjEsImV4cCI6MTc3NTAyNjQyMX0.KWMHQpNEdY7Tvl2hmsCYy-S0XDtXq05gD7At6cvfiDY",
+//     "user": {
+//       "id": 125,
+//       "fullName": "vayu",
+//       "email": "vayu@yopmail.com",
+//       "mobile": "8773773776",
+//       "userType": "ADMIN",
+//       "status": "ACTIVE",
+//       "companyId": null
+//     }
+//   },
+//   "message": "OTP verified",
+//   "success": true
+// }
   }
   
 
@@ -61,6 +87,13 @@ export class ApiService {
     body,
     { headers }
   );
+
+
+//   getting res like this{
+//   "data": null,
+//   "message": "Password updated successfully",
+//   "success": true
+// }
 }
 
 

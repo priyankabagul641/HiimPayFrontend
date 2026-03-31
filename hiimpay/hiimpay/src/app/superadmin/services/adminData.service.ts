@@ -730,6 +730,9 @@ export class AdminDataService {
    createsiripay(obj: any): Observable<any> {
     return this.http.post<any>(this.baseUrl + `vouchers/pull/SiriPay`, {});
   }
+  createsiripaydata(obj: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl + `vouchers/pull/SiriPay`, {});
+  }
 
   getAllBrand(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `brands`);

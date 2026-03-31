@@ -455,9 +455,9 @@ export class CreateCouponComponent implements OnInit {
     } else if (provider.includes('gyftr')) {
       call$ = this.adminService.creategyftr({});
     } else if (provider.includes('siripay')) {
-      call$ = this.adminService.createsiripay({});
+      call$ = this.adminService.createsiripaydata({});
     } else {
-      call$ = this.adminService.createxoxoday({});
+      call$ = this.adminService.createsiripaydata({});
     }
     call$.subscribe({
       next: (res: any) => {

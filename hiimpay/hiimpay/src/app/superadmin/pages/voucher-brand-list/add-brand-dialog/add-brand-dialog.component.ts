@@ -188,7 +188,9 @@ export class AddBrandDialogComponent implements OnInit {
       call$ = this.adminService.createmyhumble({});
     } else if (provider.includes('gyftr')) {
       call$ = this.adminService.creategyftr({});
-    } else {
+    } else if (provider.includes('siripay')) {
+      call$ = this.adminService.createsiripaydata({});
+    }else {
       call$ = this.adminService.createxoxoday({});
     }
     call$.subscribe({
