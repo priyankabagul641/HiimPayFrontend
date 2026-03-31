@@ -172,4 +172,20 @@ deleteVouchersById(voucherid:any): Observable<any> {
 
    }
 
+       debitWallet (data:any,userId:number):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-reward-wallets/user/${userId}/debit`, data);
+// object is like this 
+// {
+//   "amount": 0,
+//   "referenceNo": "string",
+//   "notes": "string",
+//   "razorpayOrderId": "string",
+//   "razorpayPaymentId": "string",
+//   "razorpaySignature": "string"
+// }
+
+   }
+
+
+
 }

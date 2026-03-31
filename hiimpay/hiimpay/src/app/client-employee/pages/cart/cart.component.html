@@ -50,6 +50,17 @@
         <span>Amount to be Paid</span>
         <strong>₹{{ amountToPay | number:'1.0-0' }}</strong>
       </div>
+      <div class="summary-row">
+        <label><input type="checkbox" [(ngModel)]="useWallet" (change)="recomputeWalletUsage()"> Use wallet (₹{{ walletBalance | number:'1.0-0' }})</label>
+      </div>
+      <div *ngIf="useWallet" class="summary-row">
+        <span>Wallet used</span>
+        <strong>₹{{ walletUsed | number:'1.0-0' }}</strong>
+      </div>
+      <div class="summary-row final" *ngIf="useWallet">
+        <span>Remaining to pay</span>
+        <strong>₹{{ (amountToPay - walletUsed) | number:'1.0-0' }}</strong>
+      </div>
       <button type="button" class="buy-btn" (click)="buyNow()" [disabled]="isBuying || cartItems.length === 0">
         {{ isBuying ? 'Processing...' : 'Buy Now' }}
       </button>
