@@ -133,17 +133,15 @@ this.cId=id;console.log(this.cId);
       // hide wallet link for ADMIN users
       this.showWalletLink = !(userType === 'ADMIN' || currentUser?.isAdmin === true);
       const userId = currentUser?.id;
+      // subscribe to shared wallet balance updates
+      this.adminDataService.cpocWalletBalance$.subscribe((b) => {
+        if (b !== null && b !== undefined) {
+          this.walletBalance = Number(b || 0);
+        }
+      });
       if (userId) {
-        this.adminDataService.getwalletById(userId).subscribe({
-          next: (res: any) => {
-            if (res && res.success && res.data) {
-              this.walletBalance = res.data.balance ?? 0;
-            }
-          },
-          error: (err: any) => {
-            console.error('Failed to load wallet:', err);
-          }
-        });
+        // initial fetch and emit
+        this.adminDataService.refreshCpocWalletBalance(userId);
       }
     } catch (e) {
       console.error('Error parsing user from sessionStorage', e);

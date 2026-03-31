@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environment/enviorment.prod';
 
 
@@ -12,6 +12,28 @@ export class AdminDataService {
   baseUrl = environment.baseUrl;
   // baseUrl2 = environment.baseUrl2;
   constructor(private http: HttpClient) { }
+  // Observable state for current user's cpoc wallet balance
+  public cpocWalletBalance$: BehaviorSubject<number | null> = new BehaviorSubject<number | null>(null);
+
+  // Refresh wallet balance and emit to subscribers
+  refreshCpocWalletBalance(userId: number) {
+    if (!userId) {
+      console.debug('refreshCpocWalletBalance called without userId');
+      return;
+    }
+    console.debug('refreshCpocWalletBalance fetching for user:', userId);
+    this.getwalletById(userId).subscribe({
+      next: (res: any) => {
+        const balance = res?.data?.balance ?? (res?.data?.wallet?.balance) ?? null;
+        console.debug('refreshCpocWalletBalance response for', userId, res, 'computedBalance=', balance);
+        this.cpocWalletBalance$.next(balance);
+      },
+      error: (err: any) => {
+        console.error('refreshCpocWalletBalance error for', userId, err);
+        this.cpocWalletBalance$.next(null);
+      }
+    });
+  }
 //   COMPANY DASHBOARD
   getAllCompanies(): Observable<any> {
     return this.http.get<any>(this.baseUrl + `companies`);

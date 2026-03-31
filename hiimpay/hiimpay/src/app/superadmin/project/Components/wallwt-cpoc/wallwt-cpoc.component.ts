@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../../services/companyService';
+import { AdminDataService } from '../../../services/adminData.service';
 import { ToastrService } from 'ngx-toastr';
 
 interface WalletTransaction {
@@ -34,7 +35,7 @@ export class WallwtCpocComponent implements OnInit {
   sortField: keyof WalletTransaction | '' = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  constructor(private projectService: ProjectService, private toastr: ToastrService) {}
+  constructor(private projectService: ProjectService, private toastr: ToastrService, private adminDataService: AdminDataService) {}
 
   ngOnInit(): void {
     this.loadWalletBalance();
@@ -223,6 +224,14 @@ export class WallwtCpocComponent implements OnInit {
         this.loadWalletBalance();
         this.loadTransactions();
         this.page = 1;
+        // refresh and emit latest wallet balance to other components
+        try {
+          const uid = Number(userId);
+          if (!isNaN(uid)) {
+            console.debug('WallwtCpocComponent calling refreshCpocWalletBalance for', uid);
+            this.adminDataService.refreshCpocWalletBalance(uid);
+          }
+        } catch {}
       },
       error: () => {
         this.toastr.error('Payment captured, but wallet credit failed.');
