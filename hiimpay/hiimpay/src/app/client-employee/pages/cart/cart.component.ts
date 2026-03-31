@@ -161,6 +161,7 @@ export class CartComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.isBuying = false;
               [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
+              try { window.dispatchEvent(new CustomEvent('wallet-updated', { detail: { userId } })); } catch {}
               this.toastr.success('Payment completed and cart checkout successful (wallet).');
               this.router.navigate(['/clientEmployee/my-coupons']);
             },
@@ -277,6 +278,7 @@ export class CartComponent implements OnInit, OnDestroy {
                         this.useWallet = false;
                         this.walletUsed = 0;
                         [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
+                        try { window.dispatchEvent(new CustomEvent('wallet-updated', { detail: { userId } })); } catch {}
                         this.toastr.success('Payment completed and cart checkout successful.');
                         this.router.navigate(['/clientEmployee/my-coupons']);
                       },
@@ -331,8 +333,9 @@ export class CartComponent implements OnInit, OnDestroy {
                           this.useWallet = false;
                           this.walletUsed = 0;
                           [...this.cartItems].forEach((item) => this.cartService.removeItem(item.id));
-                          this.toastr.success('Payment completed and cart checkout successful.');
-                          this.router.navigate(['/clientEmployee/my-coupons']);
+                            try { window.dispatchEvent(new CustomEvent('wallet-updated', { detail: { userId } })); } catch {}
+                            this.toastr.success('Payment completed and cart checkout successful.');
+                            this.router.navigate(['/clientEmployee/my-coupons']);
                         },
                         error: (err: any) => {
                           this.isBuying = false;

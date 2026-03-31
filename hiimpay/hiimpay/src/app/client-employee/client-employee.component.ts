@@ -116,6 +116,14 @@ export class ClientEmployeeComponent implements OnInit {
     this.generateCaptcha();
   }
 
+  private walletUpdatedHandler = (_: any) => {
+    // refresh wallet balance and transactions when notified
+    if (this.userId) {
+      this.loadWalletBalance();
+      this.loadWalletTransactions();
+    }
+  };
+
   ngOnInit(): void {
     setTimeout(() => {
       this.generateCaptcha();
@@ -145,6 +153,13 @@ export class ClientEmployeeComponent implements OnInit {
       this.showFaqPanel = false;
       this.showNotificationPanel = false;
     });
+
+    // listen for wallet updates from other components
+    window.addEventListener('wallet-updated', this.walletUpdatedHandler as EventListener);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('wallet-updated', this.walletUpdatedHandler as EventListener);
   }
 
   get isDashboardRoute(): boolean {
