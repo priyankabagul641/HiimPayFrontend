@@ -104,8 +104,8 @@ export class ProjectService {
     return this.http.get<any>(this.baseUrl + `users/${id}`);
   }
 
-  deleteUserByID(id: number): Observable<any> {
-    return this.http.put<any>(this.baseUrl + `users/${id}/soft-delete`, {});
+  deleteUserByID(id: number, payload: any = {}): Observable<any> {
+    return this.http.put<any>(this.baseUrl + `users/${id}/soft-delete`, payload);
   }
 
   getExcelFileUrl(): Observable<{ message: string, url: string }> {

@@ -125,9 +125,10 @@ export class ProjectAdminComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
-      if (result && result.action === 'ok') {
+        if (result && result.action === 'ok') {
         const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-        this.service.deleteUserByID(user.id).subscribe({
+        const payload = { status: newStatus };
+        this.service.deleteUserByID(user.id, payload).subscribe({
           next: (res) => {
             if (res.success) {
               this.toaster.success(
