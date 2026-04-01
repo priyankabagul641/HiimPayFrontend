@@ -1,0 +1,8 @@
+.transactions-page { padding: 16px; }
+.toolbar { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.toolbar .spacer { flex:1 }
+.transactions-table { width:100%; border-collapse:collapse; }
+.transactions-table th, .transactions-table td { border:1px solid #e0e0e0; padding:8px; text-align:left }
+.transactions-table th { background:#f7f7f7 }
+.icon-btn { background:transparent; border:none; cursor:pointer }
+.pager { margin-top:12px; display:flex; gap:8px; align-items:center }

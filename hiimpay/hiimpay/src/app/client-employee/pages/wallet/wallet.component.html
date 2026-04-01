@@ -67,38 +67,60 @@
       <span class="tx-count-badge">{{ shell.walletTransactions.length }}</span>
     </div>
 
-    <div class="tx-list" *ngIf="shell.walletTransactions.length > 0; else emptyState">
-      <div class="tx-row" *ngFor="let tx of paginatedTransactions">
-        <div class="tx-row-icon"
-          [class.icon-credit]="tx.type === 'credit'"
-          [class.icon-debit]="tx.type !== 'credit'">
-          <mat-icon>{{ tx.type === 'credit' ? 'add' : 'remove' }}</mat-icon>
+    <div class="tx-list" *ngIf="tableTransactions.length > 0; else emptyState">
+      <div class="table-actions" *ngIf="selected.size > 0">
+        <div class="action-bar">
+          <span>{{ selected.size }} selected</span>
+          <button (click)="downloadSelected()" class="btn btn-primary">Download Selected</button>
         </div>
-        <div class="tx-row-info">
-          <p class="tx-desc">{{ tx.description }}</p>
-          <span class="tx-date">{{ tx.date | date: 'd MMM yyyy' }}</span>
-        </div>
-        <div class="tx-row-amount"
-          [class.amt-credit]="tx.type === 'credit'"
-          [class.amt-debit]="tx.type !== 'credit'">
-          {{ tx.type === 'credit' ? '+' : '-' }}₹{{ tx.amount }}
-        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tx-table">
+          <thead class="sticky">
+            <tr>
+              <th><input type="checkbox" (change)="toggleSelectAll($any($event.target).checked)"></th>
+              <th (click)="sortBy('amount')">Amount <small *ngIf="sortKey==='amount'">({{sortDir}})</small></th>
+              <th>Invoice</th>
+              <th (click)="sortBy('referenceNo')">Reference No <small *ngIf="sortKey==='referenceNo'">({{sortDir}})</small></th>
+              <th (click)="sortBy('transactionType')">Transaction Type <small *ngIf="sortKey==='transactionType'">({{sortDir}})</small></th>
+              <th (click)="sortBy('balanceAfter')">Balance <small *ngIf="sortKey==='balanceAfter'">({{sortDir}})</small></th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of paginatedTransactions" class="tx-row-hover">
+              <td><input type="checkbox" [checked]="isSelected(tx)" (change)="toggleSelect(tx)"></td>
+              <td>₹{{ tx.amount ?? tx?.data?.amount ?? '-' }}</td>
+              <td>
+                <span *ngIf="tx.invoiceUrl || tx.invoice_url || tx?.data?.invoiceUrl; else noInv">{{ (tx.invoiceUrl || tx.invoice_url || tx?.data?.invoiceUrl).split('/').pop() }}</span>
+                <ng-template #noInv>-</ng-template>
+              </td>
+              <td>{{ tx.referenceNo || tx.reference || '-' }}</td>
+              <td>{{ tx.transactionType || tx.type || '-' }}</td>
+              <td>₹{{ tx.balanceAfter ?? tx.balance ?? '-' }}</td>
+              <td>
+                <button class="icon-btn" title="Download Invoice" [disabled]="!(tx.invoiceUrl || tx.invoice_url || tx?.data?.invoiceUrl)" (click)="downloadRow(tx)">⤓</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <div class="tx-pagination" *ngIf="shell.walletTransactions.length > 0">
       <p class="tx-pagination-info">Showing {{ startIndex }}-{{ endIndex }} of {{ totalTransactions }}</p>
       <div class="tx-pagination-controls" *ngIf="totalPages > 1">
-        <button class="page-btn" type="button" (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+        <button class="page-btn" type="button" (click)="prevPage()" [disabled]="walletCurrentPage === 1">Prev</button>
         <button
           class="page-btn page-num"
           type="button"
           *ngFor="let page of visiblePages"
-          [class.active]="page === currentPage"
+          [class.active]="page === walletCurrentPage"
           (click)="goToPage(page)">
           {{ page }}
         </button>
-        <button class="page-btn" type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+        <button class="page-btn" type="button" (click)="nextPage()" [disabled]="walletCurrentPage === totalPages">Next</button>
       </div>
     </div>
 

@@ -250,114 +250,26 @@ export class EmployeeService {
    getUserTransactionsById(id: any): Observable<any> {
     return this.http.get<any>(this.baseUrl+`user-reward-wallets/user/${id}/transactions`);
 //     getting responce like this
-//     {
-//   "data": [
-//     {
-//       "id": 21,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 5000,
-//       "balanceAfter": 10010,
-//       "referenceNo": "REF-1772177179869",
-//       "notes": "padwa gift",
-//       "createdAt": "2026-02-27T12:56:19.482"
-//     },
-//     {
-//       "id": 16,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 1000,
-//       "balanceAfter": 5010,
-//       "referenceNo": "REF-1772176886277",
-//       "notes": "holi gift",
-//       "createdAt": "2026-02-27T12:51:25.914"
-//     },
-//     {
-//       "id": 11,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 1010,
-//       "balanceAfter": 4010,
-//       "referenceNo": "REWARD-2026-001",
-//       "notes": "Monthly performance reward",
-//       "createdAt": "2026-02-27T12:22:49.235"
-//     },
-//     {
-//       "id": 7,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 1000,
-//       "balanceAfter": 3000,
-//       "referenceNo": "REWARD-2026-001",
-//       "notes": "Monthly performance reward",
-//       "createdAt": "2026-02-27T12:20:12.76"
-//     },
-//     {
-//       "id": 4,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 1000,
-//       "balanceAfter": 2000,
-//       "referenceNo": "REWARD-2026-001",
-//       "notes": "Monthly performance reward",
-//       "createdAt": "2026-02-27T12:20:04.544"
-//     },
-//     {
-//       "id": 2,
-//       "wallet": {
-//         "id": 2,
-//         "userId": 36,
-//         "balance": 10010,
-//         "createdAt": "2026-02-27T12:19:44.091",
-//         "updatedAt": "2026-02-27T12:56:19.487"
-//       },
-//       "userId": 36,
-//       "transactionType": "CREDIT",
-//       "amount": 1000,
-//       "balanceAfter": 1000,
-//       "referenceNo": "REWARD-2026-001",
-//       "notes": "Monthly performance reward",
-//       "createdAt": "2026-02-27T12:19:44.093"
-//     }
-//   ],
-//   "message": "Reward wallet transactions fetched successfully",
-//   "success": true
-// }
+// {
+//     "data": [
+//         {
+//             "id": 196,
+//             "wallet": {
+//                 "id": 14,
+//                 "userId": 58,
+//                 "balance": 5650,
+//                 "createdAt": "2026-03-05T17:04:26.471",
+//                 "updatedAt": "2026-04-01T14:23:13.081"
+//             },
+//             "userId": 58,
+//             "transactionType": "DEBIT",
+//             "amount": 2300,
+//             "balanceAfter": 7950,
+//             "referenceNo": "REF-1775033592085",
+//             "notes": "Checkout using wallet",
+//             "invoiceUrl": null,
+//             "createdAt": "2026-04-01T14:23:12.954"
+//         },]}
   }
 
    purchaseCoupoun (data:any):Observable<any>{

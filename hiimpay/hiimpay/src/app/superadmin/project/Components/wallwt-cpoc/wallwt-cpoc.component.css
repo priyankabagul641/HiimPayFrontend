@@ -159,6 +159,28 @@
 	background: var(--soft-bg);
 }
 
+.action-bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 16px;
+	border-bottom: 1px solid #e6eef8;
+	background: #fff;
+}
+
+.table-actions { position: sticky; top: 0; z-index: 3; }
+
+.icon-btn {
+	border: 0;
+	background: #eef3fb;
+	color: #103a7f;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.icon-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .brand-table tbody tr:last-child td {
 	border-bottom: 0;
 }

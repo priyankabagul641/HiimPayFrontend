@@ -6,13 +6,14 @@
 		</div>
 		<div class="header-actions">
 			<!-- <div class="balance-chip">Balance: ₹{{ walletBalance | number:'1.2-2' }}</div> -->
+			<div class="balance-chip">Transactions: {{ transactions.length }}</div>
 			<button type="button" class="credit-btn" (click)="openCreditForm()">Credit Wallet Amount</button>
 		</div>
 	</div>
 
-	<div class="toolbar-card">
+		<div class="toolbar-card">
 		<div class="toolbar-grid">
-			<input class="search-input" type="text" placeholder="Search transactions" [(ngModel)]="searchTerm" (input)="page = 1">
+						<input class="search-input" type="text" placeholder="Search transactions" [(ngModel)]="searchTerm" (input)="page = 1">
 			<div style="text-align:right">
 				<label class="check-wrap">Show
 					<select class="form-control" [(ngModel)]="pageSize" style="width:80px;display:inline-block;margin-left:8px;vertical-align:middle">
@@ -25,32 +26,51 @@
 		</div>
 	</div>
 
-	<div class="table-card" *ngIf="!loading && !error && transactions.length">
-		<div class="desktop-table">
-			<table class="brand-table">
-				<thead>
-					<tr>
-						<th class="col-date" (click)="toggleSort('createdAt')">Date <small *ngIf="sortField==='createdAt'">({{ sortDirection }})</small></th>
-						<th class="col-type" (click)="toggleSort('transactionType')">Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
-						<th class="col-amount" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
-						<th class="col-balance">Balance After</th>
-						<th class="col-notes">Notes</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }">
-						<td class="col-date">{{ t.createdAt | date:'short' }}</td>
-						<td class="col-type"><span class="type-badge">{{ t.transactionType }}</span></td>
-						<td class="col-amount">{{ t.amount | number:'1.2-2' }}</td>
-						<td class="col-balance">{{ t.balanceAfter | number:'1.2-2' }}</td>
-						<td class="col-notes truncate-cell">{{ t.notes }}</td>
-					</tr>
-					<tr *ngIf="filteredTransactions.length === 0">
-						<td colspan="5" class="empty">No transactions found</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		<div class="table-card" *ngIf="!loading && !error && transactions.length">
+			<div class="desktop-table">
+				<div class="table-actions" *ngIf="selected.size > 0">
+					<div class="action-bar">
+						<span>{{ selected.size }} selected</span>
+						<button (click)="downloadSelected()" class="submit-btn" [disabled]="isBulkDownloading">Download Selected</button>
+						<div *ngIf="isBulkDownloading" style="margin-left:12px">Progress: {{ bulkProgress }}%</div>
+					</div>
+				</div>
+
+				<table class="brand-table">
+					<thead>
+						<tr>
+							<th style="width:48px"><input type="checkbox" (change)="toggleSelectAll($any($event.target).checked)"></th>
+							<th class="col-date" (click)="toggleSort('createdAt')">Date <small *ngIf="sortField==='createdAt'">({{ sortDirection }})</small></th>
+							<th class="col-amount" (click)="toggleSort('amount')">Amount <small *ngIf="sortField==='amount'">({{ sortDirection }})</small></th>
+							<th>Invoice</th>
+							<th (click)="toggleSort('referenceNo')">Reference No <small *ngIf="sortField==='referenceNo'">({{ sortDirection }})</small></th>
+							<th class="col-type" (click)="toggleSort('transactionType')">Transaction Type <small *ngIf="sortField==='transactionType'">({{ sortDirection }})</small></th>
+							<th class="col-balance" (click)="toggleSort('balanceAfter')">Balance <small *ngIf="sortField==='balanceAfter'">({{ sortDirection }})</small></th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }" class="tx-row-hover">
+							<td><input type="checkbox" [checked]="isSelected(t)" (change)="toggleSelect(t)"></td>
+							<td class="col-date">{{ t.createdAt | date:'short' }}</td>
+							<td class="col-amount">₹{{ t.amount | number:'1.2-2' }}</td>
+							<td>
+								<span *ngIf="$any(t).invoiceUrl || $any(t).invoice_url; else noInv">{{ ($any(t).invoiceUrl || $any(t).invoice_url).split('/').pop() }}</span>
+								<ng-template #noInv>-</ng-template>
+							</td>
+							<td>{{ t.referenceNo || '-' }}</td>
+							<td class="col-type"><span class="type-badge">{{ t.transactionType }}</span></td>
+							<td class="col-balance">₹{{ t.balanceAfter | number:'1.2-2' }}</td>
+							<td>
+								<button class="icon-btn" title="Download Invoice" [disabled]="!($any(t).invoiceUrl || $any(t).invoice_url)" (click)="downloadRow(t)">⤓</button>
+							</td>
+						</tr>
+						<tr *ngIf="filteredTransactions.length === 0">
+							<td colspan="8" class="empty">No transactions found</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 
 		<div class="mobile-cards">
 			<article class="brand-card" *ngFor="let t of filteredTransactions | paginate: { itemsPerPage: pageSize, currentPage: page }">

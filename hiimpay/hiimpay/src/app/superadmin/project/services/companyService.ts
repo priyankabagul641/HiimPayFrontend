@@ -463,16 +463,34 @@ export class ProjectService {
   getUserWalletById(id: any): Observable<any> {
     return this.http.get<any>(this.baseUrl+`cpoc-wallets/transactions/user/${id}`);
 //     getting responce like this{
-//   "data": {
-//     "id": 2,
-//     "userId": 36,
-//     "balance": 10010,
-//     "createdAt": "2026-02-27T12:19:44.091",
-//     "updatedAt": "2026-02-27T12:56:19.487"
-//   },
-//   "message": "Reward wallet fetched successfully",
-//   "success": true
-// }
+// {
+//   "data": [
+//     {
+//       "id": 19,
+//       "wallet": {
+//         "id": 3,
+//         "cpocUserId": 29,
+//         "companyId": 5,
+//         "balance": 13090,
+//         "createdAt": "2026-03-23T14:07:26.57",
+//         "updatedAt": "2026-03-31T16:50:48.994"
+//       },
+//       "cpocUserId": 29,
+//       "companyId": 5,
+//       "employeeUserId": null,
+//       "transactionType": "CREDIT",
+//       "amount": 280,
+//       "balanceAfter": 13090,
+//       "referenceNo": "pay_SXoXWj4iGzyprr",
+//       "transactionId": "pay_SXoXWj4iGzyprr",
+//       "paidVia": "CPOC_WALLET",
+//       "status": "SUCCESS",
+//       "notes": "TESTTER",
+//       "invoiceUrl": null,
+//       "createdAt": "2026-03-31T16:50:48.991"
+//     }]}
+
+
   }
 
 }

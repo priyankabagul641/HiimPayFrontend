@@ -1,0 +1,51 @@
+<section class="transactions-page">
+  <div class="toolbar">
+    <button class="btn" (click)="downloadSelected()">Download Selected</button>
+    <div class="spacer"></div>
+    <label>Page size:
+      <select [(ngModel)]="pageSize" (change)="changePage(1)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+      </select>
+    </label>
+  </div>
+
+  <table class="transactions-table">
+    <thead>
+      <tr>
+        <th><input type="checkbox" (change)="toggleSelectAll($any($event.target).checked)"></th>
+        <th>Amount</th>
+        <th>Reference No</th>
+        <th>Transaction Type</th>
+        <th>Balance</th>
+        <th>Invoice</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tx of visibleTransactions">
+        <td><input type="checkbox" [checked]="isSelected(tx)" (change)="toggleSelect(tx)"></td>
+        <td>₹{{ tx.amount || tx?.data?.amount || '-' }}</td>
+        <td>{{ tx.referenceNo || tx.reference || '-' }}</td>
+        <td>{{ tx.transactionType || tx.type || '-' }}</td>
+        <td>₹{{ tx.balanceAfter ?? tx.balance ?? '-' }}</td>
+        <td>
+          <span *ngIf="tx.invoiceUrl || tx.invoice_url || tx?.data?.invoiceUrl; else noInv">{{ (tx.invoiceUrl || tx.invoice_url || tx?.data?.invoiceUrl).split('/').pop() }}</span>
+          <ng-template #noInv>-</ng-template>
+        </td>
+        <td>
+          <button class="icon-btn" (click)="downloadRow(tx, $event)" title="Download invoice">
+            ⤓
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pager">
+    <button (click)="changePage(page-1)">Prev</button>
+    <span>Page {{ page }} / {{ totalPages }}</span>
+    <button (click)="changePage(page+1)">Next</button>
+  </div>
+</section>

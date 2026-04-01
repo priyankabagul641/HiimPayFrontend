@@ -13,6 +13,7 @@ import { MyCouponsComponent } from './pages/my-coupons/my-coupons.component';
 import { WalletComponent } from './pages/wallet/wallet.component';
 import { CouponDetailsComponent } from './pages/coupon-details/coupon-details.component';
 import { CartComponent } from './pages/cart/cart.component';
+import { TransactionsComponent } from './pages/transactions/transactions.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -32,7 +33,8 @@ const routes: Routes = [
       { path: 'survey-response/:id', component: SurveyResponseComponent },
       { path: 'reminder', component: ReminderComponent },
       { path: 'profile', component: ProfileComponent },
-      { path: 'faq', component: FaquserComponent }
+      { path: 'faq', component: FaquserComponent },
+       { path: 'transactions', component: TransactionsComponent }
     ]
   }
 ];

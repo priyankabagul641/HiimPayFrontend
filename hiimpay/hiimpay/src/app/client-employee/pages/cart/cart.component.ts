@@ -27,6 +27,16 @@ export class CartComponent implements OnInit, OnDestroy {
     private employeeService: EmployeeService
   ) {}
 
+  private invoiceDownloadedHandler = (e: any) => {
+    const filename = e?.detail?.filename || 'invoice.pdf';
+    this.toastr.success(`Invoice downloaded: ${filename}`);
+  };
+
+  private invoiceDownloadFailedHandler = (e: any) => {
+    const reason = e?.detail?.reason || 'Download failed';
+    this.toastr.error(`Invoice download failed: ${reason}`);
+  };
+
   ngOnInit(): void {
     this.sub = this.cartService.getCart().subscribe((items) => {
       this.cartItems = items;
@@ -47,10 +57,16 @@ export class CartComponent implements OnInit, OnDestroy {
         });
       }
     } catch {}
+
+    // listen for download events from the service
+    window.addEventListener('invoice-downloaded', this.invoiceDownloadedHandler as EventListener);
+    window.addEventListener('invoice-download-failed', this.invoiceDownloadFailedHandler as EventListener);
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    window.removeEventListener('invoice-downloaded', this.invoiceDownloadedHandler as EventListener);
+    window.removeEventListener('invoice-download-failed', this.invoiceDownloadFailedHandler as EventListener);
   }
 
   get totalVouchers(): number {
@@ -402,5 +418,15 @@ export class CartComponent implements OnInit, OnDestroy {
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
+  }
+
+  // Call from template click handler to download without opening a tab
+  onDownloadInvoice(url: string, event?: Event): void {
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    if (!url) {
+      this.toastr.error('Invoice URL not available');
+      return;
+    }
+    this.cartService.downloadUrl(url);
   }
 }

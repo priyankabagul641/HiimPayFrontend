@@ -240,6 +240,16 @@
   border: 1px solid #f3f4f6;
 }
 
+/* Table styles for transactions */
+.table-wrap { overflow:auto; max-height:420px; }
+.tx-table { width:100%; border-collapse:collapse; }
+.tx-table th, .tx-table td { padding:10px; border-bottom:1px solid #eee; text-align:left }
+.tx-table thead.sticky { position:sticky; top:0; background:#fff; z-index:10 }
+.tx-row-hover:hover { background:#fafafa }
+.table-actions .action-bar { display:flex; gap:12px; align-items:center; padding:8px 0 }
+.icon-btn { background:transparent; border:0; cursor:pointer }
+.icon-btn[disabled] { opacity:.4; cursor:not-allowed }
+
 .tx-header {
   display: flex;
   align-items: center;

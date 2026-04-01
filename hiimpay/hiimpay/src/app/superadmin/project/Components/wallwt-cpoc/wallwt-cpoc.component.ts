@@ -11,6 +11,7 @@ interface WalletTransaction {
   referenceNo?: string;
   notes?: string;
   createdAt: string;
+  invoiceUrl?: string | null;
 }
 
 @Component({
@@ -34,6 +35,11 @@ export class WallwtCpocComponent implements OnInit {
   pageSize = 10;
   sortField: keyof WalletTransaction | '' = 'createdAt';
   sortDirection: 'asc' | 'desc' = 'desc';
+  // selection and download state
+  selected = new Set<number>();
+  selectAllOnPage = false;
+  isBulkDownloading = false;
+  bulkProgress = 0; // 0..100
 
   constructor(private projectService: ProjectService, private toastr: ToastrService, private adminDataService: AdminDataService) {}
 
@@ -89,6 +95,11 @@ export class WallwtCpocComponent implements OnInit {
     });
   }
 
+  private getCurrentPageItems(): WalletTransaction[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredTransactions.slice(start, start + this.pageSize);
+  }
+
   get filteredTransactions(): WalletTransaction[] {
     let arr = this.transactions.slice();
     if (this.searchTerm && this.searchTerm.trim()) {
@@ -120,6 +131,90 @@ export class WallwtCpocComponent implements OnInit {
       this.sortDirection = 'desc';
     }
     this.page = 1;
+  }
+
+  toggleSelectAll(checked: boolean): void {
+    this.selectAllOnPage = !!checked;
+    const items = this.getCurrentPageItems();
+    items.forEach(i => {
+      if (checked) this.selected.add(i.id);
+      else this.selected.delete(i.id);
+    });
+  }
+
+  toggleSelect(tx: WalletTransaction): void {
+    if (this.selected.has(tx.id)) this.selected.delete(tx.id);
+    else this.selected.add(tx.id);
+  }
+
+  isSelected(tx: WalletTransaction): boolean {
+    return this.selected.has(tx.id);
+  }
+
+  private async downloadBlob(url: string, suggestedName?: string): Promise<void> {
+    try {
+      const resp = await fetch(url, { mode: 'cors' });
+      if (!resp.ok) throw new Error('Network response was not ok');
+      const blob = await resp.blob();
+      const filename = suggestedName || this.extractFileName(url) || 'invoice';
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      console.error('downloadBlob error', err);
+      this.toastr.error('Failed to download invoice');
+      throw err;
+    }
+  }
+
+  private extractFileName(url: string): string | null {
+    try {
+      const parts = url.split('?')[0].split('/');
+      const last = parts.pop() || '';
+      return last || null;
+    } catch { return null; }
+  }
+
+  async downloadRow(tx: WalletTransaction): Promise<void> {
+    const url = (tx as any)?.invoiceUrl || (tx as any)?.invoice_url || null;
+    if (!url) {
+      this.toastr.error('Invoice not available');
+      return;
+    }
+    try {
+      await this.downloadBlob(url, this.extractFileName(url) || `invoice-${tx.id}`);
+      this.toastr.success('Invoice download started');
+    } catch {}
+  }
+
+  async downloadSelected(): Promise<void> {
+    const ids = Array.from(this.selected);
+    if (ids.length === 0) {
+      this.toastr.info('No transactions selected');
+      return;
+    }
+    this.isBulkDownloading = true;
+    this.bulkProgress = 0;
+    let done = 0;
+    for (const id of ids) {
+      const tx = this.transactions.find(t => t.id === id) as WalletTransaction | undefined;
+      const url = tx ? ((tx as any).invoiceUrl || (tx as any).invoice_url || null) : null;
+      if (url) {
+        try {
+          await this.downloadBlob(url, this.extractFileName(url) || `invoice-${id}`);
+        } catch {}
+      }
+      done++;
+      this.bulkProgress = Math.round((done / ids.length) * 100);
+      await new Promise(r => setTimeout(r, 300));
+    }
+    this.isBulkDownloading = false;
+    this.toastr.success(`Triggered downloads for ${ids.length} invoice(s)`);
   }
 
   openCreditForm(): void {
