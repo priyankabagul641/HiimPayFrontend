@@ -1,4 +1,4 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, HostListener } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ViewChild } from '@angular/core';
@@ -8,8 +8,10 @@ import { ProjectService } from './services/project.service';
 import { SearchService } from './services/search.service';
 import { MessageService } from '../../message.service';
 import { AdminDataService } from '../services/adminData.service';
+import { CpocCartService, CpocCartItem } from './services/cpoc-cart.service';
 import { formatDistanceToNow } from 'date-fns';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 interface Notification {
 isNotificationRead: any;
@@ -47,6 +49,40 @@ export class ProjectComponent {
   // Wallet display properties
   walletBalance: number = 0;
   balanceChange: number = 0;
+
+  // Cart
+  cartItems: CpocCartItem[] = [];
+  cartOpen = false;
+  private cartSub?: Subscription;
+
+  get cartQty(): number {
+    return this.cartItems.reduce((s, i) => s + i.quantity, 0);
+  }
+  get cartTotal(): number {
+    return this.cartItems.reduce((s, i) => s + i.amountToPay, 0);
+  }
+  toggleCart(event: MouseEvent): void {
+    event.stopPropagation();
+    this.cartOpen = !this.cartOpen;
+  }
+  closeCart(): void {
+    this.cartOpen = false;
+  }
+  @HostListener('document:click')
+  onDocClick(): void {
+    this.cartOpen = false;
+  }
+  goToCart(): void {
+    this.cartOpen = false;
+    this.router.navigate(['cpoc-cart'], { relativeTo: this.activatedRoute });
+  }
+  removeCartItem(item: CpocCartItem): void {
+    if (item.cartItemId) {
+      this.cpocCartService.deleteVouchersById(item.cartItemId).subscribe({ error: () => {} });
+    }
+    this.cpocCartService.removeItem(item.id);
+  }
+
   constructor(
     public dialog: MatDialog,
     private observer: BreakpointObserver,
@@ -55,7 +91,8 @@ export class ProjectComponent {
     private service: ProjectService,
     public servicesearch: SearchService,
     private messagingService: MessageService,
-    private adminDataService: AdminDataService
+    private adminDataService: AdminDataService,
+    private cpocCartService: CpocCartService
   ) { }
 
   ngOnInit() {
@@ -65,6 +102,7 @@ export class ProjectComponent {
     //   this.isCpoc=false;
     // }
     this.isCpoc = sessionStorage.getItem('isCpoc') == 'true';
+    this.cartSub = this.cpocCartService.getCart().subscribe(items => this.cartItems = items);
     console.log(typeof this.isCpoc);
     this.formattedDate = this.formatDate(new Date());
     console.log(this.isCpoc);

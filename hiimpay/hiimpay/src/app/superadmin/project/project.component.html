@@ -69,6 +69,15 @@
         </div>
       </button>
     </div>
+
+    <!-- Cart Icon -->
+    <div class="header-cart-wrap">
+      <button class="header-cart-btn" (click)="goToCart()" title="Cart">
+        <mat-icon style="font-size:24px;color:#323842;">shopping_cart</mat-icon>
+        <span class="header-cart-badge" *ngIf="cartQty > 0">{{ cartQty }}</span>
+      </button>
+    </div>
+
     <i class="fa fa-question" style="font-size:26px;color:  #323842FF;" routerLink="./faq"></i>
     <div [matMenuTriggerFor]="menu" aria-label="User Profile">
       <img src="assets\download-old.png" alt="Profile Picture" class="rounded-circle" height="40" width="40">
@@ -138,6 +147,18 @@
         <span class="entry">
           <mat-icon>account_balance_wallet</mat-icon>
           <span *ngIf="!isCollapsed">Wallet Transactions</span>
+        </span>
+      </a>
+      <a mat-list-item routerLink="./vouchers" routerLinkActive="active">
+        <span class="entry">
+          <mat-icon>local_offer</mat-icon>
+          <span *ngIf="!isCollapsed">Vouchers</span>
+        </span>
+      </a>
+      <a mat-list-item routerLink="./purchased-vouchers" routerLinkActive="active">
+        <span class="entry">
+          <mat-icon>receipt_long</mat-icon>
+          <span *ngIf="!isCollapsed">Purchased Vouchers</span>
         </span>
       </a>
     </mat-nav-list>

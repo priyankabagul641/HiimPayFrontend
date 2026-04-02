@@ -48,6 +48,10 @@ import { BrandCouponAssignmentComponent } from './Components/client-assignment/b
 import { AssignedBrandListComponent } from './Components/client-assignment/assigned-brand-list.component';
 import { AssignedBrandDetailComponent } from './Components/client-assignment/assigned-brand-detail.component';
 import { WallwtCpocComponent } from './Components/wallwt-cpoc/wallwt-cpoc.component';
+import { VouchersComponent } from './Components/vouchers/vouchers.component';
+import { VoucherDetailComponent } from './Components/vouchers/voucher-detail/voucher-detail.component';
+import { CpocCartComponent } from './Components/cpoc-cart/cpoc-cart.component';
+import { PurchasedVouchersComponent } from './Components/purchased-vouchers/purchased-vouchers.component';
 
 const routes: Routes = [
   {
@@ -128,6 +132,10 @@ const routes: Routes = [
       {path:'client-survey-res/:id',component: CpocSurveyRespComponent},
       {path:'profile-cpoc',component:ProfileCpocComponent}
       ,{ path: 'wallet-transactions', component: WallwtCpocComponent }
+      ,{ path: 'vouchers', component: VouchersComponent }
+      ,{ path: 'voucher-detail/:id', component: VoucherDetailComponent }
+      ,{ path: 'cpoc-cart', component: CpocCartComponent }
+      ,{ path: 'purchased-vouchers', component: PurchasedVouchersComponent }
     ],
   },{ path: 'cpoc', loadChildren: () => import('./project.module').then(m => m.ProjectModule) }
 ];

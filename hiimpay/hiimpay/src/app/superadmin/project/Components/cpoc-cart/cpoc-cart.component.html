@@ -1,0 +1,196 @@
+<section class="cc-shell">
+
+  <!-- Header -->
+  <div class="cc-header">
+    <button class="cc-back-btn" (click)="goBack()">
+      ← Back
+    </button>
+    <div class="cc-header-right">
+      <h2>My Cart</h2>
+      <span class="cc-count-badge" *ngIf="totalItems > 0">{{ totalItems }} item{{ totalItems !== 1 ? 's' : '' }}</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="cc-loading-state" *ngIf="cartLoading">
+    <div class="cc-spinner"></div>
+    <p>Loading your cart...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="cc-empty" *ngIf="!cartLoading && cartItems.length === 0">
+    <div class="cc-empty-icon">🛒</div>
+    <h3>Your cart is empty</h3>
+    <p>Browse vouchers and add items to your cart.</p>
+    <button class="cc-shop-btn" (click)="goToVouchers()">Browse Vouchers</button>
+  </div>
+
+  <!-- Cart content -->
+  <div class="cc-layout" *ngIf="!cartLoading && cartItems.length > 0">
+
+    <!-- Items list -->
+    <div class="cc-items">
+      <div class="cc-items-toolbar">
+        <span class="cc-items-count">{{ cartItems.length }} brand{{ cartItems.length !== 1 ? 's' : '' }}</span>
+        <button class="cc-clear-btn" (click)="clearAll()">Clear All</button>
+      </div>
+
+      <div class="cc-item-card" *ngFor="let item of cartItems">
+        <div class="cc-item-img-wrap">
+          <img *ngIf="item.brandImage" [src]="item.brandImage" [alt]="item.brandName" class="cc-item-img" />
+          <div class="cc-item-img-ph" *ngIf="!item.brandImage">🛍️</div>
+        </div>
+
+        <div class="cc-item-main">
+          <div class="cc-item-top">
+            <div class="cc-item-content">
+              <h4 class="cc-item-name">{{ item.productName || item.brandName }}</h4>
+              <p class="cc-item-description">{{ item.description || (item.brandName + ' digital gift card usable online and in-store.') }}</p>
+            </div>
+            <div class="cc-item-value-actions">
+              <span class="cc-voucher-value">₹{{ item.denomination | number:'1.0-0' }}</span>
+              <span class="cc-discount-badge" *ngIf="item.discountPercent > 0">{{ item.discountPercent }}% off</span>
+              <div class="cc-item-actions">
+                <button class="cc-icon-btn" (click)="editItem(item)" [attr.aria-label]="'Edit ' + item.brandName" title="Edit">✎</button>
+                <button class="cc-icon-btn cc-icon-btn-danger" (click)="removeItem(item)" [attr.aria-label]="'Remove ' + item.brandName + ' from cart'" title="Remove">🗑</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item-meta-row">
+            <span>Qty: <strong>{{ item.quantity }}</strong></span>
+            <span>Amount: <strong>₹{{ item.faceValue | number:'1.0-0' }}</strong></span>
+            <span class="cc-meta-save">Savings: <strong>₹{{ item.savings | number:'1.0-0' }}</strong></span>
+          </div>
+
+          <div class="cc-item-bottom">
+          <div class="cc-qty-stepper">
+            <button class="qty-btn" (click)="decrement(item)" [attr.aria-label]="'Decrease quantity of ' + item.brandName">−</button>
+            <span class="qty-val">{{ item.quantity }}</span>
+            <button class="qty-btn" (click)="increment(item)" [attr.aria-label]="'Increase quantity of ' + item.brandName">+</button>
+          </div>
+
+          <div class="cc-item-pricing">
+            <span class="cc-item-orig" *ngIf="item.discountPercent > 0">Voucher Amount ₹{{ item.faceValue | number:'1.0-0' }}</span>
+            <span class="cc-item-pay">Pay ₹{{ item.amountToPay | number:'1.0-0' }}</span>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary sticky panel -->
+    <aside class="cc-summary">
+
+      <div class="cc-alert cc-alert-danger" *ngIf="insufficientFunds">
+        <div class="cc-alert-icon">⚠️</div>
+        <div class="cc-alert-body">
+          <strong>Insufficient Wallet Balance</strong>
+          <p>You need ₹{{ shortfall | number:'1.2-2' }} more to complete this purchase.</p>
+          <p class="cc-alert-sub">Current balance: ₹{{ walletBalance | number:'1.2-2' }} · Required: ₹{{ totalAmountToPay | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <h3 class="cc-summary-title">Summary</h3>
+
+      <div class="cc-summary-row">
+        <span>Total Vouchers</span>
+        <strong>{{ totalItems }}</strong>
+      </div>
+      <div class="cc-summary-row">
+        <span>Voucher Amount</span>
+        <strong>₹{{ totalVoucherAmount | number:'1.2-2' }}</strong>
+      </div>
+      <div class="cc-summary-row cc-savings-row" *ngIf="totalSavings > 0">
+        <span>Savings</span>
+        <strong class="savings-text">₹{{ totalSavings | number:'1.2-2' }}</strong>
+      </div>
+      <div class="cc-summary-row cc-wallet-row">
+        <span>Wallet Balance</span>
+        <strong *ngIf="!walletLoading">₹{{ walletBalance | number:'1.2-2' }}</strong>
+        <strong *ngIf="walletLoading">Loading...</strong>
+      </div>
+
+      <div class="cc-summary-divider"></div>
+
+      <div class="cc-summary-row cc-total-row">
+        <span>Amount to Pay</span>
+        <strong class="cc-total-amount">₹{{ totalAmountToPay | number:'1.2-2' }}</strong>
+      </div>
+
+      <!-- Checkout button or recharge CTA -->
+      <ng-container *ngIf="!insufficientFunds; else rechargeBlock">
+        <button
+          class="cc-checkout-btn"
+          [disabled]="cartItems.length === 0"
+          (click)="checkout()"
+        >
+          Buy Now
+        </button>
+        <p class="cc-secure-note">Paid directly from your CPOC wallet</p>
+      </ng-container>
+
+      <ng-template #rechargeBlock>
+        <div class="cc-recharge-cta">
+          <p class="cc-recharge-msg">Add ₹{{ shortfall | number:'1.2-2' }} to your wallet to proceed</p>
+          <button class="cc-recharge-btn" (click)="goToVouchers()">
+            ← Back to Vouchers
+          </button>
+        </div>
+      </ng-template>
+
+      <button class="cc-continue-btn" (click)="goToVouchers()">
+        ← Continue Shopping
+      </button>
+    </aside>
+
+  </div>
+
+
+</section>
+
+<!-- ── Checkout Confirmation Modal ──────────────────────── -->
+<div class="cc-modal-backdrop" *ngIf="showConfirmModal" (click)="cancelCheckout()">
+  <div class="cc-modal" (click)="$event.stopPropagation()">
+
+    <div class="cc-modal-header">
+      <h3>Confirm Payment</h3>
+      <button class="cc-modal-close" (click)="cancelCheckout()">✕</button>
+    </div>
+
+    <div class="cc-modal-body">
+      <div class="cc-modal-row">
+        <span>Total Items</span>
+        <strong>{{ totalItems }}</strong>
+      </div>
+      <div class="cc-modal-row">
+        <span>Voucher Amount</span>
+        <strong>₹{{ totalFaceValue | number:'1.2-2' }}</strong>
+      </div>
+      <div class="cc-modal-row cc-modal-savings" *ngIf="totalSavings > 0">
+        <span>Total Savings 🎉</span>
+        <strong class="cc-modal-save">− ₹{{ totalSavings | number:'1.2-2' }}</strong>
+      </div>
+      <div class="cc-modal-divider"></div>
+      <div class="cc-modal-row cc-modal-total">
+        <span>Amount to Pay</span>
+        <strong class="cc-modal-total-amt">₹{{ totalAmountToPay | number:'1.2-2' }}</strong>
+      </div>
+      <div class="cc-modal-row cc-modal-wallet">
+        <span>Wallet Balance After</span>
+        <strong>₹{{ (walletBalance - totalAmountToPay) | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="cc-modal-footer">
+      <button class="cc-modal-cancel-btn" (click)="cancelCheckout()" [disabled]="isCheckingOut">Cancel</button>
+      <button class="cc-modal-confirm-btn" (click)="confirmCheckout()" [disabled]="isCheckingOut">
+        <span *ngIf="!isCheckingOut">✓ Confirm & Pay ₹{{ totalAmountToPay | number:'1.2-2' }}</span>
+        <span *ngIf="isCheckingOut" class="cc-btn-loading">
+          <span class="cc-btn-spinner"></span> Processing...
+        </span>
+      </button>
+    </div>
+
+  </div>
+</div>

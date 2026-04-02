@@ -1,0 +1,87 @@
+<main class="v-browse-main">
+
+  <!-- Header -->
+  <div class="v-browse-header">
+    <h1>E-Gift Vouchers</h1>
+    <p>Get amazing discounts on your favorite brands</p>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="v-toolbar">
+    <div class="v-search-wrap">
+      <span class="v-search-ico">🔍</span>
+      <input class="v-search" type="text" placeholder="Search vouchers..." [(ngModel)]="searchTerm" />
+    </div>
+    <select class="v-filter" [(ngModel)]="filterType">
+      <option value="">All Types</option>
+      <option *ngFor="let t of uniqueBrandTypes" [value]="t">{{ t }}</option>
+    </select>
+  </div>
+
+  <!-- Loading -->
+  <div class="v-loading" *ngIf="loading">
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+    <span class="loader-dot"></span>
+  </div>
+
+  <!-- Error -->
+  <div class="v-state v-error" *ngIf="!loading && error">
+    <span>⚠️</span>
+    <p>{{ error }}</p>
+    <button class="v-retry-btn" (click)="loadBrands()">Retry</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="v-state" *ngIf="!loading && !error && filteredBrands.length === 0">
+    <p>No vouchers available.</p>
+  </div>
+
+  <!-- Voucher Grid -->
+  <div class="v-coupon-grid" *ngIf="!loading && !error && filteredBrands.length > 0">
+    <article
+      class="v-coupon-card"
+      *ngFor="let b of filteredBrands; let i = index; trackBy: trackById"
+      [style.--i]="i"
+      (click)="openVoucherDetail(b.id)"
+    >
+      <div class="v-coupon-image-wrap">
+        <img
+          *ngIf="b.brandImage"
+          [src]="b.brandImage"
+          [alt]="b.brandName"
+          class="v-coupon-image"
+          (error)="onImageError($event)"
+        />
+        <div class="v-coupon-image-fallback" *ngIf="!b.brandImage">
+          <span>🛍️</span>
+        </div>
+      </div>
+
+      <div class="v-coupon-content">
+        <h3>{{ b.productName || (b.brandName + ' E-Gift Card') }}</h3>
+        <p class="v-coupon-brand">{{ b.brandName }}</p>
+
+        <div class="v-coupon-footer">
+          <div class="v-discount-wrap">
+            <span class="v-discount-value">{{ b.epayDiscount }}%</span>
+            <span class="v-discount-label">Discount</span>
+          </div>
+          <div class="v-coupon-actions">
+            <button
+              class="v-buy-now-btn"
+              type="button"
+              (click)="$event.stopPropagation(); openVoucherDetail(b.id)"
+            >
+              <span>Buy Now</span>
+              <span class="v-btn-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+</main>
+
+

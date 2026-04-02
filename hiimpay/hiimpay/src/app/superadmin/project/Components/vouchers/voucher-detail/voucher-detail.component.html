@@ -1,0 +1,174 @@
+<div class="vd-loading" *ngIf="loading">
+  <span class="loader-dot"></span>
+  <span class="loader-dot"></span>
+  <span class="loader-dot"></span>
+</div>
+
+<div class="vd-not-found" *ngIf="!loading && !voucher">
+  <p>Voucher not found.</p>
+  <button type="button" class="vd-back-btn" (click)="goBack()">← Go Back</button>
+</div>
+
+<section class="vd-page" *ngIf="!loading && voucher">
+  <div class="vd-back-row">
+    <button type="button" class="vd-back-btn" (click)="goBack()">← Back to Vouchers</button>
+  </div>
+
+  <div class="vd-grid">
+    <!-- Left Column -->
+    <aside class="vd-left">
+      <div class="vd-brand-image-card">
+        <img
+          *ngIf="voucher.brandImage"
+          [src]="voucher.brandImage"
+          [alt]="voucher.brandName"
+          (error)="onImageError($event)"
+        />
+        <div class="vd-image-fallback" *ngIf="!voucher.brandImage">
+          <span>{{ voucher.brandName }}</span>
+        </div>
+      </div>
+
+      <div class="vd-info-card">
+        <p class="vd-description">
+          {{ voucher.description || 'Get instant e-gift cards for your favorite brands with secure checkout and instant delivery.' }}
+        </p>
+        <ul class="vd-info-list">
+          <li>Validity: 12 Months</li>
+          <li>Instant Delivery</li>
+          <li>No Additional Fees</li>
+          <li>Secure Payment</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Right Column -->
+    <main class="vd-right">
+      <!-- Title Card -->
+      <div class="vd-title-card">
+        <span class="vd-badge" *ngIf="discountPercent > 0">{{ discountPercent }}% off</span>
+        <h1>{{ voucher.productName || (voucher.brandName + ' E-Gift Card') }}</h1>
+        <p class="vd-category">{{ voucher.categoryName || 'Gift Cards' }}</p>
+      </div>
+
+      <!-- Denomination Card -->
+      <div class="vd-denom-card">
+        <h2>Choose Denomination</h2>
+
+        <div class="vd-denom-head">
+          <span>MRP</span>
+          <span>Discount %</span>
+          <span>Your Savings</span>
+          <span>Total</span>
+          <span>Quantity</span>
+        </div>
+
+        <div class="vd-denom-row" *ngFor="let row of denominations; let i = index">
+          <span>₹{{ row.mrp }}</span>
+          <span>{{ discountPercent }}%</span>
+          <span class="vd-save">₹{{ rowSavings(row) | number:'1.0-0' }}</span>
+          <span>₹{{ rowTotal(row) | number:'1.0-0' }}</span>
+          <div class="vd-qty-box">
+            <button type="button" (click)="decrement(i)">−</button>
+            <strong>{{ row.quantity }}</strong>
+            <button type="button" (click)="increment(i)">+</button>
+          </div>
+        </div>
+
+        <p class="vd-no-denom" *ngIf="denominations.length === 0">
+          No denominations available for this voucher.
+        </p>
+      </div>
+
+      <!-- Custom Amount Card -->
+      <div class="vd-custom-card">
+        <h2>Choose Custom Amount</h2>
+
+        <div class="vd-custom-list" *ngIf="customAmounts.length > 0">
+          <div class="vd-custom-row" *ngFor="let row of customAmounts; let i = index">
+            <div class="vd-custom-input-wrap">
+              <span class="vd-currency-symbol">₹</span>
+              <input
+                type="number"
+                [(ngModel)]="row.amount"
+                [min]="voucher.epayMinValue || 100"
+                [max]="voucher.epayMaxValue || 100000"
+                placeholder="Enter amount"
+                class="vd-custom-input"
+              />
+            </div>
+            <div class="vd-custom-qty">
+              <button type="button" (click)="customDecrement(i)">−</button>
+              <span>{{ row.quantity }}</span>
+              <button type="button" (click)="customIncrement(i)">+</button>
+            </div>
+            <button type="button" class="vd-remove-btn" (click)="removeCustomAmount(i)" title="Remove">✕</button>
+          </div>
+        </div>
+
+        <div class="vd-custom-actions">
+          <button type="button" class="vd-add-custom-btn" (click)="addCustomAmount()">+ Add Custom Amount</button>
+        </div>
+      </div>
+
+      <!-- Tabs Card -->
+      <div class="vd-tabs-card">
+        <div class="vd-tabs-head">
+          <button
+            type="button"
+            [class.active]="activeTab === 'redeem'"
+            (click)="setTab('redeem')"
+          >How to Redeem</button>
+          <button
+            type="button"
+            [class.active]="activeTab === 'terms'"
+            (click)="setTab('terms')"
+          >Terms and Condition</button>
+          <button
+            type="button"
+            [class.active]="activeTab === 'description'"
+            (click)="setTab('description')"
+          >Description</button>
+        </div>
+
+        <div class="vd-tab-content" *ngIf="activeTab === 'redeem'">
+          <ol *ngIf="voucher.redeemSteps && voucher.redeemSteps.length > 0">
+            <li *ngFor="let step of voucher.redeemSteps">{{ step }}</li>
+          </ol>
+          <p *ngIf="!voucher.redeemSteps || voucher.redeemSteps.length === 0">
+            Visit the brand's website or app and apply the voucher code at checkout.
+          </p>
+        </div>
+
+        <div class="vd-tab-content" *ngIf="activeTab === 'terms'">
+          <p>{{ voucher.terms || 'Standard terms and conditions are applicable.' }}</p>
+        </div>
+
+        <div class="vd-tab-content" *ngIf="activeTab === 'description'">
+          <p>{{ voucher.description || 'This e-gift voucher can be used across applicable partner channels.' }}</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Sticky Summary Bar -->
+  <div class="vd-sticky-bar" *ngIf="totalQuantity > 0">
+    <div class="vd-summary-item">
+      <small>Total Quantity</small>
+      <strong>{{ totalQuantity }}</strong>
+    </div>
+    <div class="vd-summary-item">
+      <small>Voucher Amount</small>
+      <strong>₹{{ totalGrossAmount | number:'1.0-0' }}</strong>
+    </div>
+    <div class="vd-summary-item">
+      <small>Total Savings</small>
+      <strong class="vd-save">₹{{ totalSavings | number:'1.0-0' }}</strong>
+    </div>
+    <div class="vd-summary-item">
+      <small>Amount to Pay</small>
+      <strong>₹{{ totalAmount | number:'1.0-0' }}</strong>
+    </div>
+    <button type="button" class="vd-proceed-btn" (click)="proceedToCart()">Proceed to Cart →</button>
+  </div>
+</section>

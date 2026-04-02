@@ -1,0 +1,296 @@
+<main class="pv-main">
+
+  <!-- Header -->
+  <div class="pv-header">
+    <div class="pv-header-left">
+      <h1>My Vouchers</h1>
+      <p>All vouchers purchased from your CPOC wallet</p>
+    </div>
+    <div class="pv-header-actions">
+      <button class="pv-header-assign-btn" (click)="openAssignModal()" [disabled]="loading || vouchers.length === 0">
+        + Assign Voucher
+      </button>
+      <button class="pv-refresh-btn" (click)="loadPurchasedVouchers()" [disabled]="loading">
+        <span [class.spinning]="loading">↻</span> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="pv-tab-strip">
+    <button class="pv-tab-btn" [class.active]="activeTab === 'vouchers'" (click)="setActiveTab('vouchers')">
+      Purchased Vouchers
+    </button>
+    <button class="pv-tab-btn" [class.active]="activeTab === 'history'" (click)="setActiveTab('history')">
+      Assignment History
+    </button>
+  </div>
+
+  <ng-container *ngIf="activeTab === 'vouchers'">
+
+  <!-- Summary Strip -->
+  <div class="pv-summary-bar" *ngIf="!loading && vouchers.length > 0">
+    <div class="pv-stat-card">
+      <span class="pv-stat-icon">🏷️</span>
+      <div>
+        <small>Brands</small>
+        <strong>{{ totalBrands }}</strong>
+      </div>
+    </div>
+    <div class="pv-stat-card">
+      <span class="pv-stat-icon">🛒</span>
+      <div>
+        <small>Purchased</small>
+        <strong>{{ totalPurchased }}</strong>
+      </div>
+    </div>
+    <div class="pv-stat-card pv-stat-avail">
+      <span class="pv-stat-icon">✅</span>
+      <div>
+        <small>Available</small>
+        <strong>{{ totalAvailable }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="pv-toolbar" *ngIf="!loading && vouchers.length > 0">
+    <div class="pv-search-wrap">
+      <span class="pv-search-ico">🔍</span>
+      <input
+        class="pv-search"
+        type="text"
+        placeholder="Search by brand name..."
+        [(ngModel)]="searchTerm"
+      />
+      <button class="pv-clear-search" *ngIf="searchTerm" (click)="searchTerm = ''">✕</button>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="pv-skeleton-grid" *ngIf="loading">
+    <div class="pv-skeleton-card" *ngFor="let x of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="pv-state pv-error" *ngIf="!loading && error">
+    <div class="pv-state-icon">⚠️</div>
+    <p>{{ error }}</p>
+    <button class="pv-retry-btn" (click)="loadPurchasedVouchers()">Try Again</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="pv-state" *ngIf="!loading && !error && vouchers.length === 0">
+    <div class="pv-state-icon">🎫</div>
+    <h3>No Vouchers Yet</h3>
+    <p>Vouchers you purchase will appear here.</p>
+  </div>
+
+  <!-- No search results -->
+  <div class="pv-state" *ngIf="!loading && !error && vouchers.length > 0 && filteredVouchers.length === 0">
+    <div class="pv-state-icon">🔍</div>
+    <p>No vouchers match <strong>"{{ searchTerm }}"</strong></p>
+  </div>
+
+  <!-- Card Grid -->
+  <div class="pv-card-grid" *ngIf="!loading && !error && filteredVouchers.length > 0">
+
+    <div class="pv-voucher-card" *ngFor="let v of filteredVouchers">
+
+      <!-- Brand Image -->
+      <div class="pv-card-img-wrap">
+        <img
+          *ngIf="v.brandImage"
+          [src]="v.brandImage"
+          [alt]="v.brandName"
+          class="pv-card-img"
+          (error)="onImageError($event)"
+        />
+        <div *ngIf="!v.brandImage" class="pv-card-img-ph">🛍️</div>
+        <span class="pv-disc-badge" *ngIf="v.discountPercent > 0">{{ v.discountPercent }}% OFF</span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="pv-card-body">
+        <h3 class="pv-card-brand">{{ v.brandName }}</h3>
+
+        <div class="pv-card-tag" *ngIf="v.serviceType">
+          <span class="pv-type-pill">{{ v.serviceType | titlecase }}</span>
+        </div>
+
+        <!-- Qty Row -->
+        <div class="pv-qty-row">
+          <div class="pv-qty-block">
+            <span class="pv-qty-label">Purchased</span>
+            <span class="pv-qty-val pv-qty-purchased">{{ v.purchasedQuantity }}</span>
+          </div>
+          <div class="pv-qty-divider"></div>
+          <div class="pv-qty-block">
+            <span class="pv-qty-label">Available</span>
+            <span class="pv-qty-val pv-qty-avail">{{ v.availableQuantity }}</span>
+          </div>
+        </div>
+
+        <!-- Value Range -->
+        <div class="pv-value-row" *ngIf="v.minValue || v.maxValue">
+          <span class="pv-value-label">Value</span>
+          <span class="pv-value-range">₹{{ v.minValue }} – ₹{{ v.maxValue }}</span>
+        </div>
+
+        <!-- Purchase Date -->
+        <div class="pv-date-row" *ngIf="v.purchaseDate">
+          <span class="pv-date-ico">📅</span>
+          <span class="pv-date-txt">{{ v.purchaseDate | date:'dd MMM yyyy, h:mm a' }}</span>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="pv-card-footer">
+        <button
+          class="pv-assign-btn"
+          (click)="startAssign(v)"
+          [disabled]="v.availableQuantity <= 0"
+        >
+          {{ v.availableQuantity > 0 ? 'Assign To Employees' : 'No Stock Available' }}
+        </button>
+        <button
+          class="pv-redeem-btn"
+          *ngIf="v.redemptionUrl"
+          (click)="openRedemption(v.redemptionUrl)"
+        >
+          Redeem Online →
+        </button>
+        <span class="pv-no-redeem" *ngIf="!v.redemptionUrl">In-store redemption</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'history'">
+    <div class="pv-history-only">
+      <section class="pv-history-panel">
+        <div class="pv-panel-head">
+          <div>
+            <h2>Assignment History</h2>
+            <p>Coupons assigned from this page appear here immediately.</p>
+          </div>
+        </div>
+
+        <div class="pv-history-table-wrap" *ngIf="filteredAssignedCoupons.length > 0; else emptyAssignments">
+          <table class="pv-history-table">
+            <thead>
+              <tr>
+                <th>Voucher</th>
+                <th>Employee</th>
+                <th>Qty</th>
+                <th>Reference</th>
+                <th>Assigned On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredAssignedCoupons">
+                <td>
+                  <strong>{{ item.voucherName }}</strong>
+                </td>
+                <td>
+                  <div class="pv-employee-cell">
+                    <strong>{{ item.employeeName }}</strong>
+                    <span>{{ item.employeeEmail || 'No email' }}</span>
+                  </div>
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td><span class="pv-ref-pill">{{ item.referenceNo }}</span></td>
+                <td>{{ item.assignedAt | date:'dd MMM yyyy, h:mm a' }}</td>
+                <td><span class="pv-status-chip">{{ item.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #emptyAssignments>
+          <div class="pv-state pv-history-empty">
+            <div class="pv-state-icon">📭</div>
+            <p>No coupon assignments yet.</p>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </ng-container>
+
+</main>
+
+<div class="pv-modal-backdrop" *ngIf="showAssignModal" (click)="closeAssignModal()">
+  <div class="pv-modal" (click)="$event.stopPropagation()">
+    <div class="pv-modal-head">
+      <div>
+        <h2>Assign Voucher To Employees</h2>
+        <p>Use the searchable voucher selector when multiple coupons are available.</p>
+      </div>
+      <button class="pv-modal-close" type="button" (click)="closeAssignModal()">✕</button>
+    </div>
+
+    <div class="pv-assign-form pv-modal-form">
+      <div class="pv-form-grid">
+        <div class="pv-form-col pv-form-col-full">
+          <label class="pv-label">Choose Voucher</label>
+          <ng-multiselect-dropdown
+            [placeholder]="'Search and select a voucher'"
+            [settings]="voucherDropdownSettings"
+            [data]="voucherOptions"
+            [(ngModel)]="selectedVoucherOption"
+            (onSelect)="onVoucherSelectionChange()"
+            (onDeSelect)="onVoucherSelectionChange()">
+          </ng-multiselect-dropdown>
+        </div>
+
+        <div class="pv-form-col pv-form-col-full" *ngIf="selectedVoucher as voucher">
+          <div class="pv-selected-card">
+            <div>
+              <p class="pv-selected-label">Selected Voucher</p>
+              <h3>{{ voucher.brandName }}</h3>
+            </div>
+            <div class="pv-selected-meta">
+              <span>Available: {{ voucher.availableQuantity }}</span>
+              <span>Value: ₹{{ voucher.minValue }} - ₹{{ voucher.maxValue }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-form-col pv-form-col-full">
+          <label class="pv-label">Select Employees</label>
+          <ng-multiselect-dropdown
+            [placeholder]="'Search and select employees'"
+            [settings]="employeeDropdownSettings"
+            [data]="employees"
+            [(ngModel)]="selectedEmployees">
+          </ng-multiselect-dropdown>
+        </div>
+
+        <div class="pv-form-col">
+          <label class="pv-label">Quantity Per Employee</label>
+          <input class="pv-input" type="number" min="1" [max]="selectedVoucher?.availableQuantity || 1" [(ngModel)]="assignQuantity" />
+        </div>
+
+        <div class="pv-form-col">
+          <label class="pv-label">Reference Preview</label>
+          <div class="pv-static-input">ASSIGN-{{ selectedVoucher?.voucherId || 'NEW' }}</div>
+        </div>
+
+        <div class="pv-form-col pv-form-col-full">
+          <label class="pv-label">Notes</label>
+          <textarea class="pv-textarea" rows="4" [(ngModel)]="assignNotes" placeholder="Add assignment note for employees"></textarea>
+        </div>
+      </div>
+
+      <div class="pv-form-actions">
+        <button class="pv-cancel-btn" type="button" (click)="closeAssignModal()">Cancel</button>
+        <button class="pv-submit-btn" type="button" [disabled]="!canAssign || isAssigning" (click)="submitAssignment()">
+          {{ isAssigning ? 'Assigning...' : 'Assign Voucher' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

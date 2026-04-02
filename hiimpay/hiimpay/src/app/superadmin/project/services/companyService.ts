@@ -119,17 +119,7 @@ export class ProjectService {
     });
   }
 
-   clientBrandByCompanyID(id: any) {
-    return this.http.get<any>(this.baseUrl + `assignments/brand-coupon/FilterBrandsByComponyId?companyId=${id}`);
-//     getting responce like this
 
-  }
-
-  BrandByID(id: any) {
-    return this.http.get<any>(this.baseUrl + `brands/${id}`);
-//     getting responce like this
-
-  }
 
  getWalletById(id: any) {
     return this.http.get<any>(this.baseUrl + `cpoc-wallets/transactions/user/${id}`);
@@ -183,60 +173,7 @@ export class ProjectService {
 // }
   }
 
-  brandsByCompanyID(id: any) {
-    return this.http.get<any>(this.baseUrl + `companies/${id}/brands`);
-//     getting responce like this
-// {
-//   "data": [
-//     {
-//       "id": 2,
-//       "brandName": "UrbanStyle Fashion",
-//       "brandProductCode": "USF-GIFT-2026",
-//       "brandSku": "USF-SKU-450",
-//       "sku": "USF-450-IND",
-//       "brandType": "Retail",
-//       "onboardingType": "ONLINE",
-//       "redemptionType": "ONLINE",
-//       "onlineRedemptionUrl": "https://urbanstyle.com/redeem",
-//       "brandImage": "https://example.com/images/urbanstyle-logo.png",
-//       "epayMinValue": 100,
-//       "epayMaxValue": 5000,
-//       "epayDiscount": 20,
-//       "serviceType": "Gift Voucher",
-//       "stockAvailable": true,
-//       "description": "UrbanStyle Fashion gift vouchers valid on all online purchases.",
-//       "tnc": "Valid for one-time use only. Cannot be combined with other promotional codes.",
-//       "importantInstruction": "Apply voucher code at checkout before making payment.",
-//       "createdAt": "2026-02-01T10:00:00",
-//       "updatedAt": "2026-02-24T18:55:26.847"
-//     },
-//     {
-//       "id": 3,
-//       "brandName": "Amazon",
-//       "brandProductCode": "AMZ-2026-001",
-//       "brandSku": "AMA002",
-//       "sku": "AMZSKU001",
-//       "brandType": "E-COMMERCE",
-//       "onboardingType": "API",
-//       "redemptionType": "ONLINE",
-//       "onlineRedemptionUrl": "https://www.amazon.in/redeem",
-//       "brandImage": "https://example.com/images/brands/amazon.png",
-//       "epayMinValue": 100,
-//       "epayMaxValue": 10000,
-//       "epayDiscount": 5,
-//       "serviceType": "GIFT_CARD",
-//       "stockAvailable": true,
-//       "description": "Amazon gift cards usable across all categories.",
-//       "tnc": "Valid for 12 months from date of issue. Cannot be redeemed for cash.",
-//       "importantInstruction": "Use the code at checkout to apply balance.",
-//       "createdAt": "2026-02-25T12:00:00",
-//       "updatedAt": "2026-02-25T10:50:25.991"
-//     }
-//   ],
-//   "message": "Brands fetched successfully",
-//   "success": true
-// }
-  }
+
 
    CoupounDataByBrandID(id: any) {
     return this.http.get<any>(this.baseUrl + `brands/${id}/coupons`);
@@ -492,5 +429,182 @@ export class ProjectService {
 
 
   }
+
+  clientBrandByCompanyID(id: any) {
+    return this.http.get<any>(this.baseUrl + `assignments/brand-coupon/FilterBrandsByComponyId?companyId=${id}`);
+//     getting responce like this
+
+  }
+
+  BrandByID(id: any) {
+    return this.http.get<any>(this.baseUrl + `brands/${id}`);
+//     getting responce like this
+
+  }
+    brandsByCompanyID(id: any) {
+    return this.http.get<any>(this.baseUrl + `companies/${id}/brands`);
+//     getting responce like this
+// {
+//   "data": [
+//     {
+//       "id": 2,
+//       "brandName": "UrbanStyle Fashion",
+//       "brandProductCode": "USF-GIFT-2026",
+//       "brandSku": "USF-SKU-450",
+//       "sku": "USF-450-IND",
+//       "brandType": "Retail",
+//       "onboardingType": "ONLINE",
+//       "redemptionType": "ONLINE",
+//       "onlineRedemptionUrl": "https://urbanstyle.com/redeem",
+//       "brandImage": "https://example.com/images/urbanstyle-logo.png",
+//       "epayMinValue": 100,
+//       "epayMaxValue": 5000,
+//       "epayDiscount": 20,
+//       "serviceType": "Gift Voucher",
+//       "stockAvailable": true,
+//       "description": "UrbanStyle Fashion gift vouchers valid on all online purchases.",
+//       "tnc": "Valid for one-time use only. Cannot be combined with other promotional codes.",
+//       "importantInstruction": "Apply voucher code at checkout before making payment.",
+//       "createdAt": "2026-02-01T10:00:00",
+//       "updatedAt": "2026-02-24T18:55:26.847"
+//     },
+
+//   ],
+//   "message": "Brands fetched successfully",
+//   "success": true
+// }
+  }
+
+purchaseCoupounsByCpoc(obj:any):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`payments/razorpay/wallet/order`, obj);
+// Request body:
+
+// {
+//   "cpocUserId": 123,
+//   "voucherId": 456,
+//   "quantity": 10,
+//   "amount": 250,
+//   "referenceNo": "REF-001",
+//   "notes": "April stock"
+// }
+// Success response (sample):
+
+// {
+//   "success": true,
+//   "message": "Coupons purchased successfully",
+//   "data": {
+//     "stock": {
+//       "cpocUserId": 123,
+//       "voucherId": 456,
+//       "purchasedQuantity": 10,
+//       "availableQuantity": 10
+//     },
+//     "walletBalance": 5000,
+//     "transactionId": 999
+//   }
+// }
+   }
+
+addtoCartItems (data:any,id:number):Observable<any>{
+    return this.http.post<any>(this.baseUrl+`user-wallets/cart/bulk?userId=${id}`, data);
+// object is like this 
+// [
+//   {
+//     "id": "string",
+//     "couponId": 0,
+//     "brand": "string",
+//     "title": "string",
+//     "image": "string",
+//     "price": 0,
+//     "discount": 0,
+//     "quantity": 0,
+//     "total": 0,
+//     "savings": 0
+//   }
+// ]
+
+   }
+updateQuantityById(obj: any,voucherid:any): Observable<any> {
+    return this.http.put<any>(this.baseUrl + `user-wallets/cart/items/${voucherid}`, obj);
+    //obj should be like this
+// {
+//   "quantity": 0
+// }
+  }
+
+deleteVouchersById(voucherid:any): Observable<any> {
+    return this.http.delete<any>(this.baseUrl + `user-wallets/cart/items/${voucherid}`);
+  }
+
+   getCpocCouponById(id: any): Observable<any> {
+    return this.http.get<any>(this.baseUrl+`companies/${id}/coupons`);
+// {
+//     "data": [
+//         {
+//             "id": 25,
+//             "sku": "BR5-SKU-001",
+//             "productCode": "BR5-2026-001",
+//             "serialNo": 20001,
+//             "externalProductId": "EXT-BR5-001",
+//             "providerName": "Brand5 API",
+//             "productName": "Brand5 $250 Voucher",
+//             "brand": {
+//                 "id": 5,
+//                 "brandName": "Amazon",
+//                 "brandProductCode": "AMZ1001",
+//                 "brandSku": "AMA004",
+//                 "sku": null,
+//                 "brandType": "GIFT_CARD",
+//                 "onboardingType": "API",
+//                 "redemptionType": "ONLINE",
+//                 "onlineRedemptionUrl": "https://amazon.in/redeem",
+//                 "brandImage": "https://example.com/amazon.png",
+//                 "epayMinValue": 100.0,
+//                 "epayMaxValue": 10000.0,
+//                 "epayDiscount": 5.0,
+//                 "serviceType": "E-VOUCHER",
+//                 "stockAvailable": true,
+//                 "description": "Amazon Gift Voucher usable for shopping.",   
+//                 "tnc": "Valid for 12 months from issue date.",
+//                 "importantInstruction": "Do not share voucher code with anyone.",
+//                 "createdAt": "2026-02-25T14:46:24.71",
+//                 "updatedAt": "2026-02-25T14:46:24.71",
+//                 "isDeleted": null,
+//                 "deletedAt": null
+//             },
+//             "brandName": null,
+//             "description": "Brand5 digital voucher - Category 1",
+//             "category": {
+//                 "id": 1,
+//                 "categoryName": "UNCATEGORIZED",
+//                 "categoryCode": "001",
+//                 "displayOrder": 1,
+//                 "isDeleted": null,
+//                 "deletedAt": null,
+//                 "active": true
+//             },
+//             "categoryName": null,
+//             "imageUrl": "https://example.com/brand5-250.png",
+//             "redemptionType": "ONLINE",
+//             "denominations": "100,250,500",
+//             "minValue": 100.00,
+//             "maxValue": 2500.00,
+//             "discountPercent": 8.00,
+//             "currencyCode": "USD",
+//             "countryCode": "US",
+//             "expiryDate": "2027-12-31",
+//             "onboardingType": null,
+//             "apiType": null,
+//             "createdAt": "2026-02-27T17:33:15.346",
+//             "updatedAt": "2026-02-27T17:33:15.346",
+//             "isDeleted": false,
+//             "deletedAt": null,
+//             "active": true
+//         },
+  // ]
+// }
+  }
+
+  
 
 }

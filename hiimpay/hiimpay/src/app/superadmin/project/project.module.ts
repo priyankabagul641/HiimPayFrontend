@@ -109,6 +109,10 @@ import { BrandCouponAssignmentComponent } from './Components/client-assignment/b
 import { AssignedBrandListComponent } from './Components/client-assignment/assigned-brand-list.component';
 import { AssignedBrandDetailComponent } from './Components/client-assignment/assigned-brand-detail.component';
 import { WallwtCpocComponent } from './Components/wallwt-cpoc/wallwt-cpoc.component';
+import { VouchersComponent } from './Components/vouchers/vouchers.component';
+import { VoucherDetailComponent } from './Components/vouchers/voucher-detail/voucher-detail.component';
+import { CpocCartComponent } from './Components/cpoc-cart/cpoc-cart.component';
+import { PurchasedVouchersComponent } from './Components/purchased-vouchers/purchased-vouchers.component';
 
 @NgModule({
   declarations: [
@@ -187,7 +191,11 @@ import { WallwtCpocComponent } from './Components/wallwt-cpoc/wallwt-cpoc.compon
     BrandCouponAssignmentComponent,
     AssignedBrandListComponent,
     AssignedBrandDetailComponent,
-    WallwtCpocComponent
+    WallwtCpocComponent,
+    VouchersComponent,
+    VoucherDetailComponent,
+    CpocCartComponent,
+    PurchasedVouchersComponent,
   ],
   imports: [
     CommonModule,
