@@ -61,7 +61,7 @@
 }
 .hcd-checkout-btn {
   width: 100%; padding: 10px; border: 0; border-radius: 8px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: linear-gradient(135deg, #103a7f, #1a4f9e);
   color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
   transition: opacity .2s;
 }
@@ -171,7 +171,7 @@ select {
 
   &.active {
     font-weight: 500;
-    background-color: #de9b5e;
+    background-color: #103a7f;
 
     & span,
     i {
@@ -179,7 +179,7 @@ select {
     }
 
     &:hover {
-      background-color: #de9b5e;
+      background-color: #103a7f;
     }
   }
 }
@@ -283,7 +283,7 @@ mat-sidenav-container {
 
   &.active {
     font-weight: 500;
-    background-color: #de9b5e;
+    background-color: #103a7f;
 
     & span,
     i {
@@ -291,7 +291,7 @@ mat-sidenav-container {
     }
 
     &:hover {
-      background-color: #de9b5e;
+      background-color: #103a7f;
     }
   }
 }

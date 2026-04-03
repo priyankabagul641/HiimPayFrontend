@@ -8,23 +8,15 @@ import { ProjectService } from '../../services/companyService';
   styleUrls: ['./brand-coupon-assignment.component.css']
 })
 export class BrandCouponAssignmentComponent implements OnInit {
-  activeTab: 'coupon' | 'amount' = 'coupon';
+  activeTab: 'assign' | 'history' = 'assign';
   amountEntryMode: 'manual' | 'excel' = 'manual';
 
-  brands: any[] = [];
-  coupons: any[] = [];
   employees: any[] = [];
 
-  selectedBrands: any[] = [];
-  selectedCoupons: any[] = [];
-  selectedEmployees: any[] = [];
   selectedAmountEmployees: any[] = [];
 
-  brandDropdownSettings: any = {};
-  couponDropdownSettings: any = {};
   employeeDropdownSettings: any = {};
 
-  notes = '';
   amountValue: number | null = null;
   amountNotes = '';
   amountExcelFileName = '';
@@ -34,31 +26,29 @@ export class BrandCouponAssignmentComponent implements OnInit {
   isAssigningAmount = false;
   isDownloadingTemplate = false;
 
+  // Assignment History
+  assignmentHistory: any[] = [];
+  historyLoading = false;
+  historyPage = 0;
+  historyPageSize = 10;
+  historyTotalItems = 0;
+  selectedHistoryIds = new Set<number>();
+  downloadingIds = new Set<number>();
+  isDownloadingMulti = false;
+
   constructor(private toastr: ToastrService, private service: ProjectService) {}
 
   ngOnInit(): void {
     const userData = JSON.parse(sessionStorage.getItem('ClientId')!);
-    console.log('Loaded userData from sessionStorage:', userData);
     this.companyId = userData;
-    
+
     const currentUser = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
     this.currentUserId = currentUser?.id || 0;
 
-    this.brands = [
-      { id: 'B1', name: 'Amazon' },
-      { id: 'B2', name: 'Bata' },
-      { id: 'B3', name: 'Flipkart' }
-    ];
-
-    this.coupons = [
-      { id: 'C1', name: 'WELCOME10' },
-      { id: 'C2', name: 'FESTIVE500' },
-      { id: 'C3', name: 'SUPER20' }
-    ];
-
     this.loadEmployees();
+    this.loadAssignmentHistory();
 
-    const common = {
+    this.employeeDropdownSettings = {
       singleSelection: false,
       idField: 'id',
       textField: 'name',
@@ -67,10 +57,132 @@ export class BrandCouponAssignmentComponent implements OnInit {
       itemsShowLimit: 3,
       allowSearchFilter: true
     };
+  }
 
-    this.brandDropdownSettings = { ...common };
-    this.couponDropdownSettings = { ...common };
-    this.employeeDropdownSettings = { ...common };
+  setActiveTab(tab: 'assign' | 'history'): void {
+    this.activeTab = tab;
+    if (tab === 'history') {
+      this.loadAssignmentHistory();
+    }
+  }
+
+  loadAssignmentHistory(): void {
+    if (!this.companyId) return;
+    this.historyLoading = true;
+    this.service.assignRewardsByCompanyID(this.companyId).subscribe({
+      next: (res: any) => {
+        const raw: any[] = Array.isArray(res?.data) ? res.data : [];
+        this.historyTotalItems = raw.length;
+        this.assignmentHistory = raw.map((item: any) => {
+          const a = item.assignment || {};
+          return {
+            id: a.id,
+            assignedBy: a.assignedBy?.fullName || '-',
+            assignedDate: a.assignedDate || a.createdAt,
+            mode: a.mode || '-',
+            amount: a.amount ?? 0,
+            notes: a.notes || '',
+            employeeCount: item.employeeCount ?? 0
+          };
+        });
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.assignmentHistory = [];
+        this.historyLoading = false;
+        this.toastr.error('Failed to load assignment history.');
+      }
+    });
+  }
+
+  get pagedHistory(): any[] {
+    const start = this.historyPage * this.historyPageSize;
+    return this.assignmentHistory.slice(start, start + this.historyPageSize);
+  }
+
+  get historyTotalPages(): number {
+    return Math.max(1, Math.ceil(this.historyTotalItems / this.historyPageSize));
+  }
+
+  get historyPages(): number[] {
+    return Array.from({ length: this.historyTotalPages }, (_, i) => i);
+  }
+
+  goToHistoryPage(page: number): void {
+    if (page < 0 || page >= this.historyTotalPages) return;
+    this.historyPage = page;
+  }
+
+  toggleHistorySelection(id: number): void {
+    if (this.selectedHistoryIds.has(id)) {
+      this.selectedHistoryIds.delete(id);
+    } else {
+      this.selectedHistoryIds.add(id);
+    }
+  }
+
+  get isAllPageSelected(): boolean {
+    return this.pagedHistory.length > 0 && this.pagedHistory.every(r => this.selectedHistoryIds.has(r.id));
+  }
+
+  toggleSelectAllPage(): void {
+    if (this.isAllPageSelected) {
+      this.pagedHistory.forEach(r => this.selectedHistoryIds.delete(r.id));
+    } else {
+      this.pagedHistory.forEach(r => this.selectedHistoryIds.add(r.id));
+    }
+  }
+
+  downloadReport(id: number): void {
+    this.downloadingIds.add(id);
+    this.service.assignExcelDowloadByCompanyID(id).subscribe({
+      next: (blob: Blob) => {
+        this.downloadingIds.delete(id);
+        this.saveBlob(blob, `assignment-report-${id}.xlsx`);
+      },
+      error: () => {
+        this.downloadingIds.delete(id);
+        this.toastr.error('Failed to download report.');
+      }
+    });
+  }
+
+  downloadSelectedReports(): void {
+    const ids = Array.from(this.selectedHistoryIds);
+    if (ids.length === 0) {
+      this.toastr.error('Please select at least one record to download.');
+      return;
+    }
+    this.isDownloadingMulti = true;
+    let completed = 0;
+    ids.forEach(id => {
+      this.service.assignExcelDowloadByCompanyID(id).subscribe({
+        next: (blob: Blob) => {
+          this.saveBlob(blob, `assignment-report-${id}.xlsx`);
+          completed++;
+          if (completed === ids.length) {
+            this.isDownloadingMulti = false;
+            this.toastr.success(`Downloaded ${ids.length} report(s).`);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === ids.length) {
+            this.isDownloadingMulti = false;
+          }
+          this.toastr.error(`Failed to download report #${id}.`);
+        }
+      });
+    });
+  }
+
+  private saveBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   loadEmployees() {
@@ -83,40 +195,6 @@ export class BrandCouponAssignmentComponent implements OnInit {
       },
       error: (err: any) => console.error('loadEmployees error:', err)
     });
-  }
-
-  assignCouponNow() {
-    if (
-      this.selectedBrands.length === 0 ||
-      this.selectedCoupons.length === 0 ||
-      this.selectedEmployees.length === 0
-    ) {
-      this.toastr.error('Please select at least one brand, coupon and employee.');
-      return;
-    }
-
-    const assignmentsRaw = sessionStorage.getItem('clientBrandCouponAssignments');
-    const assignments = assignmentsRaw ? JSON.parse(assignmentsRaw) : [];
-
-    const payload = {
-      id: Date.now().toString(),
-      clientId: sessionStorage.getItem('ClientId'),
-      brands: this.selectedBrands,
-      coupons: this.selectedCoupons,
-      employees: this.selectedEmployees,
-      notes: this.notes,
-      assignedDate: new Date().toISOString(),
-      assignedBy: JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}')?.id || ''
-    };
-
-    assignments.unshift(payload);
-    sessionStorage.setItem('clientBrandCouponAssignments', JSON.stringify(assignments));
-    this.toastr.success('Brand and coupon assigned successfully.');
-
-    this.selectedBrands = [];
-    this.selectedCoupons = [];
-    this.selectedEmployees = [];
-    this.notes = '';
   }
 
   downloadAmountTemplate() {
@@ -187,6 +265,7 @@ export class BrandCouponAssignmentComponent implements OnInit {
             this.amountExcelFileName = '';
             this.amountValue = null;
             this.amountNotes = '';
+            this.loadAssignmentHistory();
           } else {
             this.toastr.error(res?.message || 'Failed to assign amount via Excel.');
           }
@@ -221,6 +300,7 @@ export class BrandCouponAssignmentComponent implements OnInit {
           this.amountValue = null;
           this.amountNotes = '';
           this.amountExcelFileName = '';
+          this.loadAssignmentHistory();
         } else {
           this.toastr.error(res?.message || 'Failed to assign amount.');
         }

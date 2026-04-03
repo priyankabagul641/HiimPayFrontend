@@ -399,7 +399,7 @@
 .cc-checkout-btn {
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  background: linear-gradient(135deg, #1d4ed8, #103a7f);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
@@ -411,7 +411,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 14px 26px rgba(16, 58, 127, 0.22);
 }
 
 .cc-checkout-btn:hover:not(:disabled) { background: #0b2f66; }
@@ -816,7 +816,7 @@
   flex: 2;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(110deg, #103a7f, #2563eb);
+  background: linear-gradient(110deg, #103a7f, #103a7f);
   color: #fff;
   font-size: 15px;
   font-weight: 700;

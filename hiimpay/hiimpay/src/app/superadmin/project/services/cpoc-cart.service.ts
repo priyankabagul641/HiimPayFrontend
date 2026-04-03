@@ -238,5 +238,55 @@ assignVouchers(obj: any): Observable<any> {
 // }
   }
 
+  getAssignmentHistory(cpocUserId: number, size: number, page: number): Observable<any> {
+    return this.http.get<any>(this.baseUrl + `cpoc-coupons/assignments/paged?cpocUserId=${cpocUserId}&orderBy=desc&page=${page}&size=${size}&sortBy=createdAt`);
+//   getting history response like this
+//   {
+//   "data": {
+//     "content": [
+//       {
+//         "id": 2,
+//         "cpocUserId": 29,
+//         "companyId": 5,
+//         "voucherId": 17,
+//         "brandId": 5,
+//         "quantityPerUser": 1,
+//         "totalAssigned": 2,
+//         "referenceNo": "ASSIGN-1775193980245",
+//         "notes": "Assigned Amazon vouchers",
+//         "createdAt": "2026-04-03T10:56:21.103"
+//       }
+//     ],
+//     "pageable": {
+//       "sort": {
+//         "sorted": true,
+//         "unsorted": false,
+//         "empty": false
+//       },
+//       "pageNumber": 0,
+//       "pageSize": 10,
+//       "offset": 0,
+//       "paged": true,
+//       "unpaged": false
+//     },
+//     "last": true,
+//     "totalPages": 1,
+//     "totalElements": 1,
+//     "numberOfElements": 1,
+//     "first": true,
+//     "sort": {
+//       "sorted": true,
+//       "unsorted": false,
+//       "empty": false
+//     },
+//     "size": 10,
+//     "number": 0,
+//     "empty": false
+//   },
+//   "message": "CPOC assignment history fetched successfully",
+//   "success": true
+// }
+  }
+
 
 }

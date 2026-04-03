@@ -28,9 +28,15 @@ export class PurchasedVouchersComponent implements OnInit {
   isAssigning = false;
   assignedCoupons: any[] = [];
 
+  // Pagination for assignment history
+  historyPage = 0;
+  historyPageSize = 10;
+  historyTotalPages = 0;
+  historyTotalElements = 0;
+  historyLoading = false;
+
   private cpocUserId: number | null = null;
   private companyId: number | null = null;
-  private readonly assignmentStorageKey = 'cpocVoucherAssignments';
 
   constructor(
     private cpocCart: CpocCartService,
@@ -67,6 +73,9 @@ export class PurchasedVouchersComponent implements OnInit {
 
   setActiveTab(tab: 'vouchers' | 'history'): void {
     this.activeTab = tab;
+    if (tab === 'history') {
+      this.loadAssignmentHistory(0);
+    }
   }
 
   loadPurchasedVouchers(): void {
@@ -204,7 +213,7 @@ export class PurchasedVouchersComponent implements OnInit {
           return;
         }
 
-        this.appendAssignmentHistory(payload.referenceNo);
+        this.loadAssignmentHistory(0);
         this.updateVoucherAvailability();
         this.toastr.success(res?.message || 'Vouchers assigned successfully.');
         this.activeTab = 'history';
@@ -218,29 +227,7 @@ export class PurchasedVouchersComponent implements OnInit {
     });
   }
 
-  private appendAssignmentHistory(referenceNo: string): void {
-    if (!this.selectedVoucher) {
-      return;
-    }
 
-    const createdAt = new Date().toISOString();
-    const rows = this.selectedEmployees.map(employee => ({
-      id: `${referenceNo}-${employee.id}`,
-      referenceNo,
-      voucherName: this.selectedVoucher.brandName,
-      voucherId: this.selectedVoucher.voucherId,
-      employeeId: employee.id,
-      employeeName: employee.name,
-      employeeEmail: employee.email || '',
-      quantity: this.assignQuantity,
-      assignedAt: createdAt,
-      notes: this.assignNotes,
-      status: 'Assigned'
-    }));
-
-    this.assignedCoupons = [...rows, ...this.assignedCoupons];
-    sessionStorage.setItem(this.assignmentStorageKey, JSON.stringify(this.assignedCoupons));
-  }
 
   private updateVoucherAvailability(): void {
     if (!this.selectedVoucher) {
@@ -269,13 +256,43 @@ export class PurchasedVouchersComponent implements OnInit {
     this.assignNotes = '';
   }
 
-  private loadAssignmentHistory(): void {
-    try {
-      const raw = sessionStorage.getItem(this.assignmentStorageKey);
-      this.assignedCoupons = raw ? JSON.parse(raw) : [];
-    } catch {
+  loadAssignmentHistory(page: number = 0): void {
+    if (!this.cpocUserId) {
       this.assignedCoupons = [];
+      return;
     }
+    this.historyLoading = true;
+    this.cpocCart.getAssignmentHistory(this.cpocUserId, this.historyPageSize, page).subscribe({
+      next: (res: any) => {
+        const pageData = res?.data;
+        this.assignedCoupons = (pageData?.content || []).map((item: any) => ({
+          id: item.id,
+          referenceNo: item.referenceNo || '',
+          voucherName: item.brandName || item.voucherName || `Voucher #${item.voucherId}`,
+          voucherId: item.voucherId,
+          employeeName: item.employeeName || '-',
+          employeeEmail: item.employeeEmail || '',
+          quantity: item.quantityPerUser || item.totalAssigned || 0,
+          assignedAt: item.createdAt,
+          notes: item.notes || '',
+          status: item.status || 'Assigned'
+        }));
+        this.historyPage = pageData?.number ?? page;
+        this.historyTotalPages = pageData?.totalPages ?? 1;
+        this.historyTotalElements = pageData?.totalElements ?? 0;
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.assignedCoupons = [];
+        this.historyLoading = false;
+        this.toastr.error('Failed to load assignment history.');
+      }
+    });
+  }
+
+  goToHistoryPage(page: number): void {
+    if (page < 0 || page >= this.historyTotalPages) return;
+    this.loadAssignmentHistory(page);
   }
 
   get filteredVouchers(): any[] {
@@ -321,16 +338,11 @@ export class PurchasedVouchersComponent implements OnInit {
   }
 
   get filteredAssignedCoupons(): any[] {
-    const q = this.searchTerm.trim().toLowerCase();
-    if (!q) {
-      return this.assignedCoupons;
-    }
+    return this.assignedCoupons;
+  }
 
-    return this.assignedCoupons.filter(item =>
-      (item.voucherName || '').toLowerCase().includes(q) ||
-      (item.employeeName || '').toLowerCase().includes(q) ||
-      (item.referenceNo || '').toLowerCase().includes(q)
-    );
+  get historyPages(): number[] {
+    return Array.from({ length: this.historyTotalPages }, (_, i) => i);
   }
 
   openRedemption(url: string): void {

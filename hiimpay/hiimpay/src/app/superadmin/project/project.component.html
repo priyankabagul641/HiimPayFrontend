@@ -122,43 +122,43 @@
       <a mat-list-item routerLink="./project-admin" routerLinkActive="active">
         <span class="entry">
           <mat-icon>group</mat-icon>
-          <span *ngIf="!isCollapsed">Manage users</span>
+          <span *ngIf="!isCollapsed">Team Management</span>
         </span>
       </a>
       <a mat-list-item routerLink="./client-brands" routerLinkActive="active">
         <span class="entry">
           <mat-icon>store</mat-icon>
-          <span *ngIf="!isCollapsed">Brands</span>
+          <span *ngIf="!isCollapsed">Brand Catalog</span>
         </span>
       </a>
       <a mat-list-item routerLink="./assign-brand-coupon" routerLinkActive="active">
         <span class="entry">
           <mat-icon>assignment_turned_in</mat-icon>
-          <span *ngIf="!isCollapsed">Assign Coupon & Amount</span>
+          <span *ngIf="!isCollapsed">Reward Center</span>
         </span>
       </a>
-      <a mat-list-item routerLink="./assigned-brands" routerLinkActive="active">
+      <!-- <a mat-list-item routerLink="./assigned-brands" routerLinkActive="active">
         <span class="entry">
           <mat-icon>fact_check</mat-icon>
           <span *ngIf="!isCollapsed">Assigned Brands</span>
         </span>
-      </a>
+      </a> -->
       <a *ngIf="showWalletLink" mat-list-item routerLink="./wallet-transactions" routerLinkActive="active">
         <span class="entry">
           <mat-icon>account_balance_wallet</mat-icon>
-          <span *ngIf="!isCollapsed">Wallet Transactions</span>
+          <span *ngIf="!isCollapsed">Wallet & Ledger</span>
         </span>
       </a>
       <a mat-list-item routerLink="./vouchers" routerLinkActive="active">
         <span class="entry">
           <mat-icon>local_offer</mat-icon>
-          <span *ngIf="!isCollapsed">Vouchers</span>
+          <span *ngIf="!isCollapsed">Voucher Store</span>
         </span>
       </a>
       <a mat-list-item routerLink="./purchased-vouchers" routerLinkActive="active">
         <span class="entry">
           <mat-icon>receipt_long</mat-icon>
-          <span *ngIf="!isCollapsed">Purchased Vouchers</span>
+          <span *ngIf="!isCollapsed">My Vouchers</span>
         </span>
       </a>
     </mat-nav-list>

@@ -178,7 +178,12 @@
           </div>
         </div>
 
-        <div class="pv-history-table-wrap" *ngIf="filteredAssignedCoupons.length > 0; else emptyAssignments">
+        <!-- Loading -->
+        <div class="pv-skeleton-grid" *ngIf="historyLoading">
+          <div class="pv-skeleton-card" *ngFor="let x of [1,2,3]"></div>
+        </div>
+
+        <div class="pv-history-table-wrap" *ngIf="!historyLoading && filteredAssignedCoupons.length > 0; else emptyAssignments">
           <table class="pv-history-table">
             <thead>
               <tr>
@@ -208,10 +213,24 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Pagination -->
+          <div class="pv-pagination" *ngIf="historyTotalPages > 1">
+            <button class="pv-page-btn" [disabled]="historyPage === 0" (click)="goToHistoryPage(0)">« First</button>
+            <button class="pv-page-btn" [disabled]="historyPage === 0" (click)="goToHistoryPage(historyPage - 1)">‹ Prev</button>
+            <ng-container *ngFor="let p of historyPages">
+              <button class="pv-page-btn" [class.pv-page-active]="p === historyPage" (click)="goToHistoryPage(p)">
+                {{ p + 1 }}
+              </button>
+            </ng-container>
+            <button class="pv-page-btn" [disabled]="historyPage === historyTotalPages - 1" (click)="goToHistoryPage(historyPage + 1)">Next ›</button>
+            <button class="pv-page-btn" [disabled]="historyPage === historyTotalPages - 1" (click)="goToHistoryPage(historyTotalPages - 1)">Last »</button>
+            <span class="pv-page-info">Page {{ historyPage + 1 }} of {{ historyTotalPages }} ({{ historyTotalElements }} records)</span>
+          </div>
         </div>
 
         <ng-template #emptyAssignments>
-          <div class="pv-state pv-history-empty">
+          <div class="pv-state pv-history-empty" *ngIf="!historyLoading">
             <div class="pv-state-icon">📭</div>
             <p>No coupon assignments yet.</p>
           </div>

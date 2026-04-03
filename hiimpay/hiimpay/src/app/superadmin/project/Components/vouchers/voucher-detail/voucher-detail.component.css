@@ -15,7 +15,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #6366f1;
+  background: #1a4f9e;
   animation: dot-bounce 1s ease-in-out infinite;
 }
 
@@ -293,7 +293,7 @@
 }
 
 .vd-custom-input:focus {
-  border-color: #6366f1;
+  border-color: #1a4f9e;
 }
 
 .vd-custom-qty {
@@ -343,7 +343,7 @@
 .vd-add-custom-btn {
   border: 2px dashed #cbd5e1;
   background: transparent;
-  color: #6366f1;
+  color: #1a4f9e;
   border-radius: 12px;
   padding: 10px 20px;
   font-size: 14px;
@@ -354,7 +354,7 @@
 }
 
 .vd-add-custom-btn:hover {
-  border-color: #6366f1;
+  border-color: #1a4f9e;
   background: #f0f0ff;
 }
 
@@ -445,7 +445,7 @@
   margin-left: auto;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, #1a4f9e, #1a4f9e);
   color: #fff;
   padding: 12px 26px;
   font-size: 15px;

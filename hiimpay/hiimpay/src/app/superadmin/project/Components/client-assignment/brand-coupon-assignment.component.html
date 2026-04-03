@@ -1,186 +1,242 @@
-<div class="assignment-shell">
-  <div class="bg-orb orb-one"></div>
-  <div class="bg-orb orb-two"></div>
+<main class="rp-main">
 
-  <div class="assignment-root">
-    <div class="hero">
-      <div>
-
-        <h2>Assign Coupon Or Amount</h2>
-        <p class="sub">Create bulk reward assignments in a cleaner and faster workflow.</p>
-      </div>
-      <div class="meta-pills">
-        <div class="pill">
-          <div class="pill-icon"><i class="fa fa-tags" aria-hidden="true"></i></div>
-          <span class="pill-label">Brands</span>
-          <span class="pill-value">{{ selectedBrands.length }}</span>
-        </div>
-        <div class="pill">
-          <div class="pill-icon"><i class="fa fa-ticket" aria-hidden="true"></i></div>
-          <span class="pill-label">Coupons</span>
-          <span class="pill-value">{{ selectedCoupons.length }}</span>
-        </div>
-        <div class="pill">
-          <div class="pill-icon"><i class="fa fa-users" aria-hidden="true"></i></div>
-          <span class="pill-label">Employees</span>
-          <span class="pill-value">{{ activeTab==='coupon' ? selectedEmployees.length : selectedAmountEmployees.length }}</span>
+  <!-- Header -->
+  <div class="rp-header">
+    <div class="rp-header-left">
+      <h1>Assign Reward Points</h1>
+      <p>Assign reward points to employees manually or via Excel upload.</p>
+    </div>
+    <div class="rp-header-actions">
+      <div class="rp-stat-card">
+        <span class="rp-stat-icon">👥</span>
+        <div>
+          <small>Employees</small>
+          <strong>{{ selectedAmountEmployees.length }}</strong>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="segment-control primary-segment" role="tablist" aria-label="Reward type selector">
-      <button class="tab segment-btn" [class.active]="activeTab==='coupon'" (click)="activeTab='coupon'">Reward Coupon</button>
-      <button class="tab segment-btn" [class.active]="activeTab==='amount'" (click)="activeTab='amount'">Reward Points</button>
+  <!-- Main Tabs: Assign / History -->
+  <div class="rp-tab-strip">
+    <button class="rp-tab-btn" [class.active]="activeTab === 'assign'" (click)="setActiveTab('assign')">
+      Assign Points
+    </button>
+    <button class="rp-tab-btn" [class.active]="activeTab === 'history'" (click)="setActiveTab('history')">
+      Assignment History
+    </button>
+  </div>
+
+  <!-- =============== ASSIGN TAB =============== -->
+  <ng-container *ngIf="activeTab === 'assign'">
+
+    <!-- Entry Mode Tabs -->
+    <div class="rp-mode-strip">
+      <button class="rp-mode-btn" [class.active]="amountEntryMode === 'manual'" (click)="amountEntryMode = 'manual'">
+        Manual Entry
+      </button>
+      <button class="rp-mode-btn" [class.active]="amountEntryMode === 'excel'" (click)="amountEntryMode = 'excel'">
+        Excel Upload
+      </button>
     </div>
 
-    <ng-container *ngIf="activeTab==='coupon'">
-      <div class="panel">
-        <div class="row-block">
-          <label>Step 1: Select Brands</label>
-          <ng-multiselect-dropdown
-            [placeholder]="'Select brands'"
-            [settings]="brandDropdownSettings"
-            [data]="brands"
-            [(ngModel)]="selectedBrands">
-          </ng-multiselect-dropdown>
-        </div>
+    <!-- Manual Entry -->
+    <ng-container *ngIf="amountEntryMode === 'manual'">
+      <div class="rp-card-grid">
 
-        <div class="row-block">
-          <label>Step 2: Select Coupons</label>
-          <ng-multiselect-dropdown
-            [placeholder]="'Select coupons'"
-            [settings]="couponDropdownSettings"
-            [data]="coupons"
-            [(ngModel)]="selectedCoupons">
-          </ng-multiselect-dropdown>
-        </div>
-
-        <div class="row-block">
-          <label>Step 3: Select Employees</label>
-          <ng-multiselect-dropdown
-            [placeholder]="'Select employees'"
-            [settings]="employeeDropdownSettings"
-            [data]="employees"
-            [(ngModel)]="selectedEmployees">
-          </ng-multiselect-dropdown>
-        </div>
-
-        <div class="row-block">
-          <label>Notes (Optional)</label>
-          <textarea rows="3" [(ngModel)]="notes" placeholder="Any special instructions"></textarea>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn assign-btn" (click)="assignCouponNow()">
-          <i class="fa fa-rocket" aria-hidden="true"></i>
-          <span>Assign Coupon</span>
-        </button>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="activeTab==='amount'">
-      <div class="segment-control secondary-segment" role="tablist" aria-label="Reward points entry mode selector">
-        <button class="tab segment-btn" [class.active]="amountEntryMode==='manual'" (click)="amountEntryMode='manual'">Manual</button>
-        <button class="tab segment-btn" [class.active]="amountEntryMode==='excel'" (click)="amountEntryMode='excel'">Excel Upload</button>
-      </div>
-
-      <div class="panel" *ngIf="amountEntryMode==='manual'">
-        <div class="row-block">
-          <label>Step 1: Select Employees</label>
-          <ng-multiselect-dropdown
-            [placeholder]="'Select employees'"
-            [settings]="employeeDropdownSettings"
-            [data]="employees"
-            [(ngModel)]="selectedAmountEmployees">
-          </ng-multiselect-dropdown>
-        </div>
-
-        <div class="row-block">
-          <label>Step 2: Enter Rewarded Points</label>
-          <div class="points-field">
-            <span class="points-icon"><i class="fa fa-star" aria-hidden="true"></i></span>
-            <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
-            <span class="points-suffix">PTS</span>
+        <div class="rp-form-card">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 1</div>
+            <h3 class="rp-card-title">Select Employees</h3>
+            <p class="rp-card-desc">Choose the employees to receive reward points.</p>
+            <ng-multiselect-dropdown
+              [placeholder]="'Search and select employees'"
+              [settings]="employeeDropdownSettings"
+              [data]="employees"
+              [(ngModel)]="selectedAmountEmployees">
+            </ng-multiselect-dropdown>
           </div>
         </div>
 
-        <div class="row-block">
-          <label>Notes (Optional)</label>
-          <textarea rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions"></textarea>
-          <small class="field-help">Add context for this reward assignment if needed.</small>
-        </div>
-      </div>
-
-      <div class="panel excel-flow" *ngIf="amountEntryMode==='excel'">
-        <div class="step-card step-download">
-          <div class="step-number">01</div>
-          <div class="step-content">
-            <div class="step-head">
-              <div>
-                <p class="step-kicker">Step 1</p>
-                <h3>Download Template</h3>
-                <p>Download the Excel template to prepare reward point assignments in the required format.</p>
-              </div>
-              <button class="btn step-action-btn" (click)="downloadAmountTemplate()" [disabled]="isDownloadingTemplate">
-                <span *ngIf="isDownloadingTemplate" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                <i *ngIf="!isDownloadingTemplate" class="fa fa-download me-1" aria-hidden="true"></i>
-                <span>Download</span>
-              </button>
+        <div class="rp-form-card">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 2</div>
+            <h3 class="rp-card-title">Enter Reward Points</h3>
+            <p class="rp-card-desc">Specify the number of points to assign per employee.</p>
+            <div class="rp-points-field">
+              <span class="rp-points-icon">⭐</span>
+              <input class="rp-input" type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter reward points" />
+              <span class="rp-points-suffix">PTS</span>
             </div>
           </div>
         </div>
 
-        <div class="step-card step-upload">
-          <div class="step-number">02</div>
-          <div class="step-content">
-            <p class="step-kicker">Step 2</p>
-            <h3>Upload Excel File</h3>
-            <p>Drag and drop your prepared file here, or browse from your device.</p>
-            <div class="upload-wrap">
-              <input id="amountExcel" type="file" accept=".xlsx,.xls" (change)="onAmountExcelSelect($event)">
-              <label class="upload-label" for="amountExcel">
-                <span class="upload-icon"><i class="fa fa-cloud-upload" aria-hidden="true"></i></span>
-                <span class="upload-title">Drag & Drop Excel File</span>
-                <span class="upload-sub">or click to browse</span>
-                <span class="upload-meta">Supported formats: .xlsx, .xls</span>
+        <div class="rp-form-card rp-form-card-full">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 3</div>
+            <h3 class="rp-card-title">Notes <span class="rp-optional">(Optional)</span></h3>
+            <p class="rp-card-desc">Add context for this reward assignment if needed.</p>
+            <textarea class="rp-textarea" rows="3" [(ngModel)]="amountNotes" placeholder="Any special instructions or notes"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="rp-form-actions">
+        <button class="rp-submit-btn" (click)="assignAmountNow()" [disabled]="isAssigningAmount">
+          {{ isAssigningAmount ? 'Assigning...' : '⭐ Assign Reward Points' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Excel Upload -->
+    <ng-container *ngIf="amountEntryMode === 'excel'">
+      <div class="rp-card-grid">
+
+        <!-- Step 1: Upload Excel (with download template link inside) -->
+        <div class="rp-form-card">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 1</div>
+            <h3 class="rp-card-title">Upload Excel File</h3>
+            <p class="rp-card-desc">
+              Upload your prepared file with employee reward data.
+              Need the template?
+              <a class="rp-template-link" (click)="downloadAmountTemplate(); $event.preventDefault()" href="#">
+                <span *ngIf="!isDownloadingTemplate">📥 Download Template</span>
+                <span *ngIf="isDownloadingTemplate">⏳ Downloading...</span>
+              </a>
+            </p>
+            <div class="rp-upload-wrap">
+              <input id="amountExcel" type="file" accept=".xlsx,.xls" (change)="onAmountExcelSelect($event)" />
+              <label class="rp-upload-label" for="amountExcel">
+                <span class="rp-upload-icon">📤</span>
+                <span class="rp-upload-title">Drag & Drop or Click to Browse</span>
+                <span class="rp-upload-meta">Supported: .xlsx, .xls</span>
               </label>
             </div>
-            <small class="hint file-chip" *ngIf="amountExcelFileName">
-              <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-              <span>Selected: {{ amountExcelFileName }}</span>
-            </small>
-          </div>
-        </div>
-
-        <div class="step-card step-points">
-          <div class="step-number">03</div>
-          <div class="step-content">
-            <label>Reward Points <span class="required">*</span></label>
-            <div class="points-field">
-              <span class="points-icon"><i class="fa fa-star" aria-hidden="true"></i></span>
-              <input type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter rewarded points">
-              <span class="points-suffix">PTS</span>
+            <div class="rp-file-chip" *ngIf="amountExcelFileName">
+              📄 {{ amountExcelFileName }}
             </div>
           </div>
         </div>
 
-        <div class="step-card step-notes">
-          <div class="step-number">04</div>
-          <div class="step-content">
-            <label>Notes (Optional)</label>
-            <textarea rows="4" [(ngModel)]="amountNotes" placeholder="Add any context or instructions for this upload"></textarea>
-            <small class="field-help">Optional note for internal tracking and assignment context.</small>
+        <!-- Step 2: Reward Points -->
+        <div class="rp-form-card">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 2</div>
+            <h3 class="rp-card-title">Reward Points <span class="rp-required">*</span></h3>
+            <p class="rp-card-desc">Points to assign per employee from the uploaded file.</p>
+            <div class="rp-points-field">
+              <span class="rp-points-icon">⭐</span>
+              <input class="rp-input" type="number" min="1" [(ngModel)]="amountValue" placeholder="Enter reward points" />
+              <span class="rp-points-suffix">PTS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Notes -->
+        <div class="rp-form-card rp-form-card-full">
+          <div class="rp-card-body">
+            <div class="rp-step-badge">Step 3</div>
+            <h3 class="rp-card-title">Notes <span class="rp-optional">(Optional)</span></h3>
+            <p class="rp-card-desc">Add context or instructions for this upload.</p>
+            <textarea class="rp-textarea" rows="3" [(ngModel)]="amountNotes" placeholder="Add any context or instructions"></textarea>
           </div>
         </div>
       </div>
 
-      <div class="actions sticky-actions" [class.excel-actions]="amountEntryMode==='excel'">
-        <button class="btn assign-btn" (click)="assignAmountNow()">
-          <i class="fa fa-rocket" aria-hidden="true"></i>
-          <span>Assign Reward Points</span>
+      <div class="rp-form-actions">
+        <button class="rp-submit-btn" (click)="assignAmountNow()" [disabled]="isAssigningAmount">
+          {{ isAssigningAmount ? 'Assigning...' : '⭐ Assign Reward Points' }}
         </button>
       </div>
     </ng-container>
-  </div>
-</div>
+
+  </ng-container>
+
+  <!-- =============== HISTORY TAB =============== -->
+  <ng-container *ngIf="activeTab === 'history'">
+    <div class="rp-history-section">
+
+      <!-- Loading -->
+      <div class="rp-skeleton-grid" *ngIf="historyLoading">
+        <div class="rp-skeleton-card" *ngFor="let x of [1,2,3]"></div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="rp-history-actions" *ngIf="!historyLoading && assignmentHistory.length > 0">
+        <button
+          class="rp-bulk-download-btn"
+          [disabled]="selectedHistoryIds.size === 0 || isDownloadingMulti"
+          (click)="downloadSelectedReports()">
+          {{ isDownloadingMulti ? '⏳ Downloading...' : '📥 Download Selected (' + selectedHistoryIds.size + ')' }}
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="rp-history-table-wrap" *ngIf="!historyLoading && pagedHistory.length > 0">
+        <table class="rp-history-table">
+          <thead>
+            <tr>
+              <th class="rp-col-check">
+                <input type="checkbox" [checked]="isAllPageSelected" (change)="toggleSelectAllPage()" />
+              </th>
+              <th>#</th>
+              <th>Assigned By</th>
+              <th>Mode</th>
+              <th>Amount (PTS)</th>
+              <th>Employees</th>
+              <th>Notes</th>
+              <th>Assigned On</th>
+              <th>Report</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedHistory; let i = index" [class.rp-row-selected]="selectedHistoryIds.has(row.id)">
+              <td class="rp-col-check">
+                <input type="checkbox" [checked]="selectedHistoryIds.has(row.id)" (change)="toggleHistorySelection(row.id)" />
+              </td>
+              <td>{{ historyPage * historyPageSize + i + 1 }}</td>
+              <td><strong>{{ row.assignedBy }}</strong></td>
+              <td><span class="rp-mode-pill">{{ row.mode }}</span></td>
+              <td><strong>{{ row.amount | number }}</strong></td>
+              <td>{{ row.employeeCount }}</td>
+              <td class="rp-notes-cell">{{ row.notes || '-' }}</td>
+              <td>{{ row.assignedDate | date:'dd MMM yyyy, h:mm a' }}</td>
+              <td>
+                <button
+                  class="rp-row-download-btn"
+                  [disabled]="downloadingIds.has(row.id)"
+                  (click)="downloadReport(row.id)">
+                  {{ downloadingIds.has(row.id) ? '⏳' : '📥' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="rp-pagination" *ngIf="historyTotalPages > 1">
+          <button class="rp-page-btn" [disabled]="historyPage === 0" (click)="goToHistoryPage(0)">« First</button>
+          <button class="rp-page-btn" [disabled]="historyPage === 0" (click)="goToHistoryPage(historyPage - 1)">‹ Prev</button>
+          <ng-container *ngFor="let p of historyPages">
+            <button class="rp-page-btn" [class.rp-page-active]="p === historyPage" (click)="goToHistoryPage(p)">
+              {{ p + 1 }}
+            </button>
+          </ng-container>
+          <button class="rp-page-btn" [disabled]="historyPage === historyTotalPages - 1" (click)="goToHistoryPage(historyPage + 1)">Next ›</button>
+          <button class="rp-page-btn" [disabled]="historyPage === historyTotalPages - 1" (click)="goToHistoryPage(historyTotalPages - 1)">Last »</button>
+          <span class="rp-page-info">Page {{ historyPage + 1 }} of {{ historyTotalPages }} ({{ historyTotalItems }} records)</span>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="rp-empty-state" *ngIf="!historyLoading && assignmentHistory.length === 0">
+        <div class="rp-empty-icon">📭</div>
+        <h3>No Assignments Yet</h3>
+        <p>Reward point assignments will appear here once created.</p>
+      </div>
+
+    </div>
+  </ng-container>
+
+</main>
