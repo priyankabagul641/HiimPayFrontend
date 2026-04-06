@@ -273,7 +273,7 @@ export class BrandCouponAssignmentComponent implements OnInit {
         error: (err: any) => {
           this.isAssigningAmount = false;
           console.error('assignAmountNow (excel) error:', err);
-          this.toastr.error('Error uploading Excel. Please try again.');
+          this.toastr.error(err?.error?.message || 'Error uploading Excel. Please try again.');
         }
       });
       return;

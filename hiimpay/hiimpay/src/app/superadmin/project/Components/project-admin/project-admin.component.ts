@@ -29,6 +29,7 @@ export class ProjectAdminComponent implements OnInit {
   checkUpdateBulkSpinner: boolean = false;
   companyId: number = 0;
   companyName: string = '';
+  uploadErrors: string[] = [];
 
   isLoading: boolean = true;
   constructor(
@@ -242,30 +243,39 @@ export class ProjectAdminComponent implements OnInit {
       inputElement.value = '';
       if (this.isSelectedFileValid) {
         this.checkuploadExcelSpinner = true;
+        this.uploadErrors = [];
         const formData = new FormData();
         formData.append('file', this.file);
         this.service.addEmployeeWithExcel(formData, this.companyId).subscribe({
           next: (res: any) => {
             this.checkuploadExcelSpinner = false;
-            if (res?.success) {
-              this.toaster.success(res.message || 'Users imported successfully.', 'Success');
-              if (res?.errors?.length) {
-                  this.generateErrorPdf(res.errors);
-                }
-                this.page = 1;
-                this.getAllUsers();
-              } else {
-                this.toaster.error(res?.message || 'Failed to import users.', 'Error');
-                if (res?.errors?.length) {
-                  this.generateErrorPdf(res.errors);
-                }
-              }
-            },
-            error: (err: any) => {
-              this.checkuploadExcelSpinner = false;
-              this.toaster.error(err?.error?.message || 'Failed to import users.', 'Error');
+            if (res?.errors?.length) {
+              this.uploadErrors = res.errors;
+              this.toaster.warning(res.errors[0], 'Import Summary');
             }
-          });
+            if (res?.success) {
+              if (!res?.errors?.length) {
+                this.toaster.success(res.message || 'Users imported successfully.', 'Success');
+              }
+              this.page = 1;
+              this.getAllUsers();
+            } else {
+              if (!res?.errors?.length) {
+                this.toaster.error(res?.message || 'Failed to import users.', 'Error');
+              }
+            }
+          },
+          error: (err: any) => {
+            this.checkuploadExcelSpinner = false;
+            const errBody = err?.error;
+            if (errBody?.errors?.length) {
+              this.uploadErrors = errBody.errors;
+              this.toaster.warning(errBody.errors[0], 'Import Summary');
+            } else {
+              this.toaster.error(errBody?.message || 'Failed to import users.', 'Error');
+            }
+          }
+        });
       } else {
         this.toaster.error('Please select a valid Excel file (.xls or .xlsx)', 'Invalid File');
       }
