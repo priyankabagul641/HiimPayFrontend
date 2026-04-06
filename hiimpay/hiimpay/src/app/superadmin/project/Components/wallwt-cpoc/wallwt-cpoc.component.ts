@@ -40,6 +40,7 @@ export class WallwtCpocComponent implements OnInit {
   selectAllOnPage = false;
   isBulkDownloading = false;
   bulkProgress = 0; // 0..100
+  paymentProcessing = false;
 
   constructor(private projectService: ProjectService, private toastr: ToastrService, private adminDataService: AdminDataService) {}
 
@@ -303,6 +304,7 @@ export class WallwtCpocComponent implements OnInit {
   }
 
   private handleWalletPaymentSuccess(paymentResponse: any, userId: number, amount: number): void {
+    this.paymentProcessing = true;
     const creditPayload = {
       cpocUserId: userId,
       amount,
@@ -319,6 +321,7 @@ export class WallwtCpocComponent implements OnInit {
         this.loadWalletBalance();
         this.loadTransactions();
         this.page = 1;
+        this.paymentProcessing = false;
         // refresh and emit latest wallet balance to other components
         try {
           const uid = Number(userId);
@@ -329,6 +332,7 @@ export class WallwtCpocComponent implements OnInit {
         } catch {}
       },
       error: () => {
+        this.paymentProcessing = false;
         this.toastr.error('Payment captured, but wallet credit failed.');
       }
     });

@@ -1,4 +1,14 @@
 <section class="brand-shell">
+
+	<!-- Payment Processing Overlay -->
+	<div class="payment-loader-overlay" *ngIf="paymentProcessing">
+		<div class="payment-loader-card">
+			<div class="payment-spinner"></div>
+			<h3>Processing Payment</h3>
+			<p>Verifying your payment and updating wallet. Please wait...</p>
+		</div>
+	</div>
+
 	<div class="brand-header">
 		<div>
 			<h2>Wallet Transactions</h2>
