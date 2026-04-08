@@ -1,0 +1,139 @@
+/* ===== BACKDROP ===== */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ===== CARD ===== */
+.modal-card {
+  display: flex; width: 720px; max-width: 94vw;
+  border-radius: 12px; overflow: hidden;
+  background: #fff; position: relative;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===== CLOSE ===== */
+.modal-close {
+  position: absolute; top: 12px; right: 12px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #ef4444; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { background: #dc2626; transform: scale(1.1); }
+.modal-close mat-icon { color: #fff; font-size: 18px; width: 18px; height: 18px; }
+
+/* ===== LEFT PROMO PANEL ===== */
+.modal-left {
+  width: 300px; flex-shrink: 0;
+  background: linear-gradient(160deg, #c6e84c 0%, #a3d134 50%, #8bc22a 100%);
+  padding: 40px 28px 28px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.modal-left h2 {
+  font-size: 24px; font-weight: 800; color: #1a2e05;
+  line-height: 1.2; margin: 0 0 12px;
+  letter-spacing: -0.3px;
+}
+.modal-left p {
+  font-size: 14px; font-weight: 600; color: #2d4a0a;
+  margin: 0 0 24px; line-height: 1.5;
+}
+
+/* Promo illustration */
+.promo-illustration {
+  flex: 1; position: relative; min-height: 180px;
+}
+.promo-circle {
+  position: absolute; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+.promo-circle.c1 { width: 160px; height: 160px; bottom: -20px; left: -30px; }
+.promo-circle.c2 { width: 100px; height: 100px; bottom: 60px; right: -10px; background: rgba(255,255,255,0.1); }
+.promo-icon {
+  position: absolute; color: rgba(26, 46, 5, 0.6);
+}
+.promo-icon.gift { font-size: 64px; width: 64px; height: 64px; bottom: 40px; left: 20px; }
+.promo-icon.phone { font-size: 48px; width: 48px; height: 48px; bottom: 80px; right: 30px; }
+.promo-icon.savings { font-size: 36px; width: 36px; height: 36px; bottom: 10px; right: 50px; }
+
+/* ===== RIGHT LOGIN PANEL ===== */
+.modal-right {
+  flex: 1; padding: 48px 36px 28px;
+  display: flex; flex-direction: column;
+}
+.modal-right h3 {
+  font-size: 22px; font-weight: 700; color: #1e293b;
+  margin: 0 0 32px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+.input-group input {
+  width: 100%; padding: 14px 16px;
+  border: 1.5px solid #d1d5db; border-radius: 8px;
+  font-size: 15px; font-family: 'Inter', sans-serif;
+  color: #1e293b; outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.input-group input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+.input-group input::placeholder { color: #9ca3af; }
+
+/* Terms checkbox */
+.terms-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 24px; cursor: pointer;
+  font-size: 13px; color: #6b7280; line-height: 1.5;
+}
+.terms-check input[type="checkbox"] {
+  width: 18px; height: 18px; margin-top: 1px;
+  accent-color: #7c3aed; flex-shrink: 0;
+}
+.terms-check a {
+  color: #7c3aed; text-decoration: none; font-weight: 600;
+}
+.terms-check a:hover { text-decoration: underline; }
+
+/* Next button */
+.next-btn {
+  width: 100%; padding: 14px;
+  border: none; border-radius: 8px;
+  background: #1e293b; color: #fff;
+  font-size: 16px; font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+}
+.next-btn:hover:not(:disabled) { background: #0f172a; }
+.next-btn:disabled {
+  background: #e5e7eb; color: #9ca3af; cursor: not-allowed;
+}
+
+/* Copyright */
+.copyright {
+  margin-top: auto; padding-top: 24px;
+  font-size: 12px; color: #9ca3af; text-align: center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .modal-card { flex-direction: column; max-height: 90vh; overflow-y: auto; }
+  .modal-left { width: 100%; min-height: auto; padding: 28px 24px 20px; }
+  .promo-illustration { min-height: 80px; }
+  .promo-icon.gift { font-size: 40px; width: 40px; height: 40px; }
+  .promo-icon.phone { font-size: 32px; width: 32px; height: 32px; }
+  .modal-right { padding: 28px 24px 20px; }
+}

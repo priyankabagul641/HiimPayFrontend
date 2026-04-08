@@ -1,0 +1,48 @@
+<div class="success-page" *ngIf="order">
+  <div class="success-container">
+    <!-- Hero -->
+    <div class="s-hero">
+      <div class="s-check">
+        <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" fill="none" stroke="#22c55e" stroke-width="2"/><path fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M14.1 27.2l7.1 7.2 16.7-16.8" class="check-path"/></svg>
+      </div>
+      <h1>Order Confirmed!</h1>
+      <p>Voucher codes will be sent to <strong>{{ order.guest.email }}</strong></p>
+    </div>
+
+    <!-- Card -->
+    <div class="s-card">
+      <div class="s-meta">
+        <div class="sm-item"><span class="sm-label">Order ID</span><span class="sm-val">{{ order.orderId }}</span></div>
+        <div class="sm-item"><span class="sm-label">Payment</span><span class="sm-val">{{ order.paymentId }}</span></div>
+        <div class="sm-item"><span class="sm-label">Date</span><span class="sm-val">{{ formattedDate }}</span></div>
+      </div>
+
+      <div class="s-items">
+        <h3>Items</h3>
+        <div class="si-row" *ngFor="let item of order.items">
+          <div class="si-img">
+            <img [src]="item.brandLogo" [alt]="item.brand"
+              (error)="$any($event.target).src='https://placehold.co/36/f1f5f9/6366f1?text='+item.brand" />
+          </div>
+          <div class="si-info"><span class="si-name">{{ item.name }}</span><span class="si-qty">x{{ item.quantity }}</span></div>
+          <span class="si-price">&#8377;{{ item.discountedPrice * item.quantity }}</span>
+        </div>
+      </div>
+
+      <div class="s-totals">
+        <div class="st-row" *ngIf="order.totalSavings > 0"><span>Savings</span><span class="st-save">&#8377;{{ order.totalSavings }}</span></div>
+        <div class="st-row total"><span>Total Paid</span><span>&#8377;{{ order.totalAmount }}</span></div>
+      </div>
+
+      <div class="s-actions">
+        <button class="sa-download" (click)="downloadInvoice()"><mat-icon>download</mat-icon> Download Invoice</button>
+        <button class="sa-shop" (click)="continueShopping()"><mat-icon>storefront</mat-icon> Continue Shopping</button>
+      </div>
+    </div>
+
+    <div class="s-note">
+      <mat-icon>info_outline</mat-icon>
+      <span>Please check your inbox (and spam folder) for the voucher codes. Delivery is usually instant.</span>
+    </div>
+  </div>
+</div>

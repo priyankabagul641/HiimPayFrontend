@@ -11,7 +11,7 @@
             <div class="col-sm-12 company-form-body">
                 <div class="row">
                     <div class="col-sm-6">
-                        <label for="" class="label-control">Company name</label>
+                        <label for="" class="label-control">Company name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" formControlName="client_Name"
                             placeholder="Enter company name">
                         <small class="p-0">
@@ -21,7 +21,7 @@
                             </p>
                         </small>
 
-                        <label for="" class="label-control mt-4">Contact person</label>
+                        <label for="" class="label-control mt-4">Contact person <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" formControlName="contact_Person"
                             placeholder="Enter contact person name">
                         <small class="p-0">
@@ -31,7 +31,7 @@
                             </p>
                         </small>
 
-                        <label for="" class="label-control mt-4">Industry</label>
+                        <label for="" class="label-control mt-4">Industry <span class="text-danger">*</span></label>
                         <select class="form-select" formControlName="industry">
                             <option value="" disabled>Please select</option>
                             <option value="RETAIL">RETAIL</option>
@@ -86,7 +86,7 @@
 
                     </div>
                     <div class="col-sm-6">
-                        <label for="" class="label-control mt-4 mt-sm-0">Company email ID</label>
+                        <label for="" class="label-control mt-4 mt-sm-0">Company email ID <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" formControlName="contact_Email"
                             placeholder="Enter email ID">
                         <small class="p-0">
@@ -108,25 +108,25 @@
                             </p>
                         </small>
 
-                        <label for="" class="label-control mt-4">Mobile number 1</label>
+                        <label for="" class="label-control mt-4">Primary mobile <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" formControlName="mobile_Number1"
-                            (keypress)="isNumber($event)" placeholder="Enter mobile number 1">
+                            (keypress)="isNumber($event)" placeholder="Enter primary mobile number">
                         <small class="p-0">
                             <p *ngIf="createForm.get('mobile_Number1')?.touched && createForm.get('mobile_Number1')?.hasError('required')"
                                 class="text-danger">
-                                Mobile number 1 is required
+                                Primary mobile is required
                             </p>
                             <p *ngIf="createForm.get('mobile_Number1')?.hasError('pattern')" class="text-danger">
-                                Invalid mobile number 1
+                                Invalid primary mobile number
                             </p>
                         </small>
 
-                        <label for="" class="label-control mt-4">Mobile number 2</label>
+                        <label for="" class="label-control mt-4">Secondary mobile</label>
                         <input type="text" class="form-control" formControlName="mobile_Number2"
-                            (keypress)="isNumber($event)" placeholder="Enter mobile number 2">
+                            (keypress)="isNumber($event)" placeholder="Enter secondary mobile number">
                         <small class="p-0">
                             <p *ngIf="createForm.get('mobile_Number2')?.hasError('pattern')" class="text-danger">
-                                Invalid mobile number 2
+                                Invalid secondary mobile number
                             </p>
                         </small>
 

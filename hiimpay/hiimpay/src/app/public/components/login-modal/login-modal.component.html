@@ -1,0 +1,47 @@
+<div class="modal-backdrop" *ngIf="visible" (click)="onBackdropClick($event)">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <!-- Close button -->
+    <button class="modal-close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <!-- Left promo panel -->
+    <div class="modal-left">
+      <h2>START YOUR JOURNEY TO SAVE BIG!</h2>
+      <p>Up to 40% discount on 250+ brand vouchers</p>
+      <div class="promo-illustration">
+        <div class="promo-circle c1"></div>
+        <div class="promo-circle c2"></div>
+        <mat-icon class="promo-icon gift">card_giftcard</mat-icon>
+        <mat-icon class="promo-icon phone">smartphone</mat-icon>
+        <mat-icon class="promo-icon savings">savings</mat-icon>
+      </div>
+    </div>
+
+    <!-- Right login panel -->
+    <div class="modal-right">
+      <h3>Log In/Sign Up</h3>
+
+      <div class="input-group">
+        <input type="tel" placeholder="Mobile Number" maxlength="10"
+          [(ngModel)]="mobileNumber"
+          (keydown.enter)="onNext()" />
+      </div>
+
+      <label class="terms-check">
+        <input type="checkbox" [(ngModel)]="agreedToTerms" />
+        <span>I agree to HiimPay's
+          <a href="javascript:void(0)">Terms of Use</a> and
+          <a href="javascript:void(0)">Privacy Policy</a>
+        </span>
+      </label>
+
+      <button class="next-btn" [disabled]="mobileNumber.length < 10 || !agreedToTerms"
+        (click)="onNext()">
+        Next
+      </button>
+
+      <p class="copyright">&copy; {{ currentYear }} HiimPay</p>
+    </div>
+  </div>
+</div>

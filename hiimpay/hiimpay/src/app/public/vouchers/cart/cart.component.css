@@ -1,0 +1,152 @@
+:host { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+.cart-page { background: #fafafa; min-height: 70vh; padding: 28px 0 64px; }
+.cart-container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+/* Empty */
+.cart-empty { text-align: center; padding: 80px 24px; }
+.ce-graphic mat-icon { font-size: 80px; width: 80px; height: 80px; color: #d1d5db; margin-bottom: 16px; }
+.cart-empty h2 { font-size: 22px; font-weight: 700; color: #334155; margin: 0 0 8px; }
+.cart-empty p { font-size: 15px; color: #9ca3af; margin: 0 0 24px; }
+.ce-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 32px; border-radius: 8px; border: none;
+  background: #1e293b; color: #fff; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+}
+.ce-btn:hover { background: #334155; }
+
+/* Grid */
+.cart-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+
+/* LEFT */
+.cart-left { min-width: 0; }
+
+/* Payment Details header */
+.pd-header {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #1e293b; color: #fff; padding: 14px 20px;
+  border-radius: 8px 8px 0 0; font-size: 15px; font-weight: 700;
+}
+.pd-method { display: flex; align-items: center; gap: 8px; }
+.pd-upi {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-size: 11px; font-weight: 800; background: #3b82f6; color: #fff;
+  letter-spacing: 0.5px;
+}
+
+/* Cart item cards */
+.ci-list { background: #fff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+.ci-card { padding: 20px; border-bottom: 1px solid #f1f5f9; }
+.ci-card:last-child { border-bottom: none; }
+
+.ci-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.ci-brand-area { display: flex; gap: 16px; align-items: flex-start; }
+.ci-logo {
+  width: 80px; height: 60px; border-radius: 8px;
+  border: 1px solid #f1f5f9; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px; flex-shrink: 0;
+}
+.ci-logo img { max-width: 60px; max-height: 40px; object-fit: contain; }
+.ci-info h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 2px; }
+.ci-type { display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+.ci-discount {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  color: #16a34a; padding: 2px 8px; border-radius: 3px;
+  background: #f0fdf4;
+}
+
+.ci-summary { text-align: right; }
+.ci-summary-row { display: flex; gap: 12px; justify-content: flex-end; align-items: baseline; margin-bottom: 4px; }
+.ci-save-label { font-size: 12px; color: #6b7280; }
+.ci-save-val { font-size: 14px; font-weight: 700; color: #1e293b; }
+.ci-pay-val { font-size: 16px; font-weight: 800; color: #1e293b; }
+
+.ci-bottom { display: flex; align-items: center; justify-content: space-between; }
+.ci-detail { display: flex; gap: 32px; }
+.ci-d-col { display: flex; flex-direction: column; gap: 2px; }
+.ci-d-label { font-size: 11px; color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+.ci-d-value { font-size: 14px; font-weight: 700; color: #374151; }
+
+.ci-qty { display: flex; align-items: center; gap: 0; }
+.ci-qty button {
+  width: 28px; height: 28px; border: 1px solid #e5e7eb; background: #fff;
+  cursor: pointer; font-size: 14px; font-weight: 600; color: #374151;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.ci-qty button:first-child { border-radius: 4px 0 0 4px; }
+.ci-qty button:last-child { border-radius: 0 4px 4px 0; }
+.ci-qty button:hover:not(:disabled) { background: #f3f4f6; }
+.ci-qty button:disabled { opacity: 0.3; cursor: not-allowed; }
+.ci-qty span {
+  min-width: 32px; height: 28px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #1e293b;
+}
+
+.ci-remove {
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none; cursor: pointer;
+  color: #ef4444; font-size: 12px; font-weight: 600;
+  font-family: 'Inter', sans-serif; padding: 6px 8px; border-radius: 4px;
+  transition: background 0.15s;
+}
+.ci-remove:hover { background: #fef2f2; }
+.ci-remove mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+/* RIGHT: Payment Summary */
+.ps-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  overflow: hidden; position: sticky; top: 100px;
+}
+.ps-header {
+  background: #1e293b; color: #fff; padding: 14px 18px;
+  font-size: 14px; font-weight: 800; letter-spacing: 0.5px;
+}
+.ps-voucher-row {
+  display: flex; justify-content: space-between; padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #374151;
+}
+.ps-val { font-weight: 800; color: #1e293b; }
+
+/* Payment table */
+.ps-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ps-table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.3px;
+  border-bottom: 1px solid #f1f5f9; background: #fafafa;
+}
+.ps-table td {
+  padding: 12px 14px; color: #374151; font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ps-table td mat-icon { font-size: 18px; width: 18px; height: 18px; vertical-align: middle; margin-right: 6px; color: #6b7280; }
+.ps-table .surcharge { color: #16a34a; font-weight: 700; }
+.ps-table .best { color: #16a34a; font-weight: 800; }
+.ps-table tr.highlight { background: #f0fdf4; }
+.upi-badge {
+  display: inline-block; padding: 1px 5px; border-radius: 3px;
+  font-size: 9px; font-weight: 800; background: #3b82f6; color: #fff;
+  letter-spacing: 0.5px; vertical-align: middle; margin-right: 6px;
+}
+
+.ps-pay-btn {
+  display: block; width: calc(100% - 36px); margin: 16px 18px;
+  padding: 13px; border: none; border-radius: 6px;
+  background: #1e293b; color: #fff; font-size: 14px; font-weight: 800;
+  cursor: pointer; transition: background 0.2s; font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;
+}
+.ps-pay-btn:hover { background: #334155; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) { .cart-grid { grid-template-columns: 1fr; } .ps-card { position: static; } }
+@media (max-width: 640px) {
+  .cart-container { padding: 0 16px; }
+  .ci-top { flex-direction: column; gap: 12px; }
+  .ci-summary { text-align: left; }
+  .ci-detail { gap: 16px; flex-wrap: wrap; }
+  .ci-bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+}

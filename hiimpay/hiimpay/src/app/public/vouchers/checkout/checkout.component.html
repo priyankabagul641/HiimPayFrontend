@@ -1,0 +1,90 @@
+<div class="checkout-page">
+  <div class="checkout-container">
+    <div class="ch-header">
+      <button class="ch-back" (click)="goBack()"><mat-icon>arrow_back_ios</mat-icon> Back to Cart</button>
+      <h1>Checkout</h1>
+      <p class="ch-subtitle">Complete your purchase in seconds &mdash; no account needed</p>
+    </div>
+
+    <div class="ch-grid">
+      <!-- Form -->
+      <div class="ch-form-col">
+        <div class="ch-form-card">
+          <div class="chf-head">
+            <div class="chf-step">1</div>
+            <div>
+              <h2>Your Details</h2>
+              <p>We will deliver vouchers to this email</p>
+            </div>
+          </div>
+
+          <form [formGroup]="guestForm" (ngSubmit)="onSubmit()">
+            <div class="field">
+              <label>Full Name</label>
+              <div class="field-box" [class.err]="guestForm.get('name')?.touched && guestForm.get('name')?.invalid">
+                <mat-icon>person_outline</mat-icon>
+                <input formControlName="name" placeholder="John Doe" />
+              </div>
+              <span class="field-err" *ngIf="guestForm.get('name')?.touched && guestForm.get('name')?.hasError('required')">Name is required</span>
+            </div>
+
+            <div class="field">
+              <label>Email Address</label>
+              <div class="field-box" [class.err]="guestForm.get('email')?.touched && guestForm.get('email')?.invalid">
+                <mat-icon>mail_outline</mat-icon>
+                <input formControlName="email" type="email" placeholder="you@email.com" />
+              </div>
+              <span class="field-err" *ngIf="guestForm.get('email')?.touched && guestForm.get('email')?.hasError('required')">Email is required</span>
+              <span class="field-err" *ngIf="guestForm.get('email')?.touched && guestForm.get('email')?.hasError('email')">Invalid email</span>
+            </div>
+
+            <div class="field">
+              <label>Mobile Number</label>
+              <div class="field-box" [class.err]="guestForm.get('mobile')?.touched && guestForm.get('mobile')?.invalid">
+                <mat-icon>phone_android</mat-icon>
+                <span class="cc">+91</span>
+                <input formControlName="mobile" type="tel" placeholder="9876543210" maxlength="10" />
+              </div>
+              <span class="field-err" *ngIf="guestForm.get('mobile')?.touched && guestForm.get('mobile')?.hasError('required')">Mobile is required</span>
+              <span class="field-err" *ngIf="guestForm.get('mobile')?.touched && guestForm.get('mobile')?.hasError('pattern')">Enter valid 10-digit number</span>
+            </div>
+
+            <div class="secure-note">
+              <mat-icon>verified_user</mat-icon>
+              <span>Secured checkout. Your data is encrypted and never shared.</span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="ch-summary-col">
+        <div class="ch-summary-card">
+          <h3>Order Summary</h3>
+          <div class="chs-items">
+            <div class="chs-item" *ngFor="let item of cartItems">
+              <div class="chs-item-img">
+                <img [src]="item.brandLogo" [alt]="item.brand"
+                  (error)="$any($event.target).src='https://placehold.co/36/f1f5f9/6366f1?text='+item.brand" />
+              </div>
+              <div class="chs-item-info">
+                <span class="chs-name">{{ item.name }}</span>
+                <span class="chs-qty">&#8377;{{ item.denomination }} x {{ item.quantity }}</span>
+              </div>
+              <span class="chs-price">&#8377;{{ item.discountedPrice * item.quantity }}</span>
+            </div>
+          </div>
+          <div class="chs-totals">
+            <div class="chs-row"><span>Subtotal</span><span>&#8377;{{ total + totalSavings }}</span></div>
+            <div class="chs-row save" *ngIf="totalSavings > 0"><span>Discount</span><span>- &#8377;{{ totalSavings }}</span></div>
+            <div class="chs-row total"><span>Total</span><span>&#8377;{{ total }}</span></div>
+          </div>
+          <button class="pay-btn" (click)="onSubmit()" [disabled]="processing">
+            <span *ngIf="!processing"><mat-icon>lock</mat-icon> Pay &#8377;{{ total }}</span>
+            <span *ngIf="processing" class="spin-wrap"><span class="spin"></span> Processing...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

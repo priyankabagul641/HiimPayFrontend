@@ -1,0 +1,157 @@
+:host { display: block; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; position: sticky; top: 0; z-index: 1000; }
+
+/* Top bar */
+.header-top { background: #fafbfc; border-bottom: 1px solid #eef0f3; }
+.ht-inner { margin: 0; padding: 0 48px; display: flex; justify-content: flex-end; }
+.ht-links { display: flex; gap: 28px; }
+.ht-links a {
+  font-size: 12.5px; color: #6b7280; text-decoration: none; padding: 9px 0;
+  font-weight: 500; transition: color 0.2s; letter-spacing: 0.1px;
+}
+.ht-links a:hover { color: #7c3aed; }
+
+/* Main row */
+.header-main { background: #fff; border-bottom: 1px solid #eef0f3; }
+.hm-inner {
+  max-width: 1600px; margin: 0 auto; padding: 16px 48px;
+  display: flex; align-items: center; gap: 40px;
+}
+.brand { text-decoration: none; display: flex; align-items: center; flex-shrink: 0; }
+.brand-name {
+  font-size: 28px; font-weight: 800; color: #1e1b4b;
+  letter-spacing: -0.8px; font-family: 'Inter', sans-serif;
+}
+.brand-accent { color: #7c3aed; }
+
+/* Search — wide, centered, rounded */
+.header-search {
+  flex: 1; max-width: 720px;
+  display: flex; align-items: center; gap: 12px;
+  background: #f5f6f8; border: 1.5px solid #e5e7eb;
+  border-radius: 50px; padding: 0 22px; height: 48px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.header-search:focus-within {
+  border-color: #a78bfa; background: #fff;
+  box-shadow: 0 0 0 4px rgba(124,58,237,0.07), 0 4px 16px rgba(124,58,237,0.06);
+}
+.hs-icon { color: #9ca3af; font-size: 22px; width: 22px; height: 22px; flex-shrink: 0; }
+.header-search input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 15px; color: #1e293b; padding: 0; font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+.header-search input::placeholder { color: #9ca3af; font-weight: 400; }
+
+/* Actions — better spacing */
+.header-actions { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+.ha-cart {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: #374151; font-size: 14px; font-weight: 600;
+  position: relative; padding: 8px 14px; border-radius: 10px;
+  transition: all 0.2s;
+}
+.ha-cart:hover { background: #f5f3ff; color: #7c3aed; }
+.ha-cart mat-icon { font-size: 24px; width: 24px; height: 24px; }
+.cart-badge {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 20px; height: 20px; border-radius: 10px;
+  background: #7c3aed; color: #fff;
+  font-size: 10.5px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px; box-shadow: 0 2px 6px rgba(124,58,237,0.35);
+  animation: badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes badgePop { from { transform: scale(0); } to { transform: scale(1); } }
+.ha-signin {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 26px; border-radius: 50px;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  color: #fff; text-decoration: none; font-size: 14px; font-weight: 700;
+  transition: all 0.25s; letter-spacing: 0.2px;
+  box-shadow: 0 4px 14px rgba(124,58,237,0.25);
+}
+.ha-signin:hover {
+  background: linear-gradient(135deg, #6d28d9, #4f46e5); color: #fff;
+  transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.35);
+}
+.ha-signin mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+/* Category nav — proper spacing, icon highlight */
+.header-cat { background: #fff; border-bottom: 2px solid #f1f3f5; }
+.hc-inner { margin: 0; padding: 0 48px; display: flex; justify-content: center; }
+.hc-nav {
+  display: flex; gap: 0; justify-content: center;
+  overflow-x: auto; scrollbar-width: none;
+}
+.hc-nav::-webkit-scrollbar { display: none; }
+.hc-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 14px 36px 12px; text-decoration: none;
+  font-size: 12.5px; font-weight: 600; color: #6b7280;
+  white-space: nowrap; border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.hc-item mat-icon {
+  font-size: 24px; width: 24px; height: 24px; color: #9ca3af;
+  transition: all 0.25s;
+}
+.hc-item:hover { color: #7c3aed; }
+.hc-item:hover mat-icon { color: #7c3aed; transform: translateY(-2px); }
+.hc-item.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+.hc-item.active mat-icon { color: #7c3aed; }
+
+/* Hamburger */
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 10px; flex-direction: column; gap: 5px; }
+.hamburger span { display: block; width: 22px; height: 2.5px; background: #374151; border-radius: 2px; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+/* Mobile */
+.mobile-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 998; opacity: 0; transition: opacity 0.3s;
+}
+.mobile-overlay.show { display: block; opacity: 1; }
+.mobile-nav {
+  display: none; position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+  background: #fff; z-index: 999; padding: 28px 20px;
+  flex-direction: column; gap: 4px;
+  transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.1);
+}
+.mobile-nav.show { right: 0; }
+.mobile-nav a {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 12px;
+  text-decoration: none; font-size: 15px; font-weight: 600; color: #374151;
+  transition: all 0.2s;
+}
+.mobile-nav a:hover { background: #f5f3ff; color: #7c3aed; }
+.mobile-nav a mat-icon { font-size: 22px; width: 22px; height: 22px; color: #6b7280; }
+.mob-badge {
+  margin-left: auto; min-width: 24px; height: 24px; border-radius: 12px;
+  background: #7c3aed; color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; padding: 0 7px;
+}
+
+/* Scrolled — compact sticky */
+.store-header.scrolled .header-top { display: none; }
+.store-header.scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+@media (max-width: 900px) {
+  .ht-links { display: none; }
+  .header-search { display: none; }
+  .ha-signin { display: none; }
+  .ha-label { display: none; }
+  .hamburger { display: flex; }
+  .mobile-nav { display: flex; }
+  .hc-item { padding: 10px 16px; font-size: 11px; }
+  .hc-item mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  .hm-inner { padding: 12px 16px; gap: 16px; }
+  .hc-inner { padding: 0 16px; }
+}

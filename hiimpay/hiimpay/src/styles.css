@@ -4,7 +4,7 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap'); */
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 html, body { height: 100%; 
-font-family:Arial;
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 #toast-container > div {

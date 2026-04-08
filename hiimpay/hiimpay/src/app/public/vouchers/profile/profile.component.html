@@ -1,0 +1,116 @@
+<div class="profile-page">
+  <div class="profile-container">
+
+    <!-- Tab nav -->
+    <div class="tab-nav">
+      <button *ngFor="let tab of tabs"
+        class="tab-item" [class.active]="activeTab === tab.id"
+        (click)="activeTab = tab.id">
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'profile'">
+      <div class="profile-grid">
+
+        <!-- Left: Details -->
+        <div class="profile-details">
+          <h2>Profile Details</h2>
+
+          <!-- View mode -->
+          <div class="pd-table" *ngIf="!isEditing">
+            <div class="pd-row">
+              <span class="pd-label">Name</span>
+              <span class="pd-value">{{ profile.name }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">Mobile</span>
+              <span class="pd-value">{{ profile.mobile }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">E-mail</span>
+              <span class="pd-value">{{ profile.email }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">State</span>
+              <span class="pd-value">{{ profile.state }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">City</span>
+              <span class="pd-value">{{ profile.city }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">DOB</span>
+              <span class="pd-value">{{ profile.dob }}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">Password</span>
+              <span class="pd-value">{{ profile.password }}</span>
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <div class="pd-edit" *ngIf="isEditing">
+            <div class="pe-row">
+              <label>Name</label>
+              <input type="text" [(ngModel)]="editForm.name" />
+            </div>
+            <div class="pe-row">
+              <label>Mobile</label>
+              <input type="text" [(ngModel)]="editForm.mobile" />
+            </div>
+            <div class="pe-row">
+              <label>E-mail</label>
+              <input type="email" [(ngModel)]="editForm.email" />
+            </div>
+            <div class="pe-row">
+              <label>State</label>
+              <input type="text" [(ngModel)]="editForm.state" />
+            </div>
+            <div class="pe-row">
+              <label>City</label>
+              <input type="text" [(ngModel)]="editForm.city" />
+            </div>
+            <div class="pe-row">
+              <label>DOB</label>
+              <input type="date" [(ngModel)]="editForm.dob" />
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="pd-actions">
+            <button class="pd-btn primary" *ngIf="!isEditing" (click)="startEdit()">EDIT</button>
+            <button class="pd-btn primary" *ngIf="isEditing" (click)="saveProfile()">SAVE</button>
+            <button class="pd-btn secondary" *ngIf="isEditing" (click)="cancelEdit()">CANCEL</button>
+            <button class="pd-btn outline" *ngIf="!isEditing">CHANGE PASSWORD</button>
+            <button class="pd-btn danger" *ngIf="!isEditing">DELETE ACCOUNT</button>
+          </div>
+        </div>
+
+        <!-- Right: Illustration -->
+        <div class="profile-illustration">
+          <div class="pi-graphic">
+            <mat-icon>account_circle</mat-icon>
+            <div class="pi-circle c1"></div>
+            <div class="pi-circle c2"></div>
+            <div class="pi-decor">
+              <mat-icon>credit_card</mat-icon>
+              <mat-icon>card_giftcard</mat-icon>
+              <mat-icon>shopping_bag</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other tabs placeholder -->
+    <div class="tab-content placeholder-tab" *ngIf="activeTab !== 'profile'">
+      <div class="pt-inner">
+        <mat-icon>construction</mat-icon>
+        <h3>{{ activeTab === 'transactions' ? 'My Transactions' : activeTab === 'epay' ? 'e-Pay Transactions' : activeTab === 'autopay' ? 'AutoPay' : 'Helpdesk' }}</h3>
+        <p>This section is coming soon.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<header class="store-header" [class.scrolled]="scrolled">
+  <!-- Top bar -->
+  <div class="header-top">
+    <div class="ht-inner">
+      <div class="ht-links">
+        <a href="#">Help Center</a>
+        <a href="#">Track Order</a>
+        <a href="#">How to Redeem?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main row -->
+  <div class="header-main">
+    <div class="hm-inner">
+      <a routerLink="/store" class="brand" (click)="closeMobileMenu()">
+        <span class="brand-name">Hiim<span class="brand-accent">Pay</span></span>
+      </a>
+
+      <div class="header-search">
+        <mat-icon class="hs-icon">search</mat-icon>
+        <input type="text" placeholder="Search for Gift Cards" />
+      </div>
+
+      <div class="header-actions">
+        <a routerLink="/store/cart" class="ha-cart">
+          <mat-icon>shopping_cart</mat-icon>
+          <span class="ha-label">Cart</span>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+        </a>
+        <a routerLink="/auth/login" class="ha-signin">
+          Sign In <mat-icon>account_circle</mat-icon>
+        </a>
+      </div>
+
+      <button class="hamburger" (click)="toggleMobileMenu()" [class.open]="mobileMenuOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category nav row -->
+  <div class="header-cat">
+    <div class="hc-inner">
+      <nav class="hc-nav">
+        <a routerLink="/store/vouchers" class="hc-item"
+          [class.active]="activeCategory === 'All'" (click)="activeCategory = 'All'">
+          <mat-icon>card_giftcard</mat-icon><span>Gift Card</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Shopping'}" class="hc-item"
+          [class.active]="activeCategory === 'Shopping'" (click)="activeCategory = 'Shopping'">
+          <mat-icon>shopping_bag</mat-icon><span>Shopping</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Food & Dining'}" class="hc-item"
+          [class.active]="activeCategory === 'Food & Dining'" (click)="activeCategory = 'Food & Dining'">
+          <mat-icon>restaurant</mat-icon><span>Dining</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Travel'}" class="hc-item"
+          [class.active]="activeCategory === 'Travel'" (click)="activeCategory = 'Travel'">
+          <mat-icon>flight</mat-icon><span>Travel</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Electronics'}" class="hc-item"
+          [class.active]="activeCategory === 'Electronics'" (click)="activeCategory = 'Electronics'">
+          <mat-icon>devices</mat-icon><span>Electronics</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Entertainment'}" class="hc-item"
+          [class.active]="activeCategory === 'Entertainment'" (click)="activeCategory = 'Entertainment'">
+          <mat-icon>movie</mat-icon><span>Entertainment</span>
+        </a>
+        <a routerLink="/store/vouchers" [queryParams]="{category: 'Health & Wellness'}" class="hc-item"
+          [class.active]="activeCategory === 'Health & Wellness'" (click)="activeCategory = 'Health & Wellness'">
+          <mat-icon>favorite</mat-icon><span>Wellness</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Mobile nav -->
+  <div class="mobile-overlay" [class.show]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+  <nav class="mobile-nav" [class.show]="mobileMenuOpen">
+    <a routerLink="/store" (click)="closeMobileMenu()"><mat-icon>home</mat-icon> Home</a>
+    <a routerLink="/store/vouchers" (click)="closeMobileMenu()"><mat-icon>card_giftcard</mat-icon> Gift Cards</a>
+    <a routerLink="/store/vouchers" [queryParams]="{category: 'Shopping'}" (click)="closeMobileMenu()"><mat-icon>shopping_bag</mat-icon> Shopping</a>
+    <a routerLink="/store/vouchers" [queryParams]="{category: 'Food & Dining'}" (click)="closeMobileMenu()"><mat-icon>restaurant</mat-icon> Food & Dining</a>
+    <a routerLink="/store/vouchers" [queryParams]="{category: 'Travel'}" (click)="closeMobileMenu()"><mat-icon>flight</mat-icon> Travel</a>
+    <a routerLink="/store/vouchers" [queryParams]="{category: 'Entertainment'}" (click)="closeMobileMenu()"><mat-icon>movie</mat-icon> Entertainment</a>
+    <a routerLink="/store/cart" (click)="closeMobileMenu()">
+      <mat-icon>shopping_cart</mat-icon> Cart
+      <span class="mob-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+    </a>
+  </nav>
+</header>

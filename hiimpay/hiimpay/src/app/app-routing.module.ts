@@ -6,6 +6,7 @@ import { AuthguardService } from './auth/guards/authguard.service';
 const routes: Routes = [
   { path: '', redirectTo: '/clientEmployee/login', pathMatch: 'full' },
   { path: 'admin-login', redirectTo: '/auth/auth', pathMatch: 'full' },
+  { path: 'store', loadChildren: () => import('./public/public.module').then(m => m.PublicModule) },
   { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
   { path: 'superadmin', loadChildren: () => import('./superadmin/superadmin.module').then(m => m.SuperadminModule),canActivate:[AuthguardService] },
   { path: 'cpoc/:id', loadChildren: () => import('./superadmin/project/project.module').then(m => m.ProjectModule),canActivate:[AuthguardService] },

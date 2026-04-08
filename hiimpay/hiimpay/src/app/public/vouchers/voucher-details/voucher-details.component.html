@@ -1,0 +1,167 @@
+<div class="detail-page" *ngIf="!loading && voucher">
+
+  <!-- ===== PRODUCT HERO ===== -->
+  <section class="product-hero">
+    <div class="hero-inner">
+      <!-- Left: Brand image -->
+      <div class="hero-brand">
+        <div class="hero-badge">
+          <mat-icon>verified</mat-icon> Redeemable Outlet
+        </div>
+        <div class="hero-logo-box">
+          <img [src]="voucher.brandLogo" [alt]="voucher.brand"
+            (error)="$any($event.target).src='https://placehold.co/280x160/ffffff/334155?text='+voucher.brand" />
+        </div>
+      </div>
+
+      <!-- Center: Info -->
+      <div class="hero-info">
+        <h1>{{ voucher.brand }}</h1>
+        <p class="hero-subtitle">{{ voucher.name }} (Instant Vouchers)</p>
+        <div class="hero-desc-wrap">
+          <button class="hero-nav" (click)="goBack()"><mat-icon>chevron_left</mat-icon></button>
+          <p class="hero-desc">{{ voucher.description }}</p>
+          <button class="hero-nav"><mat-icon>chevron_right</mat-icon></button>
+        </div>
+        <a class="hero-tc">T&C*</a>
+      </div>
+
+      <!-- Right: Quick links -->
+      <div class="hero-links">
+        <button class="hl-item" (click)="activeTab='terms'">
+          <mat-icon>description</mat-icon>
+          <span>INSTRUCTIONS</span>
+        </button>
+        <button class="hl-item" *ngIf="voucher.redemptionType !== 'ONLINE'">
+          <mat-icon>location_on</mat-icon>
+          <span>STORE LOCATOR</span>
+        </button>
+        <button class="hl-item" (click)="activeTab='redeem'">
+          <mat-icon>help_outline</mat-icon>
+          <span>HOW TO REDEEM?</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COUPON CODE ===== -->
+  <section class="coupon-section">
+    <div class="coupon-inner">
+      <div class="coupon-input-wrap">
+        <mat-icon>confirmation_number</mat-icon>
+        <input type="text" placeholder="Enter Code" [(ngModel)]="couponCode" />
+      </div>
+      <button class="coupon-apply" (click)="applyCoupon()">APPLY</button>
+    </div>
+  </section>
+
+  <!-- ===== MAIN CONTENT: Payment + Denominations | Cart ===== -->
+  <section class="main-section">
+    <div class="main-inner">
+      <div class="main-left">
+
+        <!-- Payment method selector -->
+        <div class="payment-methods">
+          <span class="pm-label">I will pay using</span>
+          <div class="pm-options">
+            <button class="pm-opt" [class.active]="selectedPayment === 'upi'" (click)="selectedPayment='upi'">
+              <span class="pm-icon upi">UPI</span> UPI
+            </button>
+            <button class="pm-opt" [class.active]="selectedPayment === 'cc'" (click)="selectedPayment='cc'">
+              <mat-icon>credit_card</mat-icon> Credit Card
+            </button>
+            <button class="pm-opt" [class.active]="selectedPayment === 'epay'" (click)="selectedPayment='epay'">
+              <mat-icon>account_balance_wallet</mat-icon> e-Pay
+            </button>
+            <button class="pm-opt" [class.active]="selectedPayment === 'dc'" (click)="selectedPayment='dc'">
+              <mat-icon>payment</mat-icon> Debit Card
+            </button>
+          </div>
+        </div>
+
+        <!-- Denomination cards -->
+        <div class="denom-cards">
+          <div class="denom-card" *ngFor="let d of voucher.denomination"
+            [class.active]="selectedDenomination === d">
+            <div class="dc-price">&#8377; {{ d }}</div>
+            <div class="dc-pay">
+              <span class="dc-label">YOU PAY(&#8377;)</span>
+              <span class="dc-amount">{{ getEffectivePrice(d) }}</span>
+            </div>
+            <button class="dc-add" (click)="onAddToCart(d)">ADD</button>
+          </div>
+        </div>
+
+        <!-- T&C / How to redeem (collapsible) -->
+        <div class="info-section" *ngIf="activeTab">
+          <div class="info-card">
+            <div class="info-header">
+              <h3>{{ activeTab === 'terms' ? 'Terms & Conditions' : 'How to Redeem' }}</h3>
+              <button class="info-close" (click)="activeTab=''"><mat-icon>close</mat-icon></button>
+            </div>
+            <p class="pre-wrap">{{ activeTab === 'terms' ? voucher.termsAndConditions : voucher.howToRedeem }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Cart sidebar -->
+      <aside class="cart-sidebar">
+        <div class="cs-header">CART</div>
+        <div class="cs-empty" *ngIf="cartItems.length === 0">
+          <mat-icon>shopping_cart</mat-icon>
+          <span>Your cart is empty</span>
+        </div>
+        <div class="cs-items" *ngIf="cartItems.length > 0">
+          <div class="cs-item" *ngFor="let item of cartItems">
+            <div class="csi-header">
+              <span class="csi-brand">{{ item.brand }}</span>
+              <button class="csi-remove" (click)="removeCartItem(item)"><mat-icon>delete</mat-icon></button>
+            </div>
+            <div class="csi-row">
+              <span>&#8377; {{ item.price }}</span>
+              <div class="csi-qty">
+                <button (click)="decrementCartItem(item)"><mat-icon>remove</mat-icon></button>
+                <span>{{ item.quantity }}</span>
+                <button (click)="incrementCartItem(item)"><mat-icon>add</mat-icon></button>
+              </div>
+              <span class="csi-total">&#8377; {{ item.price * item.quantity }}</span>
+            </div>
+            <div class="csi-discount" *ngIf="item.discountPercent > 0">
+              {{ item.discountPercent }}% Discount
+              <span>&#8377; {{ (item.price - item.discountedPrice) * item.quantity }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="cs-footer" *ngIf="cartItems.length > 0">
+          <div class="csf-row total-val">
+            <span>Total Value</span>
+            <span>&#8377; {{ cartTotalValue }}</span>
+          </div>
+          <div class="csf-row save-row" *ngIf="cartTotalSavings > 0">
+            <span>You Save</span>
+            <span>&#8377; {{ cartTotalSavings }}</span>
+          </div>
+          <div class="csf-row pay-row">
+            <span>You Pay</span>
+            <span>&#8377; {{ cartTotalPay }}</span>
+          </div>
+          <button class="cs-checkout" (click)="goToCart()">Go to Cart</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<!-- Loading skeleton -->
+<div class="detail-page loading-page" *ngIf="loading">
+  <section class="product-hero">
+    <div class="hero-inner">
+      <div class="hero-brand"><div class="skel" style="width:240px;height:150px;border-radius:12px"></div></div>
+      <div class="hero-info"><div class="skel" style="width:60%;height:28px;margin-bottom:12px"></div><div class="skel" style="width:90%;height:60px"></div></div>
+      <div class="hero-links"><div class="skel" style="width:100%;height:120px;border-radius:8px"></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- Login Modal -->
+<app-login-modal [visible]="showLoginModal" (closed)="showLoginModal = false"></app-login-modal>

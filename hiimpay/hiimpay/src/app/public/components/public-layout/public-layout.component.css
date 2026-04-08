@@ -1,0 +1,5 @@
+:host { display: block; }
+.public-main {
+  min-height: calc(100vh - 68px);
+  background: #f8fafc;
+}

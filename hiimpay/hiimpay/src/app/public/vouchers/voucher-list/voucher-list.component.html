@@ -1,0 +1,415 @@
+<div class="store-page">
+  <!-- ===== BANNER CAROUSEL (shown when no category selected) ===== -->
+  <section class="banner-section" *ngIf="selectedCategory === 'All'">
+    <div class="banner-inner">
+      <div class="banner-slider" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+        <div class="banner-slide" *ngFor="let slide of bannerSlides">
+          <div class="slide-content" [style.background]="slide.gradient">
+            <div class="slide-decor">
+              <div class="decor-circle c1"></div>
+              <div class="decor-circle c2"></div>
+              <div class="decor-circle c3"></div>
+            </div>
+            <div class="slide-text">
+              <h2>{{ slide.title }}</h2>
+              <p>{{ slide.subtitle }}</p>
+              <button class="slide-cta" (click)="onSearchChange(slide.searchTerm)">Shop Now</button>
+            </div>
+            <div class="slide-brand-cards">
+              <div class="brand-float-card" *ngFor="let card of slide.brandCards; let i = index"
+                [class]="'bfc bfc-' + i"
+                [style.--rotate]="card.rotate">
+                <img [src]="card.logo" [alt]="card.name" loading="lazy"
+                  (error)="$any($event.target).parentElement.style.display='none'" />
+                <span class="bfc-name">{{ card.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="banner-arrow left" (click)="prevSlide()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button class="banner-arrow right" (click)="nextSlide()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <div class="banner-dots">
+        <span *ngFor="let slide of bannerSlides; let i = index"
+          class="dot" [class.active]="i === currentSlide"
+          (click)="goToSlide(i)"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORY HERO BANNER (shown when a category is selected) ===== -->
+  <section class="category-hero" *ngIf="selectedCategory !== 'All'"
+    [style.background-image]="'url(' + getCategoryBanner(selectedCategory) + ')'">
+    <div class="category-hero-overlay"></div>
+    <div class="category-hero-content">
+      <h1>{{ selectedCategory }}</h1>
+    </div>
+  </section>
+
+  <!-- ===== BREADCRUMB + SORT BAR (Xoxoday style) ===== -->
+  <section class="page-heading">
+    <nav class="breadcrumb">
+      <a routerLink="/store">Home</a>
+      <span class="sep">/</span>
+      <a *ngIf="selectedCategory !== 'All'" (click)="onCategoryChange('All')" class="breadcrumb-link">Gift Card</a>
+      <span *ngIf="selectedCategory !== 'All'" class="sep">/</span>
+      <span class="current">{{ selectedCategory === 'All' ? 'Gift Card' : selectedCategory }}</span>
+    </nav>
+    <div class="sort-bar">
+    </div>
+  </section>
+
+  <!-- ===== HOMEPAGE SECTIONS (only on "All" / home view) ===== -->
+  <div class="home-sections" *ngIf="selectedCategory === 'All' && !loading">
+
+    <!-- FEATURED BRANDS — 2-row scrollable carousel -->
+    <section class="hs-section featured-section">
+      <div class="hs-inner">
+        <div class="hs-main-col">
+          <h2 class="hs-title">Featured brands</h2>
+          <div class="featured-carousel">
+            <div class="fc-track" [style.transform]="'translateX(-' + (featuredPage * 100) + '%)'">
+              <div class="fc-page" *ngFor="let page of featuredPages">
+                <div class="fc-row" *ngFor="let row of page">
+                  <div class="fc-card" *ngFor="let v of row" (click)="viewDetails(v)">
+                    <div class="fc-logo">
+                      <img [src]="v.brandLogo" [alt]="v.brand" loading="lazy"
+                        (error)="$any($event.target).src='https://placehold.co/160x80/f8f9fa/334155?text='+v.brand" />
+                    </div>
+                    <span class="fc-brand">{{ v.brand | uppercase }}</span>
+                    <span class="fc-savings" *ngIf="v.discountPercent > 0">Savings {{ v.discountPercent }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="fc-arrow fc-left" (click)="prevFeatured()" *ngIf="featuredPage > 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button class="fc-arrow fc-right" (click)="nextFeatured()" *ngIf="featuredPage < featuredPages.length - 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+        <!-- Right sidebar: Bank Offers & Occasion Cards -->
+        <aside class="hs-sidebar">
+          <div class="bank-offers">
+            <h4>Bank Offers &amp; Benefits</h4>
+            <div class="bo-card">
+              <div class="bo-logo sbi"></div>
+              <div class="bo-info">
+                <strong>SBI Card Offer</strong>
+                <span>Upto 30% Off + 6% SV Coins on 01+ Brands</span>
+              </div>
+            </div>
+            <div class="bo-card">
+              <div class="bo-logo yesbank"></div>
+              <div class="bo-info">
+                <strong>Yes Bank Offer</strong>
+                <span>Upto 50% Off on Gift Vouchers</span>
+              </div>
+            </div>
+          </div>
+          <div class="occasion-card">
+            <select class="occasion-select">
+              <option>Birthday Gift Cards</option>
+              <option>Anniversary Gift Cards</option>
+              <option>Wedding Gift Cards</option>
+              <option>Thank You Gift Cards</option>
+            </select>
+            <div class="occasion-img">
+              <div class="occasion-placeholder">
+                <mat-icon>cake</mat-icon>
+                <span>Happy Birthday!</span>
+              </div>
+            </div>
+            <a class="occasion-explore" routerLink="/store/vouchers" [queryParams]="{search: 'gift'}">EXPLORE NOW</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PROMO BANNERS — two side-by-side -->
+    <section class="hs-section promo-banners">
+      <div class="pb-row">
+        <div class="pb-card pb-travel" (click)="onCategoryChange('Travel')">
+          <div class="pb-content">
+            <span class="pb-sub">Explore the World</span>
+            <strong>Travel Vouchers</strong>
+          </div>
+          <button class="pb-btn">Visit Now</button>
+        </div>
+        <div class="pb-card pb-bills" (click)="onSearchChange('utility')">
+          <div class="pb-content">
+            <mat-icon class="pb-icon">receipt_long</mat-icon>
+            <div>
+              <span class="pb-sub">Pay Smarter</span>
+              <strong>Track Your Bills</strong>
+            </div>
+          </div>
+          <button class="pb-btn">Visit Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLAT DISCOUNT SECTION -->
+    <section class="hs-section flat-discount-section">
+      <div class="fd-row">
+        <div class="fd-main">
+          <p class="fd-sub">No Strings attached</p>
+          <h2 class="fd-title">Flat Discount. For sure!</h2>
+          <div class="fd-pills">
+            <button class="fd-pill" [class.active]="flatDiscountFilter === 'all'"
+              (click)="flatDiscountFilter = 'all'">All</button>
+            <button class="fd-pill" [class.active]="flatDiscountFilter === '1-5'"
+              (click)="flatDiscountFilter = '1-5'">1% - 5%</button>
+            <button class="fd-pill" [class.active]="flatDiscountFilter === '6-10'"
+              (click)="flatDiscountFilter = '6-10'">6% - 10%</button>
+            <button class="fd-pill" [class.active]="flatDiscountFilter === '11-20'"
+              (click)="flatDiscountFilter = '11-20'">11% - 20%</button>
+            <button class="fd-pill" [class.active]="flatDiscountFilter === '21-100'"
+              (click)="flatDiscountFilter = '21-100'">21% + Above</button>
+          </div>
+          <div class="fd-grid">
+            <div class="fc-card" *ngFor="let v of flatDiscountVouchers" (click)="viewDetails(v)">
+              <div class="fc-logo">
+                <img [src]="v.brandLogo" [alt]="v.brand" loading="lazy"
+                  (error)="$any($event.target).src='https://placehold.co/160x80/f8f9fa/334155?text='+v.brand" />
+              </div>
+              <span class="fc-brand">{{ v.brand | uppercase }}</span>
+              <span class="fc-savings" *ngIf="v.discountPercent > 0">Savings {{ v.discountPercent }}%</span>
+            </div>
+          </div>
+          <button class="fd-viewall" (click)="onDiscountChange(flatDiscountFilter === 'all' ? '1-5' : flatDiscountFilter)">VIEW ALL</button>
+        </div>
+        <aside class="fd-aside">
+          <div class="fda-block">
+            <p class="fda-sub">Get something extra</p>
+            <h3>Free Vouchers. Every time!</h3>
+            <div class="fda-promo">
+              <mat-icon>card_giftcard</mat-icon>
+              <span>Bonus vouchers on every purchase</span>
+            </div>
+            <button class="fda-viewall" routerLink="/store/vouchers">VIEW ALL</button>
+          </div>
+          <div class="fda-block">
+            <p class="fda-sub">Get something extra</p>
+            <h3>Free Promocode. Every time!</h3>
+            <div class="fda-brands">
+              <div class="fda-brand-card" *ngFor="let v of vouchers | slice:0:2" (click)="viewDetails(v)">
+                <img [src]="v.brandLogo" [alt]="v.brand" loading="lazy"
+                  (error)="$any($event.target).src='https://placehold.co/100x50/f8f9fa/334155?text='+v.brand" />
+                <span class="fda-offer">100 off on 1500 order</span>
+              </div>
+            </div>
+            <button class="fda-viewall" routerLink="/store/vouchers">VIEW ALL</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== 3-COLUMN SHOWCASE (Xoxoday style) ===== -->
+    <section class="hs-section showcase-section">
+      <div class="showcase-grid">
+        <!-- Dining / Experiences -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">DINING</h2>
+          <p class="showcase-sub">Discover the Best Restaurants</p>
+          <div class="showcase-items">
+            <ng-container *ngFor="let v of (filteredVouchers | slice:0:4); let i = index">
+              <a class="showcase-card" [routerLink]="['/store/vouchers', v.id]" *ngIf="v.category === 'Food & Dining' || i < 4">
+                <div class="showcase-img">
+                  <img [src]="v.brandLogo" [alt]="v.brand" />
+                </div>
+                <p class="showcase-name">{{ v.brand }}</p>
+                <p class="showcase-price">Starts From <strong>INR {{ v.denomination[0] | number }}</strong></p>
+              </a>
+            </ng-container>
+          </div>
+          <a class="showcase-explore" routerLink="/store/vouchers" [queryParams]="{category: 'Food & Dining'}">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        <!-- Entertainment / Experiences -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">EXPERIENCES</h2>
+          <p class="showcase-sub">Discover Must-Try Activities</p>
+          <div class="showcase-items">
+            <ng-container *ngFor="let v of (filteredVouchers | slice:4:8); let i = index">
+              <a class="showcase-card" [routerLink]="['/store/vouchers', v.id]">
+                <div class="showcase-img">
+                  <img [src]="v.brandLogo" [alt]="v.brand" />
+                </div>
+                <p class="showcase-name">{{ v.brand }}</p>
+                <p class="showcase-price">Starts From <strong>INR {{ v.denomination[0] | number }}</strong></p>
+              </a>
+            </ng-container>
+          </div>
+          <a class="showcase-explore" routerLink="/store/vouchers" [queryParams]="{category: 'Entertainment'}">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        <!-- Gift Cards -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">GIFT CARDS</h2>
+          <p class="showcase-sub">Must-Have Gift Cards This Season</p>
+          <div class="showcase-items">
+            <ng-container *ngFor="let v of (filteredVouchers | slice:8:12); let i = index">
+              <a class="showcase-card" [routerLink]="['/store/vouchers', v.id]">
+                <div class="showcase-img">
+                  <img [src]="v.brandLogo" [alt]="v.brand" />
+                </div>
+                <p class="showcase-name">{{ v.brand }}</p>
+                <p class="showcase-price">Starts From <strong>INR {{ v.denomination[0] | number }}</strong></p>
+              </a>
+            </ng-container>
+          </div>
+          <a class="showcase-explore" routerLink="/store/vouchers">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== MAIN CONTENT: FILTERS + GRID ===== -->
+  <section class="main-content">
+    <div class="main-inner">
+
+      <!-- ===== FILTER SIDEBAR (always visible on desktop, like Gyftr) ===== -->
+      <aside class="filter-sidebar" [class.mobile-open]="showFilterPanel">
+        <div class="fs-header">
+          <h3>Filters</h3>
+          <button class="fs-toggle" (click)="showFilterPanel = false">
+            <mat-icon>tune</mat-icon>
+          </button>
+        </div>
+
+        <!-- Search by brands -->
+        <div class="fs-search">
+          <mat-icon class="fs-search-icon">search</mat-icon>
+          <input type="text" placeholder="Search by brands"
+            [ngModel]="searchText" (ngModelChange)="onSearchChange($event)" />
+        </div>
+
+        <!-- Discounts -->
+        <div class="fs-group">
+          <h4>DISCOUNTS</h4>
+          <div class="fs-btn-grid">
+            <button *ngFor="let d of discountRanges"
+              class="fs-pill" [class.active]="selectedDiscount === d.value"
+              (click)="onDiscountChange(d.value)">
+              {{ d.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- BOGO -->
+        <div class="fs-group">
+          <h4>BOGO</h4>
+          <div class="fs-btn-grid two-col">
+            <button class="fs-pill" [class.active]="selectedBogo === 'yes'"
+              (click)="onBogoChange('yes')">Yes</button>
+            <button class="fs-pill" [class.active]="selectedBogo === 'no'"
+              (click)="onBogoChange('no')">No</button>
+          </div>
+        </div>
+
+        <!-- Brand Type -->
+        <div class="fs-group">
+          <h4>BRAND</h4>
+          <div class="fs-btn-grid">
+            <button class="fs-pill" [class.active]="selectedBrandType === 'online'"
+              (click)="onBrandTypeChange('online')">Online</button>
+            <button class="fs-pill" [class.active]="selectedBrandType === 'offline'"
+              (click)="onBrandTypeChange('offline')">Offline</button>
+          </div>
+          <button class="fs-pill full-width"
+            [class.active]="selectedBrandType === 'both'"
+            (click)="onBrandTypeChange('both')">Both</button>
+        </div>
+
+        <!-- Categories -->
+        <div class="fs-group">
+          <h4>CATEGORIES</h4>
+          <div class="fs-cat-list">
+            <a *ngFor="let cat of filterCategories"
+              class="fs-cat-link" [class.active]="selectedCategory === cat"
+              (click)="onCategoryChange(cat)">
+              {{ cat }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Clear All -->
+        <button class="fs-clear"
+          *ngIf="searchText || selectedCategory !== 'All' || selectedDiscount !== 'all' || selectedBogo !== 'all' || selectedBrandType !== 'all'"
+          (click)="clearFilters()">
+          Clear All Filters
+        </button>
+      </aside>
+
+      <!-- ===== VOUCHER GRID ===== -->
+      <div class="grid-area">
+        <!-- Skeleton Grid -->
+        <div class="v-grid" *ngIf="loading">
+          <div class="v-card skeleton-card" *ngFor="let s of skeletonItems">
+            <div class="sk-img"></div>
+            <div class="sk-body">
+              <div class="sk-line w60"></div>
+              <div class="sk-line w40"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voucher Grid -->
+        <div class="v-grid" *ngIf="!loading && filteredVouchers.length > 0">
+          <div class="v-card" *ngFor="let v of filteredVouchers; trackBy: trackByVoucherId"
+            (click)="viewDetails(v)">
+            <div class="vc-img">
+              <img [src]="v.brandLogo" [alt]="v.brand" loading="lazy"
+                (error)="$any($event.target).src='https://placehold.co/240x140/f8f9fa/334155?text='+v.brand" />
+            </div>
+            <div class="vc-body">
+              <div class="vc-tags">
+                <span class="vc-tag recommended">Recommended</span>
+                <span class="vc-tag instant">Instant</span>
+              </div>
+              <span class="vc-brand-name">{{ v.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty" *ngIf="!loading && filteredVouchers.length === 0">
+          <mat-icon>search_off</mat-icon>
+          <h3>No gift cards found</h3>
+          <p>Try a different search or clear filters</p>
+          <button class="empty-btn" (click)="clearFilters()">Clear Filters</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Mobile filter toggle -->
+  <button class="mobile-filter-fab" (click)="showFilterPanel = !showFilterPanel" *ngIf="!showFilterPanel">
+    <mat-icon>tune</mat-icon>
+    <span>Filters</span>
+  </button>
+
+  <!-- Mobile overlay -->
+  <div class="mobile-overlay" [class.show]="showFilterPanel" (click)="showFilterPanel = false"></div>
+
+  <!-- Floating Cart -->
+  <a routerLink="/store/cart" class="fab-cart" *ngIf="cartCount > 0">
+    <mat-icon>shopping_bag</mat-icon>
+    <span class="fab-count">{{ cartCount }}</span>
+    <span class="fab-label">View Cart</span>
+  </a>
+</div>

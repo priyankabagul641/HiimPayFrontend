@@ -1,0 +1,122 @@
+<div class="cart-page">
+  <div class="cart-container">
+
+    <!-- Empty Cart -->
+    <div class="cart-empty" *ngIf="cartItems.length === 0">
+      <div class="ce-graphic"><mat-icon>shopping_cart</mat-icon></div>
+      <h2>Your cart is empty</h2>
+      <p>Explore our gift cards and find something special</p>
+      <button class="ce-btn" (click)="continueShopping()"><mat-icon>storefront</mat-icon> Browse Gift Cards</button>
+    </div>
+
+    <!-- Filled Cart -->
+    <div class="cart-grid" *ngIf="cartItems.length > 0">
+
+      <!-- LEFT: Cart items -->
+      <div class="cart-left">
+
+        <!-- Payment Details header -->
+        <div class="pd-header">
+          <span>Payment Details</span>
+          <div class="pd-method">
+            <span class="pd-upi">UPI</span>
+          </div>
+        </div>
+
+        <!-- Cart items -->
+        <div class="ci-list">
+          <div class="ci-card" *ngFor="let item of cartItems">
+            <div class="ci-top">
+              <div class="ci-brand-area">
+                <div class="ci-logo">
+                  <img [src]="item.brandLogo" [alt]="item.brand"
+                    (error)="$any($event.target).src='https://placehold.co/80x60/ffffff/334155?text='+item.brand" />
+                </div>
+                <div class="ci-info">
+                  <h3>{{ item.brand }}</h3>
+                  <span class="ci-type">E-Gift Card (Instant Vouchers)</span>
+                  <span class="ci-discount" *ngIf="item.discountPercent > 0">{{ item.discountPercent }}% OFF</span>
+                </div>
+              </div>
+              <div class="ci-summary">
+                <div class="ci-summary-row">
+                  <span class="ci-save-label">Savings</span>
+                  <span class="ci-save-val">&#8377; {{ (item.price - item.discountedPrice) * item.quantity }}</span>
+                </div>
+                <div class="ci-summary-row">
+                  <span>You Pay</span>
+                  <span class="ci-pay-val">&#8377;{{ item.discountedPrice * item.quantity }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="ci-bottom">
+              <div class="ci-detail">
+                <div class="ci-d-col">
+                  <span class="ci-d-label">Value</span>
+                  <span class="ci-d-value">&#8377; {{ item.price }}</span>
+                </div>
+                <div class="ci-d-col">
+                  <span class="ci-d-label">Quantity</span>
+                  <div class="ci-qty">
+                    <button (click)="decrementQty(item)" [disabled]="item.quantity <= 1">&mdash;</button>
+                    <span>{{ item.quantity }}</span>
+                    <button (click)="incrementQty(item)" [disabled]="item.quantity >= 10">+</button>
+                  </div>
+                </div>
+                <div class="ci-d-col">
+                  <span class="ci-d-label">Total Value</span>
+                  <span class="ci-d-value">&#8377; {{ item.price * item.quantity }}</span>
+                </div>
+              </div>
+              <button class="ci-remove" (click)="removeItem(item)">
+                <mat-icon>delete</mat-icon> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Payment Summary -->
+      <aside class="cart-right">
+        <div class="ps-card">
+          <div class="ps-header">Payment Summary</div>
+          <div class="ps-voucher-row">
+            <span>Voucher Value</span>
+            <span class="ps-val">&#8377; {{ total + totalSavings }}</span>
+          </div>
+
+          <table class="ps-table">
+            <thead>
+              <tr>
+                <th>Payment Method</th>
+                <th>Surcharge/<br>Savings(&#8377;)</th>
+                <th>Payable(&#8377;)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><mat-icon>credit_card</mat-icon> Credit Card</td>
+                <td class="surcharge">{{ totalSavings }}</td>
+                <td>{{ total }}</td>
+              </tr>
+              <tr>
+                <td><mat-icon>payment</mat-icon> Debit Card</td>
+                <td class="surcharge">{{ totalSavings }}</td>
+                <td>{{ total }}</td>
+              </tr>
+              <tr class="highlight">
+                <td><span class="upi-badge">UPI</span> UPI</td>
+                <td class="surcharge best">{{ totalSavings }}</td>
+                <td class="best">{{ total }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button class="ps-pay-btn" (click)="proceedToCheckout()">
+            PAY &#8377; {{ total }}
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
