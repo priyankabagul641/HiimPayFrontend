@@ -21,7 +21,7 @@
         <!-- Logo -->
         <a class="ce-brand" routerLink="/clientEmployee/dashboard">
           <img src="assets/images/navexwise.jpeg" alt="HiimPay" class="ce-brand-img" />
-          <span class="ce-brand-name">Hiim<span class="ce-brand-accent">Pay</span></span>
+        
         </a>
 
         <!-- Search bar -->
@@ -57,8 +57,14 @@
             <span class="ce-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
           </button>
 
-          <!-- Profile avatar (initial only — no greeting text) -->
-          <button class="ce-avatar-btn" [matMenuTriggerFor]="profileMenu" title="My Account">
+          <!-- Sign In (guest) -->
+          <button class="ce-signin-btn" *ngIf="!isLoggedIn" (click)="openLoginModal()" title="Sign In">
+            <mat-icon>login</mat-icon>
+            <span>Sign In</span>
+          </button>
+
+          <!-- Profile avatar (logged in) -->
+          <button class="ce-avatar-btn" *ngIf="isLoggedIn" [matMenuTriggerFor]="profileMenu" title="My Account">
             {{ (loggedInUserName || 'U').charAt(0).toUpperCase() }}
           </button>
 
@@ -74,35 +80,10 @@
     <div class="ce-header-cat">
       <div class="ce-hc-inner">
         <nav class="ce-hc-nav">
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Shopping'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>shopping_bag</mat-icon><span>Shopping</span>
-          </a>
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Food & Dining'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>restaurant</mat-icon><span>Dining</span>
-          </a>
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Travel'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>flight</mat-icon><span>Travel</span>
-          </a>
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Electronics'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>devices</mat-icon><span>Electronics</span>
-          </a>
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Entertainment'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>movie</mat-icon><span>Entertainment</span>
-          </a>
-          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
-             [queryParams]="{category: 'Health & Wellness'}" routerLinkActive="active"
-             (click)="mobileMenuOpen=false">
-            <mat-icon>favorite</mat-icon><span>Wellness</span>
+           <a *ngFor="let c of categories | slice:0:8" class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: c.label}" routerLinkActive="active"
+             (click)="onCategoryClick(c)">
+            <mat-icon>{{ c.icon || 'category' }}</mat-icon><span>{{ c.label }}</span>
           </a>
         </nav>
       </div>
@@ -334,5 +315,12 @@
       </div>
     </ng-container>
   </div>
+
+  <!-- ══ LOGIN MODAL ══ -->
+  <app-ce-login-modal
+    [visible]="showLoginModal"
+    (closed)="closeLoginModal()"
+    (loginSuccess)="onLoginSuccess()">
+  </app-ce-login-modal>
 
 </div>

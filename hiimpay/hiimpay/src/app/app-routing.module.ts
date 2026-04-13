@@ -4,7 +4,7 @@ import { AuthguardService } from './auth/guards/authguard.service';
 
 
 const routes: Routes = [
-  { path: '', redirectTo: '/clientEmployee/login', pathMatch: 'full' },
+  { path: '', redirectTo: '/clientEmployee/dashboard', pathMatch: 'full' },
   { path: 'admin-login', redirectTo: '/auth/auth', pathMatch: 'full' },
   { path: 'store', loadChildren: () => import('./public/public.module').then(m => m.PublicModule) },
   { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },

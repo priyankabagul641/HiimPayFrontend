@@ -82,6 +82,40 @@ export class ClientEmployeeComponent implements OnInit {
   selectedCategory = 'All';
   selectedDiscountType = 'All';
 
+  // ── Login modal ───────────────────────────────────────────────
+  showLoginModal = false;
+
+  get isLoggedIn(): boolean {
+    return !!sessionStorage.getItem('currentLoggedInUserData');
+  }
+
+  openLoginModal(): void {
+    this.showLoginModal = true;
+  }
+
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  onLoginSuccess(): void {
+    this.showLoginModal = false;
+    const userData = JSON.parse(sessionStorage.getItem('currentLoggedInUserData') || '{}');
+    this.userId = userData?.id || 0;
+    this.companyId = userData?.companyId || userData?.clientId || 0;
+    this.loggedInUserName =
+      userData?.fullName ||
+      userData?.name ||
+      ((userData?.firstName || '') + (userData?.lastName ? ' ' + userData.lastName : '')) ||
+      '-';
+    if (this.userId) {
+      this.loadWalletBalance();
+      this.loadCouponCounts();
+    }
+    if (this.companyId) {
+      this.loadBrowseCoupons();
+    }
+  }
+
   // Dashboard home-page carousel & filter state
   currentSlide = 0;
   featuredCarouselPage = 0;
@@ -109,7 +143,7 @@ export class ClientEmployeeComponent implements OnInit {
     }
   ];
 
-  categories = [
+  categories: any[] = [
     { icon: 'lunch_dining', label: 'Food & Dining', accent: 'food' },
     { icon: 'shopping_bag', label: 'Shopping', accent: 'shopping' },
     { icon: 'flight_takeoff', label: 'Travel', accent: 'travel' },
@@ -182,8 +216,167 @@ export class ClientEmployeeComponent implements OnInit {
       this.showNotificationPanel = false;
     });
 
+    // Load public data for dashboard header and featured brands
+    this.loadCategories();
+    this.loadBrands();
+
     // listen for wallet updates from other components
     window.addEventListener('wallet-updated', this.walletUpdatedHandler as EventListener);
+  }
+
+  // ── Public data loaders ─────────────────────────────────────
+  categoriesData: Array<any> = [];
+  featuredBrands: Array<any> = [];
+  apiFlatDiscountVouchers: any[] = [];
+  showcaseDining: any[] = [];
+  showcaseFashion: any[] = [];
+  showcaseGiftCards: any[] = [];
+
+  loadCategories(): void {
+    this.employeeService.getCategories().subscribe({
+      next: (res: any) => {
+        const data = res?.data || [];
+        this.categoriesData = data || [];
+        // map to objects with id + label; choose icons based on category
+        const iconMap: Record<string, string> = {
+          'Food & Dining': 'lunch_dining',
+          Shopping: 'shopping_bag',
+          Travel: 'flight_takeoff',
+          Electronics: 'devices',
+          Entertainment: 'movie',
+          'Health & Wellness': 'self_improvement',
+          Other: 'category'
+        };
+
+        this.categories = data.map((c: any) => {
+          const rawName = c.categoryName || c.name || '';
+          const label = this.categoryNameToLabel(rawName);
+          return {
+            icon: iconMap[label] || 'category',
+            label,
+            id: c.id || 0,
+            accent: 'shopping'
+          };
+        });
+        while (this.categories.length < 8) {
+          this.categories.push({ icon: 'category', label: 'Other', id: 0, accent: 'other' });
+        }
+      },
+      error: (err: any) => {
+        console.error('loadCategories error:', err);
+      }
+    });
+  }
+
+  loadBrands(): void {
+    this.employeeService.getBrands().subscribe({
+      next: (res: any) => {
+        const data = res?.data || [];
+        this.featuredBrands = data.map((b: any, idx: number) => ({
+          id: b.id || idx + 1,
+          brand: b.brandName || b.name || '-',
+          brandLogo: (b.brandName || '').substring(0,2).toUpperCase(),
+          brandColor: b.brandColor || '#2980b9'
+        }));
+        // Featured brands loaded; dashboard's featured carousel derives pages from `browseCoupons`.
+        // We keep `featuredBrands` for any future UI but do not overwrite computed `featuredCarouselPages` getter.
+      },
+      error: (err: any) => console.error('loadBrands error:', err)
+    });
+    // Also pre-load a default flat-discount set and showcase
+    this.loadFlatDiscountVouchers(0, 0);
+    this.loadShowcaseVouchers();
+  }
+
+  /** Fetch vouchers for a given category id (optional min/max discount). */
+  fetchVouchersForCategory(categoryId: number, minDiscount = 0, maxDiscount = 0): void {
+    // API signature: getVouchersByDemand(maxDiscount = 0, minDiscount = 0, brandId = 0, categoryId = 0)
+    this.browseCouponsLoading = true;
+    this.employeeService.getVouchersByDemand(maxDiscount, minDiscount, 0, categoryId).subscribe({
+      next: (res: any) => {
+        const list = res?.data?.content || res?.data || [];
+        const items = (list || []).map((b: any, idx: number) => this.normalizeBrand(b, idx));
+        this.browseCoupons = items;
+        this.browseCouponsLoading = false;
+      },
+      error: (err: any) => {
+        console.error('fetchVouchersForCategory error:', err);
+        this.browseCouponsLoading = false;
+      }
+    });
+  }
+
+  // ── Flat discount: fetch via API using min/max percent for all categories
+  setFlatDiscountFilter(filter: string) {
+    this.flatDiscountFilter = filter;
+    let min = 0;
+    let max = 0;
+    if (filter === '1-5') { min = 1; max = 5; }
+    else if (filter === '6-10') { min = 6; max = 10; }
+    else if (filter === '11-20') { min = 11; max = 20; }
+    else if (filter === '21-100') { min = 21; max = 100; }
+    this.loadFlatDiscountVouchers(min, max);
+  }
+
+  loadFlatDiscountVouchers(minPercent = 0, maxPercent = 0) {
+    // employeeService.getVouchersByDemand(maxDiscount, minDiscount, brandId, categoryId)
+    this.employeeService.getVouchersByDemand(maxPercent, minPercent, 0, 0).subscribe({
+      next: (res: any) => {
+        const items = (res?.data?.content || res?.data || []).map((b: any, idx: number) => this.normalizeBrand(b, idx));
+        this.apiFlatDiscountVouchers = items || [];
+      },
+      error: (err: any) => {
+        console.error('loadFlatDiscountVouchers error:', err);
+        this.apiFlatDiscountVouchers = [];
+      }
+    });
+  }
+
+  // ── Showcase: pre-load vouchers per category label (Dining, Shopping, Gift Cards)
+  private findCategoryIdForLabel(label: string): number | null {
+    for (const c of this.categoriesData || []) {
+      const mapped = this.categoryNameToLabel(c.categoryName || c.name || '');
+      if (mapped === label) return c.id || null;
+    }
+    return null;
+  }
+
+  loadShowcaseVouchers() {
+    // Dining -> 'Food & Dining'
+    const diningId = this.findCategoryIdForLabel('Food & Dining') || 0;
+    const shoppingId = this.findCategoryIdForLabel('Shopping') || 0;
+    const giftId = this.findCategoryIdForLabel('Other') || 0;
+
+    this.employeeService.getVouchersByDemand(0, 0, 0, diningId).subscribe({
+      next: (res: any) => this.showcaseDining = (res?.data?.content || res?.data || []).map((b: any, i: number) => this.normalizeBrand(b, i)).slice(0, 4),
+      error: () => (this.showcaseDining = [])
+    });
+    this.employeeService.getVouchersByDemand(0, 0, 0, shoppingId).subscribe({
+      next: (res: any) => this.showcaseFashion = (res?.data?.content || res?.data || []).map((b: any, i: number) => this.normalizeBrand(b, i)).slice(0, 4),
+      error: () => (this.showcaseFashion = [])
+    });
+    this.employeeService.getVouchersByDemand(0, 0, 0, giftId).subscribe({
+      next: (res: any) => this.showcaseGiftCards = (res?.data?.content || res?.data || []).map((b: any, i: number) => this.normalizeBrand(b, i)).slice(0, 4),
+      error: () => (this.showcaseGiftCards = [])
+    });
+  }
+
+  // When a featured brand is clicked, show vouchers for that brand in Browse
+  onBrandClick(brandId: number) {
+    if (!brandId) return;
+    this.employeeService.getVouchersByDemand(0, 0, brandId, 0).subscribe({
+      next: (res: any) => {
+        this.browseCoupons = (res?.data?.content || res?.data || []).map((b: any, idx: number) => this.normalizeBrand(b, idx));
+        this.router.navigate(['/clientEmployee/browse']);
+      },
+      error: (err: any) => console.error('onBrandClick error:', err)
+    });
+  }
+
+  onCategoryClick(c: any): void {
+    this.mobileMenuOpen = false;
+    if (c?.id) this.fetchVouchersForCategory(c.id);
+    else this.loadBrowseCoupons();
   }
 
   ngOnDestroy(): void {
@@ -511,7 +704,16 @@ export class ClientEmployeeComponent implements OnInit {
 
   // ─── Featured brand carousel (2-row pages) ────────────────────
   get featuredCarouselPages(): any[][][] {
-    const list = this.browseCoupons.slice(0, 32);
+    // Prefer featuredBrands when available, otherwise fall back to browseCoupons
+    const list = (this.featuredBrands && this.featuredBrands.length)
+      ? this.featuredBrands.map((b: any) => ({
+          id: b.id,
+          brand: b.brand,
+          brandLogo: b.brandLogo,
+          brandColor: b.brandColor,
+          discountPercent: 0
+        }))
+      : this.browseCoupons.slice(0, 32);
     const pages: any[][][] = [];
     const perRow = 4;
     const perPage = 8;
@@ -534,6 +736,8 @@ export class ClientEmployeeComponent implements OnInit {
 
   // ─── Flat discount filter ─────────────────────────────────────
   get flatDiscountVouchers(): any[] {
+    // return API-backed flat discount vouchers if loaded, fallback to client-side filter
+    if (this.apiFlatDiscountVouchers && this.apiFlatDiscountVouchers.length) return this.apiFlatDiscountVouchers.slice(0, 4);
     const f = this.flatDiscountFilter;
     return this.browseCoupons.filter(v => {
       const d = v.discountPercent ?? 0;
@@ -545,6 +749,15 @@ export class ClientEmployeeComponent implements OnInit {
 
   // ─── Showcase vouchers by category ───────────────────────────
   getShowcaseVouchers(category: string, start: number, end: number): any[] {
+    if (category === 'Food & Dining') {
+      return (this.showcaseDining.length ? this.showcaseDining : this.browseCoupons).slice(start, end);
+    }
+    if (category === 'Shopping') {
+      return (this.showcaseFashion.length ? this.showcaseFashion : this.browseCoupons).slice(start, end);
+    }
+    if (category === 'GIFT CARDS' || category === 'GIFT CARDS' || category === 'Gift Cards') {
+      return (this.showcaseGiftCards.length ? this.showcaseGiftCards : this.browseCoupons).slice(start, end);
+    }
     const filtered = this.browseCoupons.filter(v => v.category === category);
     return (filtered.length >= 2 ? filtered : this.browseCoupons).slice(start, end);
   }
@@ -726,8 +939,12 @@ export class ClientEmployeeComponent implements OnInit {
   }
 
   logout() {
+    // Clear session but keep dashboard public (do not redirect to login)
     sessionStorage.clear();
-    this.router.navigate(['/clientEmployee/login']);
+    this.userId = 0;
+    this.companyId = 0;
+    this.loggedInUserName = '';
+    this.showToastMessage('Logged out');
   }
 
   openProfile() {

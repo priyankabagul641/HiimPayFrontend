@@ -34,6 +34,8 @@ import { MyCouponsComponent } from './pages/my-coupons/my-coupons.component';
 import { WalletComponent } from './pages/wallet/wallet.component';
 import { CouponDetailsComponent } from './pages/coupon-details/coupon-details.component';
 import { CartComponent } from './pages/cart/cart.component';
+// TransactionsComponent is declared in AppModule; do not redeclare here.
+import { CeLoginModalComponent } from './pages/ce-login-modal/ce-login-modal.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +52,8 @@ import { CartComponent } from './pages/cart/cart.component';
     CouponDetailsComponent,
     CartComponent,
     MyCouponsComponent,
-    WalletComponent
+    WalletComponent,
+    CeLoginModalComponent
   ],
   imports: [
     CommonModule,

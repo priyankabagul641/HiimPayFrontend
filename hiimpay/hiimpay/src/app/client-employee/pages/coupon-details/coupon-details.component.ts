@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClientEmployeeComponent } from '../../client-employee.component';
 import { CartService } from '../../Services/cart.service';
@@ -26,6 +26,11 @@ export class CouponDetailsComponent implements OnInit {
   denominations: DenominationRow[] = [];
   customAmounts: CustomAmount[] = [];
 
+  // single-entry add-to-cart (image-2 style)
+  customAmount = 0;
+  customQty = 1;
+  amountError = '';
+
   private denominationKey = '';
 
   constructor(
@@ -40,6 +45,7 @@ export class CouponDetailsComponent implements OnInit {
       this.couponId = Number(params.get('id') || 0);
       this.ensureDenominations();
       this.loadCustomAmounts();
+      this.initSingleCustomAmount();
     });
 
     if (!this.shell.activeOffers.length && this.shell.companyId) {
@@ -48,7 +54,8 @@ export class CouponDetailsComponent implements OnInit {
   }
 
   get coupon(): any {
-    return this.shell.activeOffers.find((item) => Number(item.id) === Number(this.couponId)) || {};
+    const fromActive = this.shell.activeOffers.find((item: any) => Number(item.id) === Number(this.couponId));
+    return fromActive || {};
   }
 
   get discountPercent(): number {
@@ -99,11 +106,97 @@ export class CouponDetailsComponent implements OnInit {
     }
   }
 
+  initSingleCustomAmount(): void {
+    const minValue = Number(this.coupon?.minValue ?? 0);
+    this.customAmount = minValue > 0 ? minValue : 500;
+    this.customQty = 1;
+    this.amountError = '';
+  }
+
+  validateAmount(): boolean {
+    const minValue = Number(this.coupon?.minValue ?? 0);
+    const maxValue = Number(this.coupon?.maxValue ?? 0);
+    const amt = Number(this.customAmount);
+    if (!amt || amt <= 0) {
+      this.amountError = 'Please enter a valid amount';
+      return false;
+    }
+    if (minValue > 0 && amt < minValue) {
+      this.amountError = 'Minimum amount is INR ' + minValue.toLocaleString();
+      return false;
+    }
+    if (maxValue > 0 && amt > maxValue) {
+      this.amountError = 'Maximum amount is INR ' + maxValue.toLocaleString();
+      return false;
+    }
+    this.amountError = '';
+    return true;
+  }
+
+  onAmountInput(): void {
+    this.validateAmount();
+  }
+
+  stepAmountUp(): void {
+    const minValue = Number(this.coupon?.minValue ?? 0);
+    const step = minValue > 0 ? minValue : 100;
+    this.customAmount = Number(this.customAmount) + step;
+    this.validateAmount();
+  }
+
+  stepAmountDown(): void {
+    const minValue = Number(this.coupon?.minValue ?? 0);
+    const step = minValue > 0 ? minValue : 100;
+    const floor = minValue > 0 ? minValue : 1;
+    const newAmt = Number(this.customAmount) - step;
+    this.customAmount = Math.max(newAmt, floor);
+    this.validateAmount();
+  }
+
+  incrementSingleQty(): void { this.customQty++; }
+
+  decrementSingleQty(): void { if (this.customQty > 1) this.customQty--; }
+
+  get singleCustomSavings(): number {
+    return (Number(this.customAmount) * this.discountPercent / 100) * this.customQty;
+  }
+
+  get singleCustomTotal(): number {
+    return Number(this.customAmount) * this.customQty - this.singleCustomSavings;
+  }
+
+  addToCartAndProceed(): void {
+    if (!this.validateAmount()) return;
+    if (this.customQty <= 0) return;
+    if (!this.shell.isLoggedIn) { this.shell.openLoginModal(); return; }
+
+    const couponId = Number(this.coupon.id);
+    const itemId = couponId + '-custom-' + this.customAmount;
+    this.cartService.addToCart({
+      id: itemId,
+      couponId,
+      brand: this.coupon.brand || '-',
+      title: this.coupon.title || this.coupon.brand || '-',
+      image: this.coupon.image || '',
+      price: Number(this.customAmount),
+      discount: this.discountPercent,
+      quantity: this.customQty,
+      total: Number(this.customAmount) * this.customQty,
+      savings: this.singleCustomSavings
+    });
+
+    const cartItems = this.cartService.getCartSnapshot();
+    this.cartService.addtoCartItems(cartItems, this.shell.userId).subscribe({
+      next: () => this.router.navigate(['/clientEmployee/cart']),
+      error: () => this.router.navigate(['/clientEmployee/cart'])
+    });
+  }
+
   removeCustomAmount(index: number) {
     if (index < this.customAmounts.length) {
       const item = this.customAmounts[index];
       this.customAmounts.splice(index, 1);
-      const itemId = `${this.coupon.id}-custom-${item.amount}`;
+      const itemId = this.coupon.id + '-custom-' + item.amount;
       this.cartService.removeItem(itemId);
     }
   }
@@ -156,6 +249,10 @@ export class CouponDetailsComponent implements OnInit {
       return;
     }
 
+    if (!this.shell.isLoggedIn) {
+      this.shell.openLoginModal();
+      return;
+    }
     const cartItems = this.cartService.getCartSnapshot();
     const userId = this.shell.userId;
 
@@ -165,7 +262,6 @@ export class CouponDetailsComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('addtoCartItems API error:', err);
-        // Navigate anyway so UX is not blocked
         this.router.navigate(['/clientEmployee/cart']);
       }
     });
@@ -177,7 +273,7 @@ export class CouponDetailsComponent implements OnInit {
       return;
     }
 
-    const itemId = `${this.coupon.id}-${row.mrp}`;
+    const itemId = this.coupon.id + '-' + row.mrp;
     if (row.quantity <= 0) {
       this.cartService.removeItem(itemId);
       return;
@@ -200,7 +296,7 @@ export class CouponDetailsComponent implements OnInit {
   private ensureDenominations() {
     const minValue = Number(this.coupon?.minValue ?? 0);
     const maxValue = Number(this.coupon?.maxValue ?? 0);
-    const key = `${this.coupon?.id || 0}-${minValue}-${maxValue}-${this.discountPercent}`;
+    const key = (this.coupon?.id || 0) + '-' + minValue + '-' + maxValue + '-' + this.discountPercent;
 
     if (this.denominationKey === key && this.denominations.length) {
       return;
@@ -231,7 +327,7 @@ export class CouponDetailsComponent implements OnInit {
       return;
     }
 
-    const itemId = `${this.coupon.id}-custom-${row.amount}`;
+    const itemId = this.coupon.id + '-custom-' + row.amount;
     if (row.quantity <= 0) {
       this.cartService.removeItem(itemId);
       return;
@@ -252,7 +348,6 @@ export class CouponDetailsComponent implements OnInit {
   }
 
   private loadCustomAmounts() {
-    // Initialize as empty array - custom amounts are added via "Add Custom Amount" button
     this.customAmounts = [];
   }
 }

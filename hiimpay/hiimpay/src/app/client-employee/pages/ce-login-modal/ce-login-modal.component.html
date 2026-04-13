@@ -1,0 +1,110 @@
+<div class="ce-modal-backdrop" *ngIf="visible" (click)="onBackdropClick($event)">
+  <div class="ce-modal-card" (click)="$event.stopPropagation()">
+
+    <!-- Close -->
+    <button class="ce-modal-close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <!-- Left promo panel -->
+    <div class="ce-modal-left">
+      <div class="cml-top">
+        <mat-icon class="cml-logo-icon">card_giftcard</mat-icon>
+        <h2>HiimPay</h2>
+      </div>
+      <h3>START YOUR JOURNEY TO SAVE BIG!</h3>
+      <p>Exclusive gift cards &amp; vouchers for employees</p>
+      <div class="cml-promo">
+        <div class="cml-promo-circle c1"></div>
+        <div class="cml-promo-circle c2"></div>
+        <mat-icon class="cml-pi gift">card_giftcard</mat-icon>
+        <mat-icon class="cml-pi wallet">account_balance_wallet</mat-icon>
+        <mat-icon class="cml-pi savings">savings</mat-icon>
+      </div>
+      <ul class="cml-features">
+        <li><mat-icon>check_circle</mat-icon> Up to 40% off on 250+ brands</li>
+        <li><mat-icon>check_circle</mat-icon> Instant e-voucher delivery</li>
+        <li><mat-icon>check_circle</mat-icon> Secure &amp; hassle-free checkout</li>
+      </ul>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="ce-modal-right">
+
+      <!-- STEP 1: Mobile / Email -->
+      <ng-container *ngIf="step === 'mobile'">
+        <h3 class="cmr-title">Log In / Sign Up</h3>
+        <p class="cmr-sub">Enter your mobile number or email to continue</p>
+
+        <div class="cmr-input-group">
+          <span class="cmr-prefix" *ngIf="!isEmailMode">+91</span>
+          <input
+            [type]="isEmailMode ? 'email' : 'tel'"
+            [maxlength]="isEmailMode ? 150 : 10"
+            placeholder="Mobile Number or Email"
+            [(ngModel)]="identifier"
+            (keydown.enter)="onNext()"
+            class="cmr-input" />
+        </div>
+
+        <label class="cmr-terms">
+          <input type="checkbox" [(ngModel)]="agreedToTerms" />
+          <span>I agree to HiimPay's
+            <a href="javascript:void(0)">Terms of Use</a> and
+            <a href="javascript:void(0)">Privacy Policy</a>
+          </span>
+        </label>
+
+        <div class="cmr-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+        <button class="cmr-btn" [disabled]="!canSendOtp || loading" (click)="onNext()">
+          <span *ngIf="!loading">SEND OTP</span>
+          <span *ngIf="loading" class="cmr-spinner"></span>
+        </button>
+      </ng-container>
+
+      <!-- STEP 2: OTP -->
+      <ng-container *ngIf="step === 'otp'">
+        <button class="cmr-back" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <h3 class="cmr-title">Enter OTP</h3>
+        <p class="cmr-sub">
+          OTP sent to
+          <strong *ngIf="!isEmailMode">+91 {{ identifier }}</strong>
+          <strong *ngIf="isEmailMode">{{ identifier }}</strong>
+        </p>
+
+        <div class="cmr-otp-row" (paste)="onOtpPaste($event)">
+          <input
+            *ngFor="let digit of otpDigits; let i = index"
+            #otpInput
+            type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code"
+            class="cmr-otp-box" [class.filled]="otpDigits[i]"
+            (input)="onOtpInput($event, i)"
+            (keydown)="onOtpKeydown($event, i)" />
+        </div>
+
+        <div class="cmr-resend">
+          <span *ngIf="resendSeconds > 0" class="cmr-timer">
+            Resend OTP in: <strong>{{ resendLabel }}</strong>
+          </span>
+          <button *ngIf="resendSeconds <= 0" class="cmr-resend-btn" (click)="resendOtp()" [disabled]="loading">
+            Resend OTP
+          </button>
+        </div>
+
+        <div class="cmr-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+        <div class="cmr-success" *ngIf="successMsg">{{ successMsg }}</div>
+
+        <button class="cmr-btn login-btn" [disabled]="!otpComplete || loading" (click)="onVerifyOtp()">
+          <span *ngIf="!loading">LOGIN</span>
+          <span *ngIf="loading" class="cmr-spinner"></span>
+        </button>
+      </ng-container>
+
+      <p class="cmr-copy">&copy; {{ currentYear }} HiimPay</p>
+    </div>
+  </div>
+</div>

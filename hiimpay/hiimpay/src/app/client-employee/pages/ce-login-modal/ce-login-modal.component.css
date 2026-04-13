@@ -1,0 +1,290 @@
+/* ─── Backdrop ─────────────────────────────────────────────── */
+.ce-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+/* ─── Card ──────────────────────────────────────────────────── */
+.ce-modal-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 820px;
+  min-height: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  background: #fff;
+}
+
+.ce-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  background: rgba(255,255,255,.2);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background .2s;
+}
+.ce-modal-close:hover { background: rgba(255,255,255,.35); }
+
+/* ─── Left panel ────────────────────────────────────────────── */
+.ce-modal-left {
+  flex: 0 0 42%;
+  background: linear-gradient(145deg, #2b2e83 0%, #7b3fe4 60%, #a855f7 100%);
+  color: #fff;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cml-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cml-logo-icon { font-size: 28px; width: 28px; height: 28px; }
+.cml-top h2 { font-size: 1.3rem; font-weight: 800; margin: 0; letter-spacing: .5px; }
+
+.ce-modal-left h3 {
+  font-size: 1.12rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+}
+.ce-modal-left p {
+  font-size: .88rem;
+  opacity: .85;
+  margin: 0;
+}
+
+.cml-promo {
+  position: relative;
+  height: 110px;
+}
+.cml-promo-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+}
+.cml-promo-circle.c1 { width: 90px; height: 90px; top: 5px; left: -15px; }
+.cml-promo-circle.c2 { width: 60px; height: 60px; bottom: 0; right: 10px; }
+
+.cml-pi {
+  position: absolute;
+  font-size: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: rgba(255,255,255,.2);
+  border-radius: 12px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cml-pi.gift  { top: 12px; left: 16px; }
+.cml-pi.wallet { top: 28px; right: 24px; }
+.cml-pi.savings { bottom: 4px; left: 50%; transform: translateX(-50%); }
+
+.cml-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cml-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .84rem;
+  opacity: .9;
+}
+.cml-features li mat-icon {
+  font-size: 17px !important;
+  width: 17px !important;
+  height: 17px !important;
+  color: #a3ffca;
+}
+
+/* ─── Right panel ───────────────────────────────────────────── */
+.ce-modal-right {
+  flex: 1;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cmr-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+.cmr-sub {
+  font-size: .86rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Input */
+.cmr-input-group {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9fafb;
+  transition: border-color .2s;
+}
+.cmr-input-group:focus-within { border-color: #7b3fe4; background: #fff; }
+.cmr-prefix {
+  padding: 0 10px 0 14px;
+  font-size: .88rem;
+  color: #374151;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cmr-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 13px 14px;
+  font-size: .95rem;
+  color: #111;
+}
+
+/* Terms */
+.cmr-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: .8rem;
+  color: #6b7280;
+  cursor: pointer;
+}
+.cmr-terms input { margin-top: 2px; accent-color: #7b3fe4; }
+.cmr-terms a { color: #7b3fe4; text-decoration: none; }
+.cmr-terms a:hover { text-decoration: underline; }
+
+/* Errors / Success */
+.cmr-error   { font-size: .82rem; color: #ef4444; padding: 4px 0; }
+.cmr-success { font-size: .82rem; color: #22c55e; padding: 4px 0; }
+
+/* Primary button */
+.cmr-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #7b3fe4, #2b2e83);
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity .2s;
+}
+.cmr-btn:disabled { opacity: .5; cursor: not-allowed; }
+.cmr-btn:not(:disabled):hover { opacity: .9; }
+
+/* Spinner */
+.cmr-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* OTP row */
+.cmr-otp-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.cmr-otp-box {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color .2s;
+}
+.cmr-otp-box:focus { border-color: #7b3fe4; background: #fff; }
+.cmr-otp-box.filled { border-color: #7b3fe4; background: #f5f0ff; }
+
+/* Resend */
+.cmr-resend { text-align: center; }
+.cmr-timer  { font-size: .83rem; color: #6b7280; }
+.cmr-timer strong { color: #7b3fe4; }
+.cmr-resend-btn {
+  background: none;
+  border: none;
+  color: #7b3fe4;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.cmr-resend-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Back */
+.cmr-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  margin-bottom: -4px;
+}
+.cmr-back:hover { color: #7b3fe4; }
+
+/* Copyright */
+.cmr-copy {
+  font-size: .75rem;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ce-modal-left { display: none; }
+  .ce-modal-right { padding: 32px 24px; }
+  .ce-modal-close { color: #374151; background: rgba(0,0,0,.08); }
+}

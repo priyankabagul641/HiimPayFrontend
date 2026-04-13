@@ -66,7 +66,7 @@
             <div class="fc-track" [style.transform]="'translateX(-' + (shell.featuredCarouselPage * 100) + '%)'">
               <div class="fc-page" *ngFor="let page of shell.featuredCarouselPages">
                 <div class="fc-row" *ngFor="let row of page">
-                  <div class="fc-card" *ngFor="let v of row" (click)="shell.openCouponDetails(v.id)">
+                  <div class="fc-card" *ngFor="let v of row" (click)="shell.onBrandClick(v.id)">
                     <div class="fc-logo">
                       <div class="fc-logo-pill" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
                     </div>
@@ -160,15 +160,15 @@
           <h2 class="fd-title">Flat Discount. For sure!</h2>
           <div class="fd-pills">
             <button class="fd-pill" [class.active]="shell.flatDiscountFilter === 'all'"
-              (click)="shell.flatDiscountFilter = 'all'">All</button>
+              (click)="shell.setFlatDiscountFilter('all')">All</button>
             <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '1-5'"
-              (click)="shell.flatDiscountFilter = '1-5'">1% - 5%</button>
+              (click)="shell.setFlatDiscountFilter('1-5')">1% - 5%</button>
             <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '6-10'"
-              (click)="shell.flatDiscountFilter = '6-10'">6% - 10%</button>
+              (click)="shell.setFlatDiscountFilter('6-10')">6% - 10%</button>
             <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '11-20'"
-              (click)="shell.flatDiscountFilter = '11-20'">11% - 20%</button>
+              (click)="shell.setFlatDiscountFilter('11-20')">11% - 20%</button>
             <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '21-100'"
-              (click)="shell.flatDiscountFilter = '21-100'">21% + Above</button>
+              (click)="shell.setFlatDiscountFilter('21-100')">21% + Above</button>
           </div>
           <div class="fd-grid">
             <div class="fc-card" *ngFor="let v of shell.flatDiscountVouchers" (click)="shell.openCouponDetails(v.id)">

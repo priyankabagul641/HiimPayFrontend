@@ -47,37 +47,64 @@
       </div>
 
       <div class="custom-amount-card">
-        <h2>Choose Custom Amount</h2>
-        
-        <div class="custom-amount-list" *ngIf="customAmounts.length > 0">
-          <div class="custom-amount-row" *ngFor="let row of customAmounts; let i = index">
-            <div class="custom-input-wrapper">
-              <input 
-                type="number" 
-                [(ngModel)]="row.amount"
-                (change)="onCustomAmountChange(i)"
-                placeholder="Enter amount" 
-                min="100"
-                max="100000"
-                class="custom-amount-input" />
+        <h2>Choose Amount</h2>
+
+        <div class="ca-entry-card">
+          <!-- Brand image -->
+          <div class="ca-brand-img-wrap" *ngIf="coupon.image">
+            <img [src]="coupon.image" [alt]="coupon.brand || 'Brand'"
+              class="ca-brand-img"
+              (error)="$any($event.target).parentElement.style.display='none'" />
+            <p class="ca-brand-sub" *ngIf="coupon.brand">by {{ coupon.brand }} E-Gift Card</p>
+          </div>
+
+          <!-- Amount input row -->
+          <div class="ca-input-row">
+            <div class="ca-amount-field" [class.ca-error-field]="amountError">
+              <span class="ca-currency">INR</span>
+              <input type="number" [(ngModel)]="customAmount"
+                (input)="onAmountInput()"
+                [min]="coupon.minValue || 1"
+                [max]="coupon.maxValue || 1000000"
+                class="ca-amount-input"
+                placeholder="Enter amount" />
             </div>
-            <div class="qty-controls">
-              <button type="button" class="qty-btn" (click)="customDecrement(i)">−</button>
-              <span class="qty-display">{{ row.quantity }}</span>
-              <button type="button" class="qty-btn" (click)="customIncrement(i)">+</button>
+            <div class="ca-step-btns">
+              <button type="button" class="ca-step-btn" (click)="stepAmountUp()" title="Increase">+</button>
+              <button type="button" class="ca-step-btn" (click)="stepAmountDown()" title="Decrease">−</button>
             </div>
-            <button 
-              type="button" 
-              class="row-remove-btn" 
-              (click)="removeCustomAmount(i)"
-              title="Remove this custom amount">
-              ✕
+          </div>
+
+          <!-- Range hint -->
+          <p class="ca-range" *ngIf="coupon.minValue || coupon.maxValue">
+            Range: INR {{ (coupon.minValue || 0) | number }} – {{ (coupon.maxValue || 0) | number }}
+          </p>
+
+          <!-- Validation error -->
+          <p class="ca-error-msg" *ngIf="amountError">{{ amountError }}</p>
+
+          <!-- Qty + Go to Cart row -->
+          <div class="ca-footer-row">
+            <div class="ca-qty-ctrl">
+              <button type="button" class="ca-qty-btn" (click)="decrementSingleQty()"
+                [disabled]="customQty <= 1">−</button>
+              <span class="ca-qty-num">{{ customQty }}</span>
+              <button type="button" class="ca-qty-btn" (click)="incrementSingleQty()">+</button>
+            </div>
+            <button type="button" class="ca-go-cart-btn"
+              (click)="addToCartAndProceed()"
+              [disabled]="!!amountError">
+              Go to Cart
             </button>
           </div>
-        </div>
 
-        <div class="custom-actions">
-          <button type="button" class="add-custom-btn" (click)="addCustomAmount()">+ Add Custom Amount</button>
+          <!-- Summary line -->
+          <div class="ca-summary" *ngIf="!amountError && customAmount > 0">
+            <span>Total: <strong>₹{{ singleCustomTotal | number:'1.0-0' }}</strong></span>
+            <span class="ca-save" *ngIf="singleCustomSavings > 0">
+              You save ₹{{ singleCustomSavings | number:'1.0-0' }}
+            </span>
+          </div>
         </div>
       </div>
 

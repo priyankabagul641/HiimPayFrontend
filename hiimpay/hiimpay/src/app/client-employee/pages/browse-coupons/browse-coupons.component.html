@@ -1,59 +1,86 @@
 <main class="browse-main">
-  <div class="browse-header">
-    <h1>E-Gift Cards & Coupons</h1>
-    <p>Get amazing discounts on your favorite brands</p>
-  </div>
 
-  <div class="browse-loading" *ngIf="shell.browseCouponsLoading">
+  <!-- Loading -->
+  <div class="browse-loading" *ngIf="shell.browseCouponsLoading || isLoading">
     <span class="loader-dot"></span>
     <span class="loader-dot"></span>
     <span class="loader-dot"></span>
   </div>
 
-  <div class="coupon-grid" *ngIf="!shell.browseCouponsLoading">
+  <!-- Grid -->
+  <div class="coupon-grid" *ngIf="!shell.browseCouponsLoading && !isLoading">
     <article
       class="coupon-card"
       *ngFor="let coupon of coupons; let i = index; trackBy: trackById"
       [style.--i]="i"
+      [class.hovered]="hoveredId === coupon.id"
+      (mouseenter)="hoveredId = coupon.id"
+      (mouseleave)="hoveredId = null"
       (click)="openCouponDetails(coupon.id)"
     >
-      <div class="coupon-image-wrap">
-        <ng-container *ngIf="hasCouponImage(coupon); else browseNoImageState">
-          <img
-            [src]="coupon.image"
-            [alt]="coupon.brandName"
-            class="coupon-image"
-            (error)="onCouponImageError(coupon)"
-          />
+      <!-- Image -->
+      <div class="cc-img-wrap">
+        <ng-container *ngIf="hasCouponImage(coupon); else noImg">
+          <img [src]="coupon.image" [alt]="coupon.brandName" class="cc-img"
+            (error)="onCouponImageError(coupon)" loading="lazy" />
         </ng-container>
-        <ng-template #browseNoImageState>
-          <div class="coupon-image-fallback" aria-label="No image available">
-            <mat-icon>image_not_supported</mat-icon>
-            <span>No Image</span>
+        <ng-template #noImg>
+          <div class="cc-img-fallback">
+            <mat-icon>card_giftcard</mat-icon>
           </div>
         </ng-template>
+
+        <!-- Discount badge top-left -->
+        <span class="cc-discount-badge" *ngIf="coupon.discountPercent > 0">
+          {{ coupon.discountPercent }}% OFF
+        </span>
       </div>
 
-      <div class="coupon-content">
-        <h3>{{ coupon.title || (coupon.brandName + ' E-Gift Card') }}</h3>
-        <p class="coupon-brand">{{ coupon.brandName }}</p>
+      <!-- Body -->
+      <div class="cc-body">
+        <!-- Tag pills -->
+        <div class="cc-tags">
+          <span class="cc-tag recommended">Recommended</span>
+          <span class="cc-tag instant">Instant</span>
+        </div>
 
-        <div class="coupon-footer">
-          <div class="discount-wrap">
-            <span class="discount-value">{{ coupon.discount }}</span>
-            <span class="discount-label">Discount</span>
-          </div>
-          <div class="coupon-actions">
-            <!-- <button class="add-cart-btn" (click)="addtoCartItems(coupon, $event)">
-              Add to Cart
-            </button> -->
-            <button class="buy-now-btn" (click)="$event.stopPropagation(); openCouponDetails(coupon.id)">
-              <span>Buy Now</span>
-              <span class="btn-arrow">›</span>
-            </button>
-          </div>
+        <p class="cc-title">{{ coupon.title || coupon.brandName }}</p>
+
+        <!-- Hover: add-to-cart section -->
+        <div class="cc-hover-section" (click)="$event.stopPropagation()">
+          <!-- Variable price: show input -->
+          <ng-container *ngIf="isVariable(coupon); else fixedPrice">
+            <div class="cc-amount-row">
+              <span class="cc-currency">INR</span>
+              <input
+                class="cc-amount-input"
+                type="number"
+                placeholder="Amount"
+                [min]="coupon.minValue"
+                [max]="coupon.maxValue"
+                [(ngModel)]="amountMap[coupon.id]"
+                (click)="$event.stopPropagation()"
+              />
+            </div>
+            <p class="cc-range">Range: INR {{ coupon.minValue | number:'1.0-0' }}–{{ coupon.maxValue | number:'1.0-0' }}</p>
+          </ng-container>
+          <ng-template #fixedPrice>
+            <p class="cc-range">INR {{ coupon.minValue | number:'1.0-0' }}</p>
+          </ng-template>
+
+          <button class="cc-cart-btn" (click)="onAddToCart(coupon, $event)">
+            <mat-icon>shopping_cart</mat-icon>
+            Add to Cart
+          </button>
         </div>
       </div>
     </article>
+
+    <!-- Empty -->
+    <div class="browse-empty" *ngIf="coupons.length === 0">
+      <mat-icon>search_off</mat-icon>
+      <p>No vouchers found</p>
+    </div>
   </div>
+
 </main>

@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ClientEmployeeComponent } from './client-employee.component';
 import { LoginComponent } from './login/login.component';
-import { AuthguardService } from '../auth/guards/authguard.service';
 import { SurveyResponseComponent } from './pages/survey-response/survey-response.component';
 import { ReminderComponent } from './pages/reminder/reminder.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -16,12 +15,11 @@ import { CartComponent } from './pages/cart/cart.component';
 import { TransactionsComponent } from './pages/transactions/transactions.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
     path: '',
     component: ClientEmployeeComponent,
-    canActivate: [AuthguardService],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardPageComponent },
