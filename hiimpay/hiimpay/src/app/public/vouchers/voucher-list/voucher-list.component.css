@@ -2,7 +2,7 @@
 .store-page { background: #fafafa; min-height: 100vh; }
 
 /* ======= BANNER (keep existing premium) ======= */
-.banner-section { max-width: 1600px; margin: 0 auto; padding: 28px 48px 0; }
+.banner-section { max-width: 1400px; margin: 0 auto; padding: 24px 24px 0; }
 .banner-inner { position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 40px rgba(43,46,131,0.12); }
 .banner-slider { display: flex; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); }
 .banner-slide { min-width: 100%; }
@@ -72,8 +72,8 @@
 }
 .category-hero-content {
   position: relative; z-index: 2;
-  padding: 0 48px 32px; width: 100%;
-  max-width: 1600px; margin: 0 auto;
+  padding: 0 24px 32px; width: 100%;
+  max-width: 1400px; margin: 0 auto;
 }
 .category-hero-content h1 {
   font-size: 36px; font-weight: 700; color: #fff;
@@ -83,7 +83,7 @@
 
 /* ======= PAGE HEADING ======= */
 .page-heading {
-  max-width: 1600px; margin: 0 auto; padding: 28px 48px 0;
+  max-width: 1400px; margin: 0 auto; padding: 20px 24px 0;
   display: flex; align-items: center; justify-content: space-between;
 }
 .page-heading h1 {
@@ -120,13 +120,16 @@
 .sort-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
 /* ======= HOMEPAGE SECTIONS ======= */
-.home-sections { max-width: 1600px; margin: 0 auto; padding: 0 48px; }
+.home-sections { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
 .hs-section { margin-bottom: 32px; }
 
 /* --- Section title --- */
 .hs-title {
-  font-size: 20px; font-weight: 700; color: #1e293b;
-  margin: 0 0 16px; letter-spacing: -0.2px;
+  font-size: 22px; font-weight: 700; color: #1e293b;
+  margin: 0 0 4px; letter-spacing: -0.2px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #1e293b;
+  display: inline-block;
 }
 
 /* --- Featured Section: main + sidebar layout --- */
@@ -141,73 +144,82 @@
 .fc-track { display: flex; transition: transform 0.4s ease; }
 .fc-page { min-width: 100%; }
 .fc-row {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  border-bottom: 1px solid #f1f3f5;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid #e5e7eb;
 }
 .fc-row:last-child { border-bottom: none; }
 .fc-card {
   display: flex; flex-direction: column; align-items: center;
-  padding: 20px 12px 16px;
-  border-right: 1px solid #f1f3f5; cursor: pointer;
+  padding: 24px 16px 0;
+  border-right: 1px solid #e5e7eb; cursor: pointer;
   transition: background 0.2s;
 }
 .fc-card:last-child { border-right: none; }
-.fc-card:hover { background: #f8f9fa; }
+.fc-card:hover { background: #f8fafc; }
 .fc-logo {
-  width: 100%; height: 70px;
+  width: 100%; height: 90px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
-.fc-logo img { max-height: 55px; max-width: 120px; object-fit: contain; }
+.fc-logo img { max-height: 70px; max-width: 150px; object-fit: contain; }
 .fc-brand {
-  font-size: 11px; font-weight: 700; color: #6b7280;
-  letter-spacing: 0.6px; text-align: center;
+  font-size: 11px; font-weight: 600; color: #6b7280;
+  letter-spacing: 0.8px; text-align: center;
+  margin-bottom: 8px;
   display: -webkit-box; -webkit-line-clamp: 1;
   -webkit-box-orient: vertical; overflow: hidden;
 }
 .fc-savings {
-  font-size: 13px; font-weight: 800; color: #1e293b; margin-top: 2px;
+  font-size: 13px; font-weight: 800; color: #1e293b;
+  margin-top: auto;
+  width: calc(100% + 32px);
+  margin-left: -16px; margin-right: -16px;
+  padding: 8px 0;
+  text-align: center;
+  background: #e0f2fe;
 }
 .fc-arrow {
   position: absolute; top: 50%; transform: translateY(-50%);
-  width: 32px; height: 32px; border-radius: 50%;
-  background: #fff; border: 1px solid #e5e7eb;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #fff; border: 1px solid #d1d5db;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 5; transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 5; transition: all 0.2s;
 }
-.fc-arrow:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
-.fc-arrow mat-icon { font-size: 20px; width: 20px; height: 20px; color: #374151; }
-.fc-left { left: 8px; }
-.fc-right { right: 8px; }
+.fc-arrow:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.14); }
+.fc-arrow mat-icon { font-size: 22px; width: 22px; height: 22px; color: #374151; }
+.fc-left { left: 10px; }
+.fc-right { right: 10px; }
 
 /* --- Right Sidebar: Bank Offers & Occasion --- */
-.hs-sidebar { width: 300px; flex-shrink: 0; }
+.hs-sidebar { width: 320px; flex-shrink: 0; }
 .bank-offers {
   background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
-  padding: 16px; margin-bottom: 16px;
+  padding: 20px; margin-bottom: 16px;
 }
 .bank-offers h4 {
-  font-size: 14px; font-weight: 700; color: #1e293b;
-  margin: 0 0 12px;
+  font-size: 16px; font-weight: 700; color: #1e293b;
+  margin: 0 0 14px;
 }
 .bo-card {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 12px; border-radius: 6px; margin-bottom: 8px;
-  background: #f0fdf4; cursor: pointer; transition: background 0.2s;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
+  background: linear-gradient(135deg, #c026d3, #a21caf); cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.bo-card:last-child { margin-bottom: 0; background: #eff6ff; }
-.bo-card:hover { filter: brightness(0.97); }
+.bo-card:last-child { margin-bottom: 0; background: linear-gradient(135deg, #c026d3, #86198f); }
+.bo-card:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(162,28,175,0.25); }
 .bo-logo {
-  width: 48px; height: 32px; border-radius: 4px; flex-shrink: 0;
+  width: 56px; height: 40px; border-radius: 6px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-size: 10px; font-weight: 800; color: #fff;
+  background: rgba(255,255,255,0.2);
 }
-.bo-logo.sbi { background: #1e40af; }
-.bo-logo.sbi::after { content: 'SBI'; }
-.bo-logo.yesbank { background: #0369a1; }
-.bo-logo.yesbank::after { content: 'YES'; }
-.bo-info strong { display: block; font-size: 13px; color: #1e293b; }
-.bo-info span { font-size: 11px; color: #6b7280; line-height: 1.3; }
+.bo-logo.sbi { background: #fff; }
+.bo-logo.sbi::after { content: 'SBI'; color: #1e40af; }
+.bo-logo.yesbank { background: #fff; }
+.bo-logo.yesbank::after { content: 'YES'; color: #0369a1; }
+.bo-info strong { display: block; font-size: 14px; color: #fff; font-weight: 700; }
+.bo-info span { font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.4; }
 
 .occasion-card {
   background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
@@ -335,122 +347,6 @@
   text-align: center; transition: background 0.2s;
 }
 .fda-viewall:hover { background: #6d28d9; }
-
-/* ======= HOMEPAGE SECTIONS ======= */
-.home-sections { max-width: 1600px; margin: 0 auto; padding: 0 48px; }
-.hs-section { margin-bottom: 32px; }
-
-/* --- Section title --- */
-.hs-title {
-  font-size: 20px; font-weight: 700; color: #1e293b;
-  margin: 0 0 16px; letter-spacing: -0.2px;
-}
-
-/* --- Featured Section: main + sidebar layout --- */
-.hs-inner { display: flex; gap: 24px; align-items: flex-start; }
-.hs-main-col { flex: 1; min-width: 0; }
-
-/* --- Featured Carousel --- */
-.featured-carousel {
-  position: relative; overflow: hidden;
-  border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
-}
-.fc-track { display: flex; transition: transform 0.4s ease; }
-.fc-page { min-width: 100%; }
-.fc-row {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  border-bottom: 1px solid #f1f3f5;
-}
-.fc-row:last-child { border-bottom: none; }
-.fc-card {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 20px 12px 16px;
-  border-right: 1px solid #f1f3f5; cursor: pointer;
-  transition: background 0.2s;
-}
-.fc-card:last-child { border-right: none; }
-.fc-card:hover { background: #f8f9fa; }
-.fc-logo {
-  width: 100%; height: 70px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 10px;
-}
-.fc-logo img { max-height: 55px; max-width: 120px; object-fit: contain; }
-.fc-brand {
-  font-size: 11px; font-weight: 700; color: #6b7280;
-  letter-spacing: 0.6px; text-align: center;
-  display: -webkit-box; -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
-.fc-savings {
-  font-size: 13px; font-weight: 800; color: #1e293b; margin-top: 2px;
-}
-.fc-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 32px; height: 32px; border-radius: 50%;
-  background: #fff; border: 1px solid #e5e7eb;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 5; transition: all 0.2s;
-}
-.fc-arrow:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
-.fc-arrow mat-icon { font-size: 20px; width: 20px; height: 20px; color: #374151; }
-.fc-left { left: 8px; }
-.fc-right { right: 8px; }
-
-/* --- Right Sidebar: Bank Offers & Occasion --- */
-.hs-sidebar { width: 300px; flex-shrink: 0; }
-.bank-offers {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
-  padding: 16px; margin-bottom: 16px;
-}
-.bank-offers h4 {
-  font-size: 14px; font-weight: 700; color: #1e293b;
-  margin: 0 0 12px;
-}
-.bo-card {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 12px; border-radius: 6px; margin-bottom: 8px;
-  background: #f0fdf4; cursor: pointer; transition: background 0.2s;
-}
-.bo-card:last-child { margin-bottom: 0; background: #eff6ff; }
-.bo-card:hover { filter: brightness(0.97); }
-.bo-logo {
-  width: 48px; height: 32px; border-radius: 4px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 800; color: #fff;
-}
-.bo-logo.sbi { background: #1e40af; }
-.bo-logo.sbi::after { content: 'SBI'; }
-.bo-logo.yesbank { background: #0369a1; }
-.bo-logo.yesbank::after { content: 'YES'; }
-.bo-info strong { display: block; font-size: 13px; color: #1e293b; }
-.bo-info span { font-size: 11px; color: #6b7280; line-height: 1.3; }
-
-.occasion-card {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
-  padding: 16px; text-align: center;
-}
-.occasion-select {
-  width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb;
-  border-radius: 6px; font-size: 13px; font-weight: 600;
-  color: #374151; background: #fff; font-family: 'Inter', sans-serif;
-  margin-bottom: 12px; cursor: pointer;
-}
-.occasion-img { margin-bottom: 12px; }
-.occasion-placeholder {
-  height: 100px; border-radius: 8px;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 4px;
-}
-.occasion-placeholder mat-icon { font-size: 36px; width: 36px; height: 36px; color: #d97706; }
-.occasion-placeholder span { font-size: 14px; font-weight: 700; color: #92400e; }
-.occasion-explore {
-  display: block; font-size: 13px; font-weight: 700;
-  color: #6b7280; letter-spacing: 0.5px; text-decoration: none;
-  transition: color 0.2s;
-}
-.occasion-explore:hover { color: #7c3aed; }
 
 /* --- Promo Banners --- */
 .pb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -556,63 +452,66 @@
 /* ======= 3-COLUMN SHOWCASE (Xoxoday style) ======= */
 .showcase-section { margin-top: 8px; }
 .showcase-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
 }
 .showcase-col {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
-  padding: 24px; display: flex; flex-direction: column;
+  background: #fef2f2; border: none; border-radius: 14px;
+  padding: 28px; display: flex; flex-direction: column;
 }
+.showcase-col:nth-child(2) { background: #fff7ed; }
+.showcase-col:nth-child(3) { background: #eff6ff; }
 .showcase-title {
   font-size: 18px; font-weight: 800; color: #1e293b; margin: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px; text-transform: uppercase;
 }
 .showcase-sub {
-  font-size: 13px; color: #9ca3af; margin: 2px 0 20px; font-weight: 400;
+  font-size: 13px; color: #6b7280; margin: 4px 0 22px; font-weight: 400;
 }
 .showcase-items {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
   flex: 1;
 }
 .showcase-card {
   text-decoration: none; color: inherit;
   display: flex; flex-direction: column;
-  transition: transform 0.2s;
+  transition: transform 0.25s, box-shadow 0.25s;
 }
-.showcase-card:hover { transform: translateY(-2px); }
+.showcase-card:hover { transform: translateY(-4px); }
 .showcase-img {
-  width: 100%; aspect-ratio: 4 / 3; border-radius: 6px;
-  border: 1px solid #f1f3f5; background: #fafafa;
+  width: 100%; aspect-ratio: 4 / 3; border-radius: 12px;
+  border: none; background: #fff;
   display: flex; align-items: center; justify-content: center;
-  overflow: hidden; margin-bottom: 8px;
+  overflow: hidden; margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 .showcase-img img {
-  max-width: 80%; max-height: 70%; object-fit: contain;
+  max-width: 85%; max-height: 75%; object-fit: contain;
 }
 .showcase-name {
-  font-size: 12px; font-weight: 600; color: #374151; margin: 0;
+  font-size: 13px; font-weight: 600; color: #1e293b; margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .showcase-price {
-  font-size: 11px; color: #9ca3af; margin: 2px 0 0; font-weight: 400;
+  font-size: 12px; color: #6b7280; margin: 4px 0 0; font-weight: 400;
 }
 .showcase-price strong {
-  color: #1e293b; font-weight: 700; font-size: 13px;
+  color: #1e293b; font-weight: 700; font-size: 14px;
 }
 .showcase-explore {
-  display: inline-flex; align-items: center; gap: 4px;
-  margin-top: 16px; padding: 10px 20px; border-radius: 6px;
-  border: 1.5px solid #e5e7eb; background: #fff;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 20px; padding: 10px 22px; border-radius: 8px;
+  border: 1.5px solid #d1d5db; background: #fff;
   font-size: 13px; font-weight: 600; color: #374151;
   text-decoration: none; cursor: pointer; transition: all 0.2s;
   width: fit-content; font-family: 'Inter', sans-serif;
 }
-.showcase-explore:hover { border-color: #7c3aed; color: #7c3aed; }
+.showcase-explore:hover { border-color: #7c3aed; color: #7c3aed; background: #faf5ff; }
 .showcase-explore mat-icon {
   font-size: 18px; width: 18px; height: 18px;
 }
 
 /* ======= MAIN CONTENT ======= */
-.main-content { max-width: 1600px; margin: 0 auto; padding: 24px 48px 80px; }
+.main-content { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
 .main-inner { display: flex; gap: 32px; align-items: flex-start; }
 
 /* ======= FILTER SIDEBAR — GyFTR-style wider sidebar ======= */
@@ -839,22 +738,18 @@
   .banner-section, .page-heading, .main-content { max-width: 1800px; }
 }
 @media (max-width: 1400px) {
-  .v-grid { grid-template-columns: repeat(4, 1fr); }
-}
-@media (max-width: 1100px) {
   .v-grid { grid-template-columns: repeat(3, 1fr); }
   .filter-sidebar { width: 260px; }
   .slide-brand-cards { width: 320px; }
-  .banner-section, .page-heading, .main-content { padding-left: 32px; padding-right: 32px; }
 }
 @media (max-width: 900px) {
-  .banner-section, .page-heading, .main-content { padding-left: 20px; padding-right: 20px; }
+  .banner-section, .page-heading, .home-sections, .main-content { padding-left: 16px; padding-right: 16px; }
   .v-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .slide-content { padding: 36px 32px; min-height: 240px; }
   .slide-text h2 { font-size: 28px; }
   .slide-brand-cards { display: none; }
   .category-hero { min-height: 200px; }
-  .category-hero-content { padding: 0 20px 24px; }
+  .category-hero-content { padding: 0 16px 24px; }
   .category-hero-content h1 { font-size: 28px; }
   /* Sidebar becomes drawer on mobile */
   .filter-sidebar {
@@ -868,7 +763,7 @@
   .main-inner { gap: 0; }
 }
 @media (max-width: 640px) {
-  .banner-section, .page-heading, .main-content { padding-left: 14px; padding-right: 14px; }
+  .banner-section, .page-heading, .home-sections, .main-content { padding-left: 12px; padding-right: 12px; }
   .v-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .vc-img { aspect-ratio: 3 / 2; }
   .vc-img img { padding: 12px; }

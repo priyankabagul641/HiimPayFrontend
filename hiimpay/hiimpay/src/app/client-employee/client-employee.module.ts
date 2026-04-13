@@ -1,3 +1,4 @@
+import { MatDividerModule } from '@angular/material/divider';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClientEmployeeComponent } from './client-employee.component';
@@ -72,6 +73,7 @@ import { CartComponent } from './pages/cart/cart.component';
     MatDialogModule,
     MatRadioModule,
     MatBadgeModule,
+    MatDividerModule,
     NgCircleProgressModule.forRoot({
       "radius": 60,
       "space": -10,

@@ -1,0 +1,5 @@
+<section class="category-page">
+  <h2 class="cat-title" *ngIf="type">{{ type }}</h2>
+  <!-- Pass initial category into voucher list so it filters on load -->
+  <app-voucher-list [initialCategory]="type || 'All'"></app-voucher-list>
+</section>

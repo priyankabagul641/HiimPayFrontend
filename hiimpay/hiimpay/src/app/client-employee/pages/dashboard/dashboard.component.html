@@ -1,77 +1,295 @@
-<ng-container>
-  <div class="metrics-grid">
-    <article
-      class="metric-card wallet metric-card-action"
-      role="button"
-      tabindex="0"
-      (click)="openWalletPage()"
-      (keydown.enter)="openWalletPage()"
-      (keydown.space)="$event.preventDefault(); openWalletPage()"
-    >
-      <div class="metric-top">
-        <span class="metric-icon"><mat-icon>account_balance_wallet</mat-icon></span>
-        <!-- <span class="metric-trend up">+8%</span> -->
-      </div>
-      <p>Wallet Balance</p>
-      <h3>₹{{ shell.walletBalance }}</h3>
-    </article>
-  </div>
+<div class="store-page">
 
-  <div class="quick-actions">
-    <article class="qa-tile" *ngFor="let item of shell.quickActions">
-      <mat-icon class="qa-icon">{{ item.icon }}</mat-icon>
-      <p>{{ item.title }}</p>
-      <small>{{ item.description }}</small>
-      <button (click)="shell.onQuickAction(item.action)">Open</button>
-    </article>
-  </div>
 
-  <div class="featured-section">
-    <div class="featured-header">
-      <h2>Featured Offers</h2>
-      <p>Get amazing discounts on your favorite brands</p>
-    </div>
 
-    <div class="coupon-grid">
-      <article
-        class="coupon-card"
-        *ngFor="let offer of shell.featuredOffers; let i = index"
-        [style.--i]="i"
-        (click)="shell.openCouponDetails(offer.id)"
-      >
-        <div class="coupon-image-wrap">
-          <ng-container *ngIf="hasOfferImage(offer); else noImageState">
-            <img
-              [src]="offer.image"
-              [alt]="offer.brand"
-              class="coupon-image"
-              (error)="onOfferImageError(offer)"
-            />
-          </ng-container>
-          <ng-template #noImageState>
-            <div class="coupon-image-fallback" aria-label="No image available">
-              <mat-icon>image_not_supported</mat-icon>
-              <span>No Image</span>
+  <!-- ═══ BANNER CAROUSEL ═══ -->
+  <section class="banner-section">
+    <div class="banner-inner">
+      <div class="banner-slider" [style.transform]="'translateX(-' + (shell.currentSlide * 100) + '%)'">
+        <div class="banner-slide" *ngFor="let slide of shell.bannerSlides">
+          <div class="slide-content" [style.background]="slide.gradient">
+            <div class="slide-decor">
+              <div class="decor-circle c1"></div>
+              <div class="decor-circle c2"></div>
+              <div class="decor-circle c3"></div>
             </div>
-          </ng-template>
+            <div class="slide-text">
+              <h2>{{ slide.title }}</h2>
+              <p>{{ slide.subtitle }}</p>
+              <button class="slide-cta" routerLink="/clientEmployee/browse">Explore Now</button>
+            </div>
+            <div class="slide-brand-cards">
+              <div class="brand-float-card"
+                *ngFor="let card of slide.brandCards; let i = index"
+                [class]="'bfc bfc-' + i"
+                [style.--rotate]="card.rotate">
+                <img [src]="card.logo" [alt]="card.name" loading="lazy"
+                  (error)="$any($event.target).parentElement.style.display='none'" />
+                <span class="bfc-name">{{ card.name }}</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <button class="banner-arrow left" (click)="shell.prevSlide()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button class="banner-arrow right" (click)="shell.nextSlide()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <div class="banner-dots">
+        <span *ngFor="let slide of shell.bannerSlides; let i = index"
+          class="dot" [class.active]="i === shell.currentSlide"
+          (click)="shell.goToSlide(i)"></span>
+      </div>
+    </div>
+  </section>
 
-        <div class="coupon-content">
-          <h3>{{ offer.title || (offer.brand + ' E-Gift Card') }}</h3>
-          <p class="coupon-brand">{{ offer.brand }}</p>
+  <!-- ═══ BREADCRUMB ═══ -->
+  <section class="page-heading">
+    <nav class="breadcrumb">
+      <a routerLink="/clientEmployee/dashboard">Home</a>
+      <span class="sep">/</span>
+      <span class="current">Gift Card</span>
+    </nav>
+  </section>
 
-          <div class="coupon-footer">
-            <div class="discount-wrap">
-              <span class="discount-value">{{ offer.discountPercent }}%</span>
-              <span class="discount-label">Discount</span>
+  <!-- ═══ HOME SECTIONS ═══ -->
+  <div class="home-sections" *ngIf="!shell.browseCouponsLoading && shell.browseCoupons.length > 0">
+
+    <!-- FEATURED BRANDS -->
+    <section class="hs-section featured-section">
+      <div class="hs-inner">
+        <div class="hs-main-col">
+          <h2 class="hs-title">Featured brands</h2>
+          <div class="featured-carousel">
+            <div class="fc-track" [style.transform]="'translateX(-' + (shell.featuredCarouselPage * 100) + '%)'">
+              <div class="fc-page" *ngFor="let page of shell.featuredCarouselPages">
+                <div class="fc-row" *ngFor="let row of page">
+                  <div class="fc-card" *ngFor="let v of row" (click)="shell.openCouponDetails(v.id)">
+                    <div class="fc-logo">
+                      <div class="fc-logo-pill" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+                    </div>
+                    <span class="fc-brand">{{ v.brand | uppercase }}</span>
+                    <span class="fc-savings" *ngIf="v.discountPercent > 0">Savings {{ v.discountPercent }}%</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <button class="buy-now-btn" (click)="$event.stopPropagation(); shell.openCouponDetails(offer.id)">
-              <span>Buy Now</span>
-              <span class="btn-arrow">›</span>
+            <button class="fc-arrow fc-left" (click)="shell.prevFeaturedCarousel()"
+              *ngIf="shell.featuredCarouselPage > 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button class="fc-arrow fc-right" (click)="shell.nextFeaturedCarousel()"
+              *ngIf="shell.featuredCarouselPage < shell.featuredCarouselPages.length - 1">
+              <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
         </div>
-      </article>
+
+        <!-- Right sidebar -->
+        <aside class="hs-sidebar">
+          <div class="bank-offers">
+            <h4>Wallet &amp; Benefits</h4>
+            <div class="bo-card" routerLink="/clientEmployee/wallet">
+              <div class="bo-logo bo-wallet">
+                <mat-icon>account_balance_wallet</mat-icon>
+              </div>
+              <div class="bo-info">
+                <strong>Employee Wallet</strong>
+                <span>Balance: ₹{{ shell.walletBalance }}</span>
+              </div>
+            </div>
+            <div class="bo-card" routerLink="/clientEmployee/my-coupons">
+              <div class="bo-logo bo-voucher">
+                <mat-icon>sell</mat-icon>
+              </div>
+              <div class="bo-info">
+                <strong>Active Vouchers</strong>
+                <span>{{ shell.couponCounts.totalCount }} vouchers available</span>
+              </div>
+            </div>
+          </div>
+          <div class="occasion-card">
+            <select class="occasion-select">
+              <option>Birthday Gift Cards</option>
+              <option>Anniversary Gift Cards</option>
+              <option>Wedding Gift Cards</option>
+              <option>Thank You Gift Cards</option>
+            </select>
+            <div class="occasion-img">
+              <div class="occasion-placeholder">
+                <mat-icon>card_giftcard</mat-icon>
+                <span>Send a Gift!</span>
+              </div>
+            </div>
+            <a class="occasion-explore" routerLink="/clientEmployee/browse">EXPLORE NOW</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PROMO BANNERS -->
+    <section class="hs-section promo-banners">
+      <div class="pb-row">
+        <div class="pb-card pb-travel" routerLink="/clientEmployee/browse" style="cursor:pointer;">
+          <div class="pb-content">
+            <span class="pb-sub">Explore All Categories</span>
+            <strong>Company Vouchers</strong>
+          </div>
+          <button class="pb-btn" type="button">Visit Now</button>
+        </div>
+        <div class="pb-card pb-bills" routerLink="/clientEmployee/wallet" style="cursor:pointer;">
+          <div class="pb-content">
+            <mat-icon class="pb-icon">account_balance_wallet</mat-icon>
+            <div>
+              <span class="pb-sub">Manage Funds</span>
+              <strong>My Wallet &amp; Savings</strong>
+            </div>
+          </div>
+          <button class="pb-btn" type="button">Visit Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLAT DISCOUNT -->
+    <section class="hs-section flat-discount-section">
+      <div class="fd-row">
+        <div class="fd-main">
+          <p class="fd-sub">No Strings attached</p>
+          <h2 class="fd-title">Flat Discount. For sure!</h2>
+          <div class="fd-pills">
+            <button class="fd-pill" [class.active]="shell.flatDiscountFilter === 'all'"
+              (click)="shell.flatDiscountFilter = 'all'">All</button>
+            <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '1-5'"
+              (click)="shell.flatDiscountFilter = '1-5'">1% - 5%</button>
+            <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '6-10'"
+              (click)="shell.flatDiscountFilter = '6-10'">6% - 10%</button>
+            <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '11-20'"
+              (click)="shell.flatDiscountFilter = '11-20'">11% - 20%</button>
+            <button class="fd-pill" [class.active]="shell.flatDiscountFilter === '21-100'"
+              (click)="shell.flatDiscountFilter = '21-100'">21% + Above</button>
+          </div>
+          <div class="fd-grid">
+            <div class="fc-card" *ngFor="let v of shell.flatDiscountVouchers" (click)="shell.openCouponDetails(v.id)">
+              <div class="fc-logo">
+                <div class="fc-logo-pill" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+              </div>
+              <span class="fc-brand">{{ v.brand | uppercase }}</span>
+              <span class="fc-savings" *ngIf="v.discountPercent > 0">Savings {{ v.discountPercent }}%</span>
+            </div>
+          </div>
+          <button class="fd-viewall" type="button" routerLink="/clientEmployee/browse">VIEW ALL</button>
+        </div>
+        <aside class="fd-aside">
+          <div class="fda-block">
+            <p class="fda-sub">Get something extra</p>
+            <h3>Free Vouchers. Every time!</h3>
+            <div class="fda-promo">
+              <mat-icon>card_giftcard</mat-icon>
+              <span>Bonus vouchers on every purchase</span>
+            </div>
+            <button class="fda-viewall" type="button" routerLink="/clientEmployee/browse">VIEW ALL</button>
+          </div>
+          <div class="fda-block">
+            <p class="fda-sub">Track your spending</p>
+            <h3>Transaction History</h3>
+            <div class="fda-brands">
+              <div class="fda-brand-card" *ngFor="let v of (shell.browseCoupons | slice:0:2)"
+                (click)="shell.openCouponDetails(v.id)">
+                <div class="fda-brand-icon" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+                <span class="fda-offer">{{ v.discountPercent > 0 ? (v.discountPercent + '% off') : 'Offer' }}</span>
+              </div>
+            </div>
+            <button class="fda-viewall" type="button" routerLink="/clientEmployee/transactions">VIEW ALL</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 3-COLUMN SHOWCASE -->
+    <section class="hs-section showcase-section">
+      <div class="showcase-grid">
+        <!-- Dining -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">DINING</h2>
+          <p class="showcase-sub">Discover the Best Restaurants</p>
+          <div class="showcase-items">
+            <div class="showcase-card" *ngFor="let v of shell.getShowcaseVouchers('Food & Dining', 0, 4)"
+              (click)="shell.openCouponDetails(v.id)">
+              <div class="showcase-img">
+                <div class="showcase-brand-icon" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+              </div>
+              <p class="showcase-name">{{ v.brand }}</p>
+              <p class="showcase-price" *ngIf="v.minValue">Starts From <strong>INR {{ v.minValue | number }}</strong></p>
+              <p class="showcase-price" *ngIf="!v.minValue"><strong>{{ v.discountPercent > 0 ? v.discountPercent + '% OFF' : 'Offer' }}</strong></p>
+            </div>
+          </div>
+          <a class="showcase-explore" routerLink="/clientEmployee/browse">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+        <!-- Fashion/Shopping -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">FASHION</h2>
+          <p class="showcase-sub">Top Brands This Season</p>
+          <div class="showcase-items">
+            <div class="showcase-card" *ngFor="let v of shell.getShowcaseVouchers('Shopping', 0, 4)"
+              (click)="shell.openCouponDetails(v.id)">
+              <div class="showcase-img">
+                <div class="showcase-brand-icon" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+              </div>
+              <p class="showcase-name">{{ v.brand }}</p>
+              <p class="showcase-price" *ngIf="v.minValue">Starts From <strong>INR {{ v.minValue | number }}</strong></p>
+              <p class="showcase-price" *ngIf="!v.minValue"><strong>{{ v.discountPercent > 0 ? v.discountPercent + '% OFF' : 'Offer' }}</strong></p>
+            </div>
+          </div>
+          <a class="showcase-explore" routerLink="/clientEmployee/browse">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+        <!-- Gift Cards -->
+        <div class="showcase-col">
+          <h2 class="showcase-title">GIFT CARDS</h2>
+          <p class="showcase-sub">Must-Have Cards This Season</p>
+          <div class="showcase-items">
+            <div class="showcase-card"
+              *ngFor="let v of (shell.browseCoupons | slice:0:4)"
+              (click)="shell.openCouponDetails(v.id)">
+              <div class="showcase-img">
+                <div class="showcase-brand-icon" [style.background]="v.brandColor">{{ v.brandLogo }}</div>
+              </div>
+              <p class="showcase-name">{{ v.brand }}</p>
+              <p class="showcase-price" *ngIf="v.minValue">Starts From <strong>INR {{ v.minValue | number }}</strong></p>
+              <p class="showcase-price" *ngIf="!v.minValue"><strong>{{ v.discountPercent > 0 ? v.discountPercent + '% OFF' : 'Offer' }}</strong></p>
+            </div>
+          </div>
+          <a class="showcase-explore" routerLink="/clientEmployee/browse">
+            Explore All <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="loading-skeletons" *ngIf="shell.browseCouponsLoading">
+    <div class="sk-banner pulse"></div>
+    <div class="hs-section" style="max-width:1400px;margin:24px auto;padding:0 24px;">
+      <div class="sk-line w30 pulse" style="height:22px;margin-bottom:16px;border-radius:6px;"></div>
+      <div class="sk-grid">
+        <div class="sk-card pulse" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+      </div>
     </div>
   </div>
-</ng-container>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!shell.browseCouponsLoading && shell.browseCoupons.length === 0">
+    <mat-icon>card_giftcard</mat-icon>
+    <h3>No vouchers available yet</h3>
+    <p>Check back soon for exclusive employee offers!</p>
+  </div>
+
+</div>
+

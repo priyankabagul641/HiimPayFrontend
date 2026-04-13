@@ -13,12 +13,28 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   profileInfo: any;
-  constructor(private dialog: MatDialog,private api:EmployeeService,private tosatr:ToastrService,private router:Router) {}
+  activeTab: 'profile' | 'transactions' | 'epay' | 'autopay' | 'helpdesk' = 'profile';
+
+  constructor(private dialog: MatDialog, private api: EmployeeService, private tosatr: ToastrService, private router: Router) {}
+
   ngOnInit(): void {
     this.profileInfo = JSON.parse(
       sessionStorage.getItem('currentLoggedInUserData')!
     );
   }
+
+  goToTransactions() {
+    this.router.navigate(['/clientEmployee/transactions']);
+  }
+
+  goToHelpdesk() {
+    this.router.navigate(['/clientEmployee/faq']);
+  }
+
+  changePassword() {
+    this.onEdit();
+  }
+
   onEdit() {
     const dialogRef = this.dialog.open(ProfileUpdateDialogComponent, {
       width: '600px',

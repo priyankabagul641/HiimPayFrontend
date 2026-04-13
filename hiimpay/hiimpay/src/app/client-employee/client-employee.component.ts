@@ -44,6 +44,7 @@ export class ClientEmployeeComponent implements OnInit {
   showToast = false;
   copiedCouponCode = '';
   showSidebar = true;
+  mobileMenuOpen = false;
   showNotificationPanel = false;
   showFaqPanel = false;
   faqOpenIndex = -1;
@@ -80,6 +81,33 @@ export class ClientEmployeeComponent implements OnInit {
   selectedBrand = 'All';
   selectedCategory = 'All';
   selectedDiscountType = 'All';
+
+  // Dashboard home-page carousel & filter state
+  currentSlide = 0;
+  featuredCarouselPage = 0;
+  flatDiscountFilter = 'all';
+
+  bannerSlides = [
+    {
+      title: 'Employee Benefits, Simplified',
+      subtitle: 'Exclusive gift cards & vouchers curated just for you.',
+      gradient: 'linear-gradient(135deg, #2b2e83 0%, #7b3fe4 60%, #a855f7 100%)',
+      brandCards: [
+        { name: 'Amazon', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', rotate: '-4deg' },
+        { name: 'Swiggy', logo: 'https://upload.wikimedia.org/wikipedia/en/1/12/Swiggy_logo.svg', rotate: '3deg' },
+        { name: 'Flipkart', logo: 'https://upload.wikimedia.org/wikipedia/en/7/74/Flipkart_logo.svg', rotate: '-2deg' }
+      ]
+    },
+    {
+      title: 'Save More on Every Purchase',
+      subtitle: 'Up to 30% off on top brands with your employee wallet.',
+      gradient: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 60%, #3b82f6 100%)',
+      brandCards: [
+        { name: 'Myntra', logo: 'https://upload.wikimedia.org/wikipedia/en/8/80/Logo_of_Myntra.svg', rotate: '4deg' },
+        { name: 'Zomato', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/75/Zomato_logo.png', rotate: '-3deg' }
+      ]
+    }
+  ];
 
   categories = [
     { icon: 'lunch_dining', label: 'Food & Dining', accent: 'food' },
@@ -472,6 +500,55 @@ export class ClientEmployeeComponent implements OnInit {
     return this.walletBalance;
   }
 
+  // ─── Dashboard banner carousel ────────────────────────────────
+  prevSlide() {
+    this.currentSlide = (this.currentSlide - 1 + this.bannerSlides.length) % this.bannerSlides.length;
+  }
+  nextSlide() {
+    this.currentSlide = (this.currentSlide + 1) % this.bannerSlides.length;
+  }
+  goToSlide(i: number) { this.currentSlide = i; }
+
+  // ─── Featured brand carousel (2-row pages) ────────────────────
+  get featuredCarouselPages(): any[][][] {
+    const list = this.browseCoupons.slice(0, 32);
+    const pages: any[][][] = [];
+    const perRow = 4;
+    const perPage = 8;
+    for (let p = 0; p < list.length; p += perPage) {
+      const chunk = list.slice(p, p + perPage);
+      const rows: any[][] = [];
+      for (let r = 0; r < chunk.length; r += perRow) {
+        rows.push(chunk.slice(r, r + perRow));
+      }
+      pages.push(rows);
+    }
+    return pages.length ? pages : [[[]]];
+  }
+  prevFeaturedCarousel() {
+    if (this.featuredCarouselPage > 0) this.featuredCarouselPage--;
+  }
+  nextFeaturedCarousel() {
+    if (this.featuredCarouselPage < this.featuredCarouselPages.length - 1) this.featuredCarouselPage++;
+  }
+
+  // ─── Flat discount filter ─────────────────────────────────────
+  get flatDiscountVouchers(): any[] {
+    const f = this.flatDiscountFilter;
+    return this.browseCoupons.filter(v => {
+      const d = v.discountPercent ?? 0;
+      if (f === 'all') return true;
+      const [lo, hi] = f.split('-').map(Number);
+      return d >= lo && d <= hi;
+    }).slice(0, 4);
+  }
+
+  // ─── Showcase vouchers by category ───────────────────────────
+  getShowcaseVouchers(category: string, start: number, end: number): any[] {
+    const filtered = this.browseCoupons.filter(v => v.category === category);
+    return (filtered.length >= 2 ? filtered : this.browseCoupons).slice(start, end);
+  }
+
   openCouponDetails(offerId: number) {
     this.selectedOfferId = offerId;
     this.router.navigate(['/clientEmployee/coupon-details', offerId]);
@@ -621,6 +698,15 @@ export class ClientEmployeeComponent implements OnInit {
     if (this.showNotificationPanel) {
       this.showFaqPanel = false;
       this.notifications = this.notifications.map((item) => ({ ...item, unread: false }));
+    }
+  }
+
+  onHeaderSearch(): void {
+    const term = this.searchTerm.trim();
+    if (term) {
+      this.router.navigate(['/clientEmployee/browse'], { queryParams: { search: term } });
+    } else {
+      this.router.navigate(['/clientEmployee/browse']);
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -16,6 +16,7 @@ export class VoucherListComponent implements OnInit, OnDestroy {
   filteredVouchers: Voucher[] = [];
   loading = true;
   searchText = '';
+  @Input() initialCategory?: string | VoucherCategory;
   selectedCategory: VoucherCategory = 'All';
   selectedPriceRange = 'all';
   cartCount = 0;
@@ -108,6 +109,10 @@ export class VoucherListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // If parent passed an initial category (CategoryComponent), use it before loading
+    if (this.initialCategory) {
+      this.selectedCategory = this.initialCategory as VoucherCategory;
+    }
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['category']) {
         this.selectedCategory = params['category'] as VoucherCategory;
@@ -131,6 +136,17 @@ export class VoucherListComponent implements OnInit, OnDestroy {
 
     this.loadVouchers();
     this.startAutoSlide();
+    // if embedded with initialCategory input (from CategoryComponent), apply it
+    if (this.initialCategory) {
+      this.selectedCategory = this.initialCategory as VoucherCategory;
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialCategory'] && !changes['initialCategory'].isFirstChange()) {
+      this.selectedCategory = changes['initialCategory'].currentValue || 'All';
+      this.applyFilters();
+    }
   }
 
   ngOnDestroy(): void {
@@ -231,13 +247,13 @@ export class VoucherListComponent implements OnInit, OnDestroy {
   }
 
   private buildFeaturedPages(): void {
-    const items = this.vouchers.slice(0, 20);
-    const perPage = 10; // 2 rows x 5
+    const items = this.vouchers.slice(0, 24);
+    const perPage = 8; // 2 rows x 4
     const pages: Voucher[][][] = [];
     for (let p = 0; p < items.length; p += perPage) {
       const pageItems = items.slice(p, p + perPage);
-      const row1 = pageItems.slice(0, 5);
-      const row2 = pageItems.slice(5, 10);
+      const row1 = pageItems.slice(0, 4);
+      const row2 = pageItems.slice(4, 8);
       const rows: Voucher[][] = [row1];
       if (row2.length) rows.push(row2);
       pages.push(rows);

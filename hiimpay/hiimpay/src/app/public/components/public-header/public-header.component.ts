@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { PublicCartService } from '../../services/public-cart.service';
-import { Subscription, filter } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-public-header',
@@ -12,11 +12,10 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
   cartCount = 0;
   scrolled = false;
   mobileMenuOpen = false;
-  activeCategory = 'All';
+  showLoginModal = false;
   private sub!: Subscription;
-  private routeSub!: Subscription;
 
-  constructor(private cartService: PublicCartService, private router: Router, private route: ActivatedRoute) {}
+  constructor(private cartService: PublicCartService, private router: Router) {}
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -27,23 +26,14 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
     this.sub = this.cartService.cartItemCount$.subscribe(count => {
       this.cartCount = count;
     });
-    this.routeSub = this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe(() => {
-      const url = this.router.url;
-      if (url.includes('/vouchers')) {
-        const cat = this.route.firstChild?.firstChild?.snapshot?.queryParams?.['category'];
-        this.activeCategory = cat || 'All';
-      } else {
-        this.activeCategory = '';
-      }
-    });
+    // header only handles navigation; active state is managed by routerLinkActive in template
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
-    this.routeSub?.unsubscribe();
   }
+
+  // header only navigates; mobile menu helper
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -51,5 +41,9 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
+  }
+
+  openLoginModal(): void {
+    this.showLoginModal = true;
   }
 }

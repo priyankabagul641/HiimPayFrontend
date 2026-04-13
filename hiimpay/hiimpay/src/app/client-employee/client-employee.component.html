@@ -1,127 +1,221 @@
-<div class="coupon-portal">
-  <div class="ambient-bg"></div>
+<div class="ce-shell">
 
-  <section class="screen app-screen" [class.sidebar-hidden]="!showSidebar">
-    <aside class="left-nav" [class.hidden]="!showSidebar">
-      <div class="nav-brand">
-        <img src="assets/images/navexwise.jpeg" alt="HiimPay" />
-        <div *ngIf="showSidebar">
-          <strong>HiimPay</strong>
-          <!-- <span>Coupon Portal</span> -->
+  <!-- ══ STICKY TOP HEADER ══ -->
+  <header class="ce-header">
+
+    <!-- Top bar -->
+    <div class="ce-header-top">
+      <div class="ce-ht-inner">
+        <div class="ce-ht-links">
+          <a (click)="toggleFaqPanel()">Help & FAQ</a>
+          <a routerLink="/clientEmployee/transactions">My Transactions</a>
+          <a routerLink="/clientEmployee/browse">How to Redeem?</a>
         </div>
       </div>
+    </div>
 
-      <button
-        routerLink="/clientEmployee/dashboard"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        title="Dashboard"
-        data-short="DB"
-      >
-        <mat-icon>dashboard</mat-icon>
-        <span class="label">Dashboard</span>
-      </button>
+    <!-- Main row: Logo | Search | Actions -->
+    <div class="ce-header-main">
+      <div class="ce-hm-inner">
 
-      <button
-        routerLink="/clientEmployee/browse"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        title="Browse Coupons"
-        data-short="BR"
-      >
-        <mat-icon>confirmation_number</mat-icon>
-        <span class="label">Browse Coupons</span>
-      </button>
+        <!-- Logo -->
+        <a class="ce-brand" routerLink="/clientEmployee/dashboard">
+          <img src="assets/images/navexwise.jpeg" alt="HiimPay" class="ce-brand-img" />
+          <span class="ce-brand-name">Hiim<span class="ce-brand-accent">Pay</span></span>
+        </a>
 
-      <button
-        routerLink="/clientEmployee/my-coupons"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        title="My Coupons"
-        data-short="MC"
-      >
-        <mat-icon>sell</mat-icon>
-        <span class="label">My Coupons</span>
-      </button>
-
-      <button
-        routerLink="/clientEmployee/wallet"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        title="Wallet"
-        data-short="WL"
-      >
-        <mat-icon>account_balance_wallet</mat-icon>
-        <span class="label">Wallet</span>
-      </button>
-    </aside>
-
-    <main class="main-content">
-      <header class="screen-header">
-        <div class="header-actions">
-          <button class="icon-action" type="button" (click)="toggleSidebar()">☰</button>
-          <button class="icon-action" type="button" *ngIf="showBackButton" (click)="goBack()">← Back</button>
+        <!-- Search bar -->
+        <div class="ce-header-search">
+          <mat-icon class="ce-hs-icon">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Search for Gift Cards & Vouchers"
+            [(ngModel)]="searchTerm"
+            (keyup.enter)="onHeaderSearch()"
+          />
         </div>
 
-        <h2 *ngIf="isDashboardRoute">Hello, {{ loggedInUserName }}</h2>
-        <h2 *ngIf="!isDashboardRoute && !isDetailsView">{{ currentTitle }}</h2>
-        <h2 *ngIf="isDetailsView">Coupon Details</h2>
+        <!-- Right actions -->
+        <div class="ce-actions">
 
-        <div class="header-actions right">
-          <button class="icon-only" type="button" (click)="openCart()" title="Cart" aria-label="Cart">
+          <!-- Wallet balance pill -->
+          <button class="ce-wallet-pill" routerLink="/clientEmployee/wallet" title="Wallet Balance">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span>₹{{ walletBalance | number:'1.0-0' }}</span>
+          </button>
+
+          <!-- Cart -->
+          <button class="ce-icon-btn" (click)="openCart()" title="Cart">
             <mat-icon>shopping_cart</mat-icon>
+            <span class="ce-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
           </button>
-          <button class="icon-only" type="button" (click)="toggleFaqPanel()" title="FAQ" aria-label="FAQ">
-            <mat-icon>help_outline</mat-icon>
-          </button>
-          <button class="icon-only bell" type="button" (click)="toggleNotifications()" title="Notifications" aria-label="Notifications">
+
+          <!-- Notifications -->
+          <button class="ce-icon-btn" (click)="toggleNotifications()" title="Notifications"
+                  [class.active]="showNotificationPanel">
             <mat-icon>notifications_none</mat-icon>
-            <span *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            <span class="ce-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
           </button>
-          <button class="avatar-btn" [matMenuTriggerFor]="profileMenu" type="button" title="Profile" aria-label="Profile">
-            <img src="assets/images/navexwise.jpeg" alt="profile" />
+
+          <!-- Profile avatar (initial only — no greeting text) -->
+          <button class="ce-avatar-btn" [matMenuTriggerFor]="profileMenu" title="My Account">
+            {{ (loggedInUserName || 'U').charAt(0).toUpperCase() }}
+          </button>
+
+          <!-- Hamburger (mobile only) -->
+          <button class="ce-hamburger" (click)="mobileMenuOpen = !mobileMenuOpen">
+            <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
           </button>
         </div>
-      </header>
-
-      <mat-menu #profileMenu="matMenu">
-        <button mat-menu-item (click)="openProfile()">
-          <mat-icon>person</mat-icon>
-          <span>Profile</span>
-        </button>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
-        </button>
-      </mat-menu>
-
-      <section class="floating-panel" *ngIf="showNotificationPanel">
-        <h4>Notifications</h4>
-        <div class="notification-item" *ngFor="let item of notifications">
-          <p>{{ item.message }}</p>
-          <small>{{ item.time }}</small>
-        </div>
-      </section>
-
-      <section class="floating-panel" *ngIf="showFaqPanel">
-        <h4>Frequently Asked Questions</h4>
-        <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faqOpenIndex === i">
-          <button class="faq-toggle" type="button" (click)="toggleFaqItem(i)">
-            <span class="q">{{ faq.question }}</span>
-            <span class="expand">{{ faqOpenIndex === i ? '−' : '+' }}</span>
-          </button>
-          <p class="a" *ngIf="faqOpenIndex === i">{{ faq.answer }}</p>
-        </div>
-      </section>
-
-      <div class="content-stack">
-        <router-outlet></router-outlet>
       </div>
-    </main>
-  </section>
+    </div>
 
-  <div class="toast" *ngIf="showToast">{{ toastMessage }}</div>
+    <!-- Category nav row -->
+    <div class="ce-header-cat">
+      <div class="ce-hc-inner">
+        <nav class="ce-hc-nav">
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Shopping'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>shopping_bag</mat-icon><span>Shopping</span>
+          </a>
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Food & Dining'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>restaurant</mat-icon><span>Dining</span>
+          </a>
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Travel'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>flight</mat-icon><span>Travel</span>
+          </a>
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Electronics'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>devices</mat-icon><span>Electronics</span>
+          </a>
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Entertainment'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>movie</mat-icon><span>Entertainment</span>
+          </a>
+          <a class="ce-hc-item" routerLink="/clientEmployee/browse"
+             [queryParams]="{category: 'Health & Wellness'}" routerLinkActive="active"
+             (click)="mobileMenuOpen=false">
+            <mat-icon>favorite</mat-icon><span>Wellness</span>
+          </a>
+        </nav>
+      </div>
+    </div>
 
+    <!-- Mobile nav drawer -->
+    <div class="ce-mob-overlay" *ngIf="mobileMenuOpen" (click)="mobileMenuOpen=false"></div>
+    <nav class="ce-mob-nav" [class.show]="mobileMenuOpen">
+      <a routerLink="/clientEmployee/dashboard" (click)="mobileMenuOpen=false">
+        <mat-icon>dashboard</mat-icon> Dashboard
+      </a>
+      <a routerLink="/clientEmployee/browse" (click)="mobileMenuOpen=false">
+        <mat-icon>confirmation_number</mat-icon> Browse
+      </a>
+      <a routerLink="/clientEmployee/my-coupons" (click)="mobileMenuOpen=false">
+        <mat-icon>sell</mat-icon> My Vouchers
+      </a>
+      <a routerLink="/clientEmployee/wallet" (click)="mobileMenuOpen=false">
+        <mat-icon>account_balance_wallet</mat-icon> Wallet
+      </a>
+    </nav>
+
+  </header>
+
+  <!-- Profile menu -->
+  <mat-menu #profileMenu="matMenu" class="ce-profile-menu">
+    <div class="ce-profile-info" mat-menu-item disabled>
+      <div class="ce-profile-avatar-lg">{{ (loggedInUserName || 'U').charAt(0).toUpperCase() }}</div>
+      <div>
+        <strong>{{ loggedInUserName }}</strong>
+        <small>Employee</small>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Quick nav (moved from header) -->
+    <button mat-menu-item routerLink="/clientEmployee/browse">
+      <mat-icon>confirmation_number</mat-icon><span>Browse Vouchers</span>
+    </button>
+    <button mat-menu-item routerLink="/clientEmployee/my-coupons">
+      <mat-icon>sell</mat-icon><span>My Vouchers</span>
+    </button>
+    <button mat-menu-item routerLink="/clientEmployee/wallet">
+      <mat-icon>account_balance_wallet</mat-icon><span>Wallet</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="openProfile()">
+      <mat-icon>person_outline</mat-icon><span>My Profile</span>
+    </button>
+    <button mat-menu-item routerLink="/clientEmployee/transactions">
+      <mat-icon>receipt_long</mat-icon><span>Transactions</span>
+    </button>
+    <button mat-menu-item (click)="toggleFaqPanel()">
+      <mat-icon>help_outline</mat-icon><span>Help & FAQ</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()" class="ce-logout-item">
+      <mat-icon>logout</mat-icon><span>Logout</span>
+    </button>
+  </mat-menu>
+
+  <!-- Notification panel (slide-in) -->
+  <div class="ce-side-panel" [class.open]="showNotificationPanel">
+    <div class="ce-panel-head">
+      <h4>Notifications</h4>
+      <button class="ce-panel-close" (click)="showNotificationPanel=false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="ce-panel-empty" *ngIf="!notifications.length">
+      <mat-icon>notifications_none</mat-icon>
+      <p>No notifications yet</p>
+    </div>
+    <div class="ce-notif-item" *ngFor="let item of notifications" [class.unread]="item.unread">
+      <p>{{ item.message }}</p>
+      <small>{{ item.time }}</small>
+    </div>
+  </div>
+
+  <!-- FAQ panel (slide-in) -->
+  <div class="ce-side-panel" [class.open]="showFaqPanel">
+    <div class="ce-panel-head">
+      <h4>Help & FAQ</h4>
+      <button class="ce-panel-close" (click)="showFaqPanel=false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="ce-panel-empty" *ngIf="!faqs.length">
+      <mat-icon>help_outline</mat-icon>
+      <p>No FAQs available</p>
+    </div>
+    <div class="ce-faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faqOpenIndex === i">
+      <button class="ce-faq-toggle" type="button" (click)="toggleFaqItem(i)">
+        <span>{{ faq.question }}</span>
+        <mat-icon>{{ faqOpenIndex === i ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+      <p class="ce-faq-answer" *ngIf="faqOpenIndex === i">{{ faq.answer }}</p>
+    </div>
+  </div>
+
+  <!-- Panel backdrop -->
+  <div class="ce-panel-backdrop"
+       *ngIf="showNotificationPanel || showFaqPanel"
+       (click)="showNotificationPanel=false; showFaqPanel=false"></div>
+
+  <!-- ══ PAGE CONTENT ══ -->
+  <main class="ce-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Toast -->
+  <div class="ce-toast" [class.visible]="showToast">{{ toastMessage }}</div>
+
+  <!-- ══ GRAB DIALOG ══ -->
   <div class="grab-overlay" *ngIf="showGrabDialog" (click)="closeGrabDialog()"></div>
   <div class="grab-dialog" *ngIf="showGrabDialog">
     <ng-container *ngIf="grabDialogStep === 'confirm'">
@@ -240,4 +334,5 @@
       </div>
     </ng-container>
   </div>
+
 </div>

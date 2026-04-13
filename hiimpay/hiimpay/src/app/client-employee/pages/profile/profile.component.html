@@ -1,33 +1,128 @@
-<section class="h-100 d-flex justify-content-center mainSection">
-    <div class="container d-flex justify-content-center">
-        <div class="row justify-content-center" style="width: inherit;">
-            <div class="col-lg-10 col-sm-12 col-md-12 col-xl-10">
-                <div class="mb-4">
-                    <div class="row" style="height: auto;">
-                        <div class="col-md-12 col-sm-12 col-lg-4 col-xl-4 gradient-custom text-center text-white imageSection card">
-                            <img src="assets\default_avatar.png" alt="Avatar" class="img-fluid m-4 rounded-circle"
-                                style="width: 50%;" />
-                            <h2 style="font-weight: 300;">{{profileInfo.name}}</h2>
-                        </div>
-                        <div class="col-md-12 col-sm-12 col-lg-8 col-xl-8 card profileSection">
-                            <div class="card-body p-4">
-                                <h2>My Profile</h2>
-                                <hr class="mt-0 mb-4">
-                                <div class="row pt-1">
-                                    <div class="col-lg-6 col-xl-6 col-md-6 col-sm-12 mb-3">
-                                        <h4>Email</h4>
-                                        <h4 class="text-muted">{{profileInfo?.email}}</h4>
-                                    </div>
-                                    <div class="col-lg-6 col-xl-6 col-md-6 col-sm-12 mb-3">
-                                        <h4>Contact number</h4>
-                                        <h4 class="text-muted">{{profileInfo?.mobile}}</h4>
-                                    </div>
-                                </div>
-                                                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="profile-page">
+
+  <!-- Tab Bar -->
+  <div class="profile-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'profile'"
+            (click)="activeTab = 'profile'">My Profile</button>
+    <button class="tab-btn" [class.active]="activeTab === 'transactions'"
+            (click)="goToTransactions()">My Transactions</button>
+    <button class="tab-btn" [class.active]="activeTab === 'epay'">e-Pay Transactions</button>
+    <button class="tab-btn" [class.active]="activeTab === 'autopay'">AutoPay</button>
+    <button class="tab-btn" [class.active]="activeTab === 'helpdesk'"
+            (click)="goToHelpdesk()">Helpdesk</button>
+  </div>
+  <div class="tab-divider"></div>
+
+  <!-- My Profile Tab Content -->
+  <div class="profile-body" *ngIf="activeTab === 'profile'">
+
+    <!-- Left: details + buttons -->
+    <div class="profile-left">
+      <h3 class="section-title">Profile Details</h3>
+
+      <div class="profile-field">
+        <span class="field-label">Name</span>
+        <span class="field-value">{{ profileInfo?.name || '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">Mobile</span>
+        <span class="field-value">{{ profileInfo?.mobile ? '+91 ' + profileInfo.mobile : '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">E-mail</span>
+        <span class="field-value">{{ profileInfo?.email || '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">State</span>
+        <span class="field-value">{{ profileInfo?.state || '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">City</span>
+        <span class="field-value">{{ profileInfo?.city || '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">DOB</span>
+        <span class="field-value">{{ profileInfo?.dob || '---' }}</span>
+      </div>
+      <div class="profile-field">
+        <span class="field-label">Password</span>
+        <span class="field-value">••••••••</span>
+      </div>
+
+      <div class="profile-actions">
+        <button class="btn-edit" (click)="onEdit()">EDIT</button>
+        <button class="btn-outline" (click)="changePassword()">CHANGE PASSWORD</button>
+        <button class="btn-outline btn-delete" (click)="onDelete()">DELETE ACCOUNT</button>
+      </div>
     </div>
-</section>
+
+    <!-- Right: illustration -->
+    <div class="profile-right">
+      <svg viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg" class="profile-illustration">
+        <!-- Background screen / browser window -->
+        <rect x="200" y="30" width="195" height="140" rx="8" fill="#e8edf2"/>
+        <rect x="200" y="30" width="195" height="22" rx="8" fill="#cdd5df"/>
+        <circle cx="216" cy="41" r="4" fill="#a0aab4"/>
+        <circle cx="230" cy="41" r="4" fill="#a0aab4"/>
+        <circle cx="244" cy="41" r="4" fill="#a0aab4"/>
+        <!-- form lines on screen -->
+        <rect x="215" y="64" width="90" height="8" rx="3" fill="#b0bec5"/>
+        <rect x="215" y="80" width="160" height="8" rx="3" fill="#d0d7de"/>
+        <rect x="215" y="96" width="130" height="8" rx="3" fill="#d0d7de"/>
+        <rect x="215" y="112" width="145" height="8" rx="3" fill="#d0d7de"/>
+        <rect x="215" y="128" width="100" height="8" rx="3" fill="#d0d7de"/>
+        <!-- thumb-up icon on screen -->
+        <circle cx="186" cy="138" r="22" fill="#8bc34a" opacity="0.85"/>
+        <text x="178" y="145" font-size="20" fill="white">👍</text>
+
+        <!-- Lock icon top right -->
+        <rect x="340" y="10" width="52" height="52" rx="26" fill="#8bc34a"/>
+        <rect x="354" y="32" width="24" height="20" rx="3" fill="white"/>
+        <path d="M354 32 Q354 20 366 20 Q378 20 378 32" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="366" cy="40" r="4" fill="#8bc34a"/>
+        <rect x="364" y="40" width="4" height="7" rx="2" fill="#8bc34a"/>
+
+        <!-- Phone body -->
+        <rect x="100" y="80" width="115" height="200" rx="16" fill="#2c3e50"/>
+        <rect x="107" y="92" width="101" height="176" rx="10" fill="white"/>
+        <!-- phone notch -->
+        <rect x="140" y="84" width="35" height="6" rx="3" fill="#1a252f"/>
+        <!-- phone form fields -->
+        <rect x="116" y="106" width="50" height="8" rx="3" fill="#90a4ae"/>
+        <rect x="116" y="122" width="83" height="8" rx="3" fill="#eceff1"/>
+        <rect x="116" y="138" width="83" height="8" rx="3" fill="#eceff1"/>
+        <rect x="116" y="154" width="83" height="8" rx="3" fill="#eceff1"/>
+        <circle cx="196" cy="160" r="6" fill="#ff9800"/>
+        <!-- orange button on phone -->
+        <rect x="116" y="215" width="83" height="22" rx="6" fill="#ff9800"/>
+        <text x="140" y="231" font-size="11" fill="white" font-weight="600">Save</text>
+
+        <!-- Woman figure -->
+        <!-- head -->
+        <circle cx="68" cy="120" r="22" fill="#f4a261"/>
+        <!-- hair -->
+        <ellipse cx="68" cy="104" rx="22" ry="14" fill="#2c3e50"/>
+        <ellipse cx="54" cy="130" rx="8" ry="20" fill="#2c3e50"/>
+        <!-- body (green top) -->
+        <ellipse cx="68" cy="195" rx="28" ry="48" fill="#689f38"/>
+        <!-- neck -->
+        <rect x="61" y="138" width="14" height="18" rx="4" fill="#f4a261"/>
+        <!-- right arm reaching to phone -->
+        <path d="M94 178 Q130 160 152 168" stroke="#689f38" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <!-- left arm -->
+        <path d="M42 178 Q28 200 30 230" stroke="#689f38" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <!-- hand at phone -->
+        <circle cx="156" cy="170" r="9" fill="#f4a261"/>
+        <!-- legs -->
+        <rect x="48" y="238" width="16" height="60" rx="8" fill="#1a252f"/>
+        <rect x="72" y="238" width="16" height="60" rx="8" fill="#1a252f"/>
+        <!-- shoes -->
+        <ellipse cx="56" cy="300" rx="14" ry="7" fill="#689f38"/>
+        <ellipse cx="80" cy="300" rx="14" ry="7" fill="#689f38"/>
+        <!-- Ground line -->
+        <line x1="20" y1="308" x2="400" y2="308" stroke="#e0e0e0" stroke-width="2"/>
+      </svg>
+    </div>
+
+  </div>
+</div>

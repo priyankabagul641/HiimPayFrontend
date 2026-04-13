@@ -1,5 +1,6 @@
 <div class="modal-backdrop" *ngIf="visible" (click)="onBackdropClick($event)">
   <div class="modal-card" (click)="$event.stopPropagation()">
+
     <!-- Close button -->
     <button class="modal-close" (click)="close()">
       <mat-icon>close</mat-icon>
@@ -18,28 +19,80 @@
       </div>
     </div>
 
-    <!-- Right login panel -->
+    <!-- Right panel -->
     <div class="modal-right">
-      <h3>Log In/Sign Up</h3>
 
-      <div class="input-group">
-        <input type="tel" placeholder="Mobile Number" maxlength="10"
-          [(ngModel)]="mobileNumber"
-          (keydown.enter)="onNext()" />
-      </div>
+      <!-- ── STEP 1: Mobile or Email ── -->
+      <ng-container *ngIf="step === 'mobile'">
+        <h3>Log In / Sign Up</h3>
 
-      <label class="terms-check">
-        <input type="checkbox" [(ngModel)]="agreedToTerms" />
-        <span>I agree to HiimPay's
-          <a href="javascript:void(0)">Terms of Use</a> and
-          <a href="javascript:void(0)">Privacy Policy</a>
-        </span>
-      </label>
+        <div class="input-group">
+          <span class="country-code" *ngIf="!isEmailMode">+91</span>
+          <input
+            [type]="isEmailMode ? 'email' : 'tel'"
+            [maxlength]="isEmailMode ? 100 : 10"
+            placeholder="Mobile Number or Email"
+            [(ngModel)]="identifier"
+            (keydown.enter)="onNext()"
+            class="mobile-input" />
+        </div>
 
-      <button class="next-btn" [disabled]="mobileNumber.length < 10 || !agreedToTerms"
-        (click)="onNext()">
-        Next
-      </button>
+        <label class="terms-check">
+          <input type="checkbox" [(ngModel)]="agreedToTerms" />
+          <span>I agree to HiimPay's
+            <a href="javascript:void(0)">Terms of Use</a> and
+            <a href="javascript:void(0)">Privacy Policy</a>
+          </span>
+        </label>
+
+        <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+        <button class="next-btn" [disabled]="!canSendOtp || loading" (click)="onNext()">
+          <span *ngIf="!loading">SEND OTP</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </ng-container>
+
+      <!-- ── STEP 2: OTP verification ── -->
+      <ng-container *ngIf="step === 'otp'">
+        <button class="back-btn" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <h3>Enter OTP</h3>
+        <p class="otp-sent-to">
+          OTP sent to
+          <strong *ngIf="!isEmailMode">+91 {{ identifier }}</strong>
+          <strong *ngIf="isEmailMode">{{ identifier }}</strong>
+        </p>
+
+        <div class="otp-row" (paste)="onOtpPaste($event)">
+          <input
+            *ngFor="let digit of otpDigits; let i = index"
+            #otpInput
+            type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code"
+            class="otp-box" [class.filled]="otpDigits[i]"
+            (input)="onOtpInput($event, i)"
+            (keydown)="onOtpKeydown($event, i)" />
+        </div>
+
+        <div class="resend-row">
+          <span *ngIf="resendSeconds > 0" class="resend-timer">
+            Resend OTP in: <strong>{{ resendLabel }}</strong>
+          </span>
+          <button *ngIf="resendSeconds <= 0" class="resend-btn" (click)="resendOtp()" [disabled]="loading">
+            Resend OTP
+          </button>
+        </div>
+
+        <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
+        <div class="success-msg" *ngIf="successMsg">{{ successMsg }}</div>
+
+        <button class="next-btn login-btn" [disabled]="!otpComplete || loading" (click)="onVerifyOtp()">
+          <span *ngIf="!loading">LOGIN</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </ng-container>
 
       <p class="copyright">&copy; {{ currentYear }} HiimPay</p>
     </div>

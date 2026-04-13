@@ -8,6 +8,8 @@ import { PublicRoutingModule } from './public-routing.module';
 import { PublicLayoutComponent } from './components/public-layout/public-layout.component';
 import { PublicHeaderComponent } from './components/public-header/public-header.component';
 import { PublicFooterComponent } from './components/public-footer/public-footer.component';
+import { HomeComponent } from './home/home.component';
+import { CategoryComponent } from './category/category.component';
 import { VoucherListComponent } from './vouchers/voucher-list/voucher-list.component';
 import { VoucherDetailsComponent } from './vouchers/voucher-details/voucher-details.component';
 import { PublicCartComponent } from './vouchers/cart/cart.component';
@@ -21,6 +23,8 @@ import { LoginModalComponent } from './components/login-modal/login-modal.compon
     PublicLayoutComponent,
     PublicHeaderComponent,
     PublicFooterComponent,
+    HomeComponent,
+    CategoryComponent,
     VoucherListComponent,
     VoucherDetailsComponent,
     PublicCartComponent,

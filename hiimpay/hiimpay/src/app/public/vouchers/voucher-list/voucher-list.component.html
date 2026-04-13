@@ -278,7 +278,7 @@
   </div>
 
   <!-- ===== MAIN CONTENT: FILTERS + GRID ===== -->
-  <section class="main-content">
+  <section class="main-content" *ngIf="selectedCategory !== 'All'">
     <div class="main-inner">
 
       <!-- ===== FILTER SIDEBAR (always visible on desktop, like Gyftr) ===== -->
@@ -348,7 +348,7 @@
 
         <!-- Clear All -->
         <button class="fs-clear"
-          *ngIf="searchText || selectedCategory !== 'All' || selectedDiscount !== 'all' || selectedBogo !== 'all' || selectedBrandType !== 'all'"
+          *ngIf="searchText || selectedDiscount !== 'all' || selectedBogo !== 'all' || selectedBrandType !== 'all'"
           (click)="clearFilters()">
           Clear All Filters
         </button>
@@ -398,13 +398,13 @@
   </section>
 
   <!-- Mobile filter toggle -->
-  <button class="mobile-filter-fab" (click)="showFilterPanel = !showFilterPanel" *ngIf="!showFilterPanel">
+  <button class="mobile-filter-fab" (click)="showFilterPanel = !showFilterPanel" *ngIf="!showFilterPanel && selectedCategory !== 'All'">
     <mat-icon>tune</mat-icon>
     <span>Filters</span>
   </button>
 
   <!-- Mobile overlay -->
-  <div class="mobile-overlay" [class.show]="showFilterPanel" (click)="showFilterPanel = false"></div>
+  <div class="mobile-overlay" [class.show]="showFilterPanel" (click)="showFilterPanel = false" *ngIf="selectedCategory !== 'All'"></div>
 
   <!-- Floating Cart -->
   <a routerLink="/store/cart" class="fab-cart" *ngIf="cartCount > 0">
